@@ -93,13 +93,32 @@ export const submitVote = async (voteId, voteType) => {
     .eq('id', voteId)
 }
 
+// Add better error handling and sorting to your existing getRankings function
+
 export const getRankings = async () => {
-  const { data } = await supabase.rpc('get_song_rankings')
-  return data || []
+  try {
+    const { data, error } = await supabase.rpc('get_song_rankings')
+    
+    if (error) {
+      console.error('Supabase RPC error:', error)
+      throw new Error('Failed to fetch rankings from database')
+    }
+    
+    // Sort by ranking, then by title for consistent ordering
+    const sortedData = (data || []).sort((a, b) => {
+      if (a.ranking !== b.ranking) {
+        return a.ranking - b.ranking
+      }
+      return a.title.localeCompare(b.title)
+    })
+    
+    return sortedData
+  } catch (err) {
+    console.error('Error in getRankings:', err)
+    throw err
+  }
 }
 
-
-// Add this function to your existing api.js file
 
 export const getVotingStats = async (userId) => {
   // Get total pending votes for user
