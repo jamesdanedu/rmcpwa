@@ -1,0 +1,53 @@
+{
+  "name": "RMCBuddy - Roscommon Mens Choir",
+  "short_name": "RMCBuddy",
+  "description": "Contemporary choir song management app for Roscommon Mens Choir",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#FFD700",
+  "background_color": "#111127",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["music", "entertainment", "productivity"],
+  "lang": "en",
+  "shortcuts": [
+    {
+      "name": "Suggest Songs",
+      "short_name": "Suggest",
+      "description": "Suggest new songs for the choir",
+      "url": "/?tab=suggest",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Vote on Songs",
+      "short_name": "Vote",
+      "description": "Vote on suggested songs",
+      "url": "/?tab=vote",
+      "icons": [
+        {
+          "src": "/icons/icon-192x192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}
