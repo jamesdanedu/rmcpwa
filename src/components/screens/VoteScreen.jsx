@@ -3,9 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { getSongsForVoting, submitVote } from '../../lib/api'
-import VotingCard from '../features/voting/VotingCard'
-import VotingStats from '../features/voting/VotingStats'
-import NoSongsToVote from '../features/voting/NoSongsToVote'
+import VotingCard from '../../features/voting/VotingCard'
+import VotingStats from '../../features/voting/VotingStats'
+import NoSongsToVote from '../../features/voting/NoSongsToVote'
 import LoadingSpinner from '../ui/LoadingSpinner'
 
 export default function VoteScreen() {
