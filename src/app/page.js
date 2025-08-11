@@ -25,13 +25,10 @@ export default function Home() {
 
   if (!user) {
     return (
-      <div className="app-container">
-        <AppHeader />
-        <div className="flex items-center justify-center min-h-[calc(100vh-200px)] p-6">
-          <LoginForm />
-        </div>
+      <>
+        <LoginForm />
         <PWAInstallPrompt />
-      </div>
+      </>
     )
   }
 
