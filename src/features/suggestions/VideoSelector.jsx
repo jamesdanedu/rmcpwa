@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import LoadingSpinner from '../../ui/LoadingSpinner'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function VideoSelector({ video, onSelect, isSubmitting, formatViewCount }) {
   const [imageLoading, setImageLoading] = useState(true)
