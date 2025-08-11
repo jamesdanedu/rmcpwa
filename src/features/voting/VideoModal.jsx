@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { getYouTubeEmbedUrl } from '../../../lib/youtube-utils'
-import Modal from '../../ui/Modal'
+import { getYouTubeEmbedUrl } from '../../lib/youtube-utils'
+import Modal from '../../components/ui/Modal'
 import VotingButtons from './VotingButtons'
 
 export default function VideoModal({ 
