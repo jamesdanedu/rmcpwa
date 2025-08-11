@@ -2,9 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../../hooks/useAuth'
-import { getSetlists } from '../../../lib/api'
-import SetlistsList from './SetlistsList'
-import SetlistCreator from './SetlistCreator'
 import Button from '../../ui/Button'
 import LoadingSpinner from '../../ui/LoadingSpinner'
 
@@ -12,21 +9,27 @@ export default function SetLists() {
   const { isAuthenticated } = useAuth()
   const [setlists, setSetlists] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [showCreator, setShowCreator] = useState(false)
 
   useEffect(() => {
     const loadSetlists = async () => {
       try {
         setIsLoading(true)
-        setError(null)
         
-        const data = await getSetlists()
-        setSetlists(data)
+        // Mock data for now
+        const mockSetlists = [
+          {
+            id: '1',
+            name: 'Spring Concert 2025',
+            event_date: '2025-03-15',
+            total_duration_minutes: 45,
+            song_count: 8
+          }
+        ]
+        
+        setSetlists(mockSetlists)
         
       } catch (err) {
         console.error('Error loading setlists:', err)
-        setError('Failed to load setlists')
       } finally {
         setIsLoading(false)
       }
@@ -35,26 +38,12 @@ export default function SetLists() {
     loadSetlists()
   }, [])
 
-  const handleSetlistCreated = (newSetlist) => {
-    setSetlists(prev => [newSetlist, ...prev])
-    setShowCreator(false)
-  }
-
   const handleCreateClick = () => {
     if (!isAuthenticated) {
       alert('Please log in to create setlists')
       return
     }
-    setShowCreator(true)
-  }
-
-  if (showCreator) {
-    return (
-      <SetlistCreator
-        onSetlistCreated={handleSetlistCreated}
-        onCancel={() => setShowCreator(false)}
-      />
-    )
+    alert('Create setlist functionality coming soon!')
   }
 
   if (isLoading) {
@@ -70,34 +59,32 @@ export default function SetLists() {
     )
   }
 
-  if (error) {
-    return (
-      <div className="glass rounded-xl p-6 border border-red-500/20 bg-red-500/10">
-        <div className="text-center">
-          <div className="text-red-400 text-2xl mb-3">⚠️</div>
-          <h3 className="text-red-300 font-semibold mb-2">Error</h3>
-          <p className="text-red-200 text-sm">{error}</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="space-y-6">
-      {/* Create Button */}
-      <div>
-        <Button
-          variant="primary"
-          size="lg"
-          className="w-full"
-          onClick={handleCreateClick}
-        >
-          ➕ Create New Setlist
-        </Button>
-      </div>
+      <Button
+        variant="primary"
+        size="lg"
+        className="w-full"
+        onClick={handleCreateClick}
+      >
+        ➕ Create New Setlist
+      </Button>
 
-      {/* Setlists */}
-      <SetlistsList setlists={setlists} />
+      <div className="space-y-3">
+        {setlists.map((setlist) => (
+          <div
+            key={setlist.id}
+            className="glass rounded-xl p-4 border border-white/10"
+          >
+            <h4 className="text-white font-semibold text-sm mb-1">
+              {setlist.name}
+            </h4>
+            <p className="text-gray-400 text-xs">
+              {setlist.event_date} • {setlist.total_duration_minutes} min • {setlist.song_count} songs
+            </p>
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
