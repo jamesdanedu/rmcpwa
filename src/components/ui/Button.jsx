@@ -18,9 +18,9 @@ const Button = forwardRef(({
   }
   
   const sizes = {
-    sm: 'px-3 py-2 text-xs',
-    md: 'px-6 py-3 text-sm',
-    lg: 'px-8 py-4 text-base'
+    sm: 'px-3 py-2 text-xs min-h-[2.5rem]',
+    md: 'px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base min-h-[3rem] sm:min-h-[3.5rem]',
+    lg: 'responsive-button'
   }
 
   return (
@@ -36,7 +36,7 @@ const Button = forwardRef(({
       {...props}
     >
       {loading && (
-        <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        <div className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       )}
       {children}
     </button>
