@@ -2,8 +2,8 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { getYouTubeThumbnail } from '../../../lib/youtube-utils'
-import LoadingSpinner from '../../ui/LoadingSpinner'
+import { getYouTubeThumbnail } from '../../lib/youtube-utils'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function RankingItem({ song, onClick, position }) {
   const [imageLoading, setImageLoading] = useState(true)
