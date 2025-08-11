@@ -97,3 +97,30 @@ export const getRankings = async () => {
   const { data } = await supabase.rpc('get_song_rankings')
   return data || []
 }
+
+
+// Add this function to your existing api.js file
+
+export const getVotingStats = async (userId) => {
+  // Get total pending votes for user
+  const { data: pendingVotes } = await supabase
+    .from('votes')
+    .select('id', { count: 'exact' })
+    .eq('user_id', userId)
+    .eq('vote_status', 'pending')
+
+  // Get votes completed today
+  const today = new Date().toISOString().split('T')[0]
+  const { data: todayVotes } = await supabase
+    .from('votes')
+    .select('id', { count: 'exact' })
+    .eq('user_id', userId)
+    .eq('vote_status', 'completed')
+    .gte('voted_at', today)
+
+  return {
+    songsToVote: pendingVotes?.length || 0,
+    votedToday: todayVotes?.length || 0
+  }
+}
+
