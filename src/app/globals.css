@@ -32,6 +32,21 @@ body {
   position: relative;
 }
 
+/* Responsive app container */
+@media (min-width: 640px) {
+  .app-container {
+    max-width: 100vw;
+    padding: 0 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .app-container {
+    max-width: 1200px;
+    padding: 0 2rem;
+  }
+}
+
 /* Glassmorphism effect */
 .glass {
   background: rgba(255, 255, 255, 0.05);
@@ -78,6 +93,60 @@ body {
   filter: drop-shadow(0 25px 25px rgb(0 0 0 / 0.15));
 }
 
+/* Responsive input styles */
+.responsive-input {
+  min-height: 3.5rem;
+  font-size: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-input {
+    min-height: 4rem;
+    font-size: 1.125rem;
+    padding: 1.25rem 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-input {
+    min-height: 4.5rem;
+    font-size: 1.25rem;
+    padding: 1.5rem 1.75rem;
+  }
+}
+
+/* Responsive button styles */
+.responsive-button {
+  min-height: 3.5rem;
+  font-size: 1rem;
+  padding: 1rem 1.5rem;
+}
+
+@media (min-width: 640px) {
+  .responsive-button {
+    min-height: 4rem;
+    font-size: 1.125rem;
+    padding: 1.25rem 2rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .responsive-button {
+    min-height: 4.5rem;
+    font-size: 1.25rem;
+    padding: 1.5rem 2.5rem;
+  }
+}
+
+/* Center content utilities */
+.center-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
 /* Animation utilities */
 .fade-in {
   animation: fadeIn 0.5s ease-out;
@@ -109,4 +178,26 @@ body {
 ::-webkit-scrollbar-thumb {
   background: var(--color-primary);
   border-radius: 2px;
+}
+
+/* Responsive layout utilities */
+.container-responsive {
+  width: 100%;
+  max-width: 28rem; /* 448px */
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .container-responsive {
+    max-width: 32rem; /* 512px */
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-responsive {
+    max-width: 36rem; /* 576px */
+    padding: 2rem;
+  }
 }
