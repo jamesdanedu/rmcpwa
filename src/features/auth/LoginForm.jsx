@@ -172,34 +172,7 @@ export default function LoginForm() {
               
               <div className="flex items-center gap-3 text-sm">
                 <span className="text-blue-400 text-lg">⏰</span>
-                <span className="text-gray-300">You'll stay logged in for 30 days</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* App Features Card */}
-        <div className="mt-6 glass rounded-2xl p-6 border border-white/5">
-          <div className="text-center">
-            <h3 className="text-lg font-bold text-yellow-400 mb-4">
-              🎵 About RMCBuddy
-            </h3>
-            <div className="grid grid-cols-1 gap-3 text-sm text-gray-300">
-              <div className="flex items-center gap-3">
-                <span className="text-lg">💡</span>
-                <span>Suggest songs for the choir to sing</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-lg">🗳️</span>
-                <span>Vote on new song suggestions</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-lg">🎼</span>
-                <span>View choir repertoire and lyrics</span>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-lg">📋</span>
-                <span>Create setlists for performances</span>
+                <span className="text-gray-300">You'll stay logged in for 45 days</span>
               </div>
             </div>
           </div>
