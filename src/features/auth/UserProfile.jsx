@@ -63,20 +63,6 @@ export default function UserProfile({ isOpen, onClose }) {
             </div>
           </div>
 
-          {/* Info */}
-          <div className="glass rounded-xl p-4 border border-white/5">
-            <div className="text-center">
-              <h4 className="text-sm font-semibold text-yellow-400 mb-2">
-                Session Info
-              </h4>
-              <div className="text-xs text-gray-400 space-y-1">
-                <p>🔒 You'll stay logged in for 30 days</p>
-                <p>📱 Works offline after first login</p>
-                <p>🎵 Full access to all choir features</p>
-              </div>
-            </div>
-          </div>
-
           {/* Actions */}
           <div className="space-y-3">
             <Button
