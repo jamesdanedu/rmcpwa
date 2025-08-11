@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { getYouTubeThumbnail } from '../../../lib/youtube-utils'
+import { getYouTubeThumbnail } from '../../lib/youtube-utils'
 import VotingButtons from './VotingButtons'
 import VideoModal from './VideoModal'
-import LoadingSpinner from '../../ui/LoadingSpinner'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function VotingCard({ vote, onVote, isVoting, error, onClearError }) {
   const [showVideoModal, setShowVideoModal] = useState(false)
