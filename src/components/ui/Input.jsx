@@ -4,8 +4,11 @@ const Input = forwardRef(({
   label, 
   error, 
   className = '',
+  as = 'input',
   ...props 
 }, ref) => {
+  const Component = as
+
   return (
     <div className="space-y-2">
       {label && (
@@ -14,7 +17,7 @@ const Input = forwardRef(({
         </label>
       )}
       
-      <input
+      <Component
         ref={ref}
         className={`
           w-full px-4 py-3 rounded-xl glass text-white placeholder-gray-400
