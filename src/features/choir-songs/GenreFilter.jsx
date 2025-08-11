@@ -1,6 +1,6 @@
 'use client'
 
-import { GENRES } from '../../../lib/constants'
+import { GENRES } from '../../lib/constants'
 
 export default function GenreFilter({ 
   availableSongs, 
