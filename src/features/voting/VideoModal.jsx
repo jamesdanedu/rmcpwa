@@ -5,7 +5,14 @@ import { getYouTubeEmbedUrl } from '../../../lib/youtube-utils'
 import Modal from '../../ui/Modal'
 import VotingButtons from './VotingButtons'
 
-export default function VideoModal({ isOpen, onClose, song, onVote, isVoting }) {
+export default function VideoModal({ 
+  isOpen, 
+  onClose, 
+  song, 
+  onVote, 
+  isVoting, 
+  hideVoting = false 
+}) {
   const iframeRef = useRef(null)
 
   useEffect(() => {
@@ -68,19 +75,32 @@ export default function VideoModal({ isOpen, onClose, song, onVote, isVoting }) 
           </p>
         </div>
 
-        {/* Voting Buttons */}
-        <VotingButtons
-          onVote={handleVoteAndClose}
-          isVoting={isVoting}
-          disabled={isVoting}
-        />
+        {/* Voting Buttons (only show if not hidden) */}
+        {!hideVoting && (
+          <>
+            <VotingButtons
+              onVote={handleVoteAndClose}
+              isVoting={isVoting}
+              disabled={isVoting}
+            />
 
-        {/* Note */}
-        <div className="text-center mt-4">
-          <p className="text-xs text-gray-500">
-            Voting will close this preview and load the next song
-          </p>
-        </div>
+            {/* Note */}
+            <div className="text-center mt-4">
+              <p className="text-xs text-gray-500">
+                Voting will close this preview and load the next song
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* Rankings view note */}
+        {hideVoting && (
+          <div className="text-center">
+            <p className="text-xs text-gray-500">
+              🏆 Preview from song rankings • Use the Vote tab to cast your vote
+            </p>
+          </div>
+        )}
       </div>
     </Modal>
   )
