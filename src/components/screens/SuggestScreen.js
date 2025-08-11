@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { checkSuggestionsRemaining } from '../../lib/api'
 import SuggestionForm from '../../features/suggestions/SuggestionForm'
@@ -13,40 +13,57 @@ export default function SuggestScreen() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    const loadSuggestionsRemaining = async () => {
-      if (!user) {
-        setIsLoading(false)
-        return
-      }
+  // Memoize the user ID to prevent unnecessary re-renders
+  const userId = useMemo(() => user?.id, [user?.id])
+
+  // Memoize the load function to prevent recreating it on every render
+  const loadSuggestionsRemaining = useCallback(async () => {
+    if (!userId) {
+      setIsLoading(false)
+      return
+    }
+    
+    try {
+      setIsLoading(true)
+      setError(null)
       
-      try {
-        setIsLoading(true)
-        setError(null)
-        
-        console.log('Loading suggestions remaining for user:', user.id)
-        const remaining = await checkSuggestionsRemaining(user.id)
-        console.log('Suggestions remaining:', remaining)
-        
-        setRemainingSuggestions(remaining)
-        
-      } catch (err) {
-        console.error('Error loading suggestions remaining:', err)
-        setError('Could not load suggestion limit. You have 3 suggestions available.')
-        // Set default value on error
-        setRemainingSuggestions(3)
-      } finally {
-        setIsLoading(false)
+      console.log('Loading suggestions remaining for user:', userId)
+      const remaining = await checkSuggestionsRemaining(userId)
+      console.log('Suggestions remaining:', remaining)
+      
+      setRemainingSuggestions(remaining)
+      
+    } catch (err) {
+      console.error('Error loading suggestions remaining:', err)
+      setError('Could not load suggestion limit. You have 3 suggestions available.')
+      // Set default value on error
+      setRemainingSuggestions(3)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [userId])
+
+  // Only run effect when userId changes
+  useEffect(() => {
+    let mounted = true
+
+    const runLoad = async () => {
+      if (mounted) {
+        await loadSuggestionsRemaining()
       }
     }
 
-    loadSuggestionsRemaining()
-  }, [user])
+    runLoad()
 
-  const handleSuggestionSubmitted = () => {
+    return () => {
+      mounted = false
+    }
+  }, [loadSuggestionsRemaining])
+
+  const handleSuggestionSubmitted = useCallback(() => {
     // Decrease remaining count after successful submission
     setRemainingSuggestions(prev => Math.max(0, prev - 1))
-  }
+  }, [])
 
   if (isLoading) {
     return (
