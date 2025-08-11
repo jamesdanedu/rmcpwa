@@ -13,7 +13,7 @@ import VoteScreen from '../components/screens/VoteScreen'
 import RankingScreen from '../components/screens/RankingScreen'
 import ChoirSongsScreen from '../components/screens/ChoirSongsScreen'
 
-import LoginForm from '../components/features/auth/LoginForm'
+import LoginForm from '../features/auth/LoginForm'
 
 export default function Home() {
   const { user, init } = useAuthStore()
