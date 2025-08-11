@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { getRankings } from '../../lib/api'
-import RankingList from '../features/rankings/RankingList'
-import RankingFilters from '../features/rankings/RankingFilters'
+import RankingList from '../../features/rankings/RankingList'
+import RankingFilters from '../../features/rankings/RankingFilters'
 import LoadingSpinner from '../ui/LoadingSpinner'
 
 export default function RankingScreen() {
