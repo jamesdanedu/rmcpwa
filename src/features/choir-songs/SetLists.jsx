@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '../../../hooks/useAuth'
-import Button from '../../ui/Button'
-import LoadingSpinner from '../../ui/LoadingSpinner'
+import { useAuth } from '../../hooks/useAuth'
+import Button from '../../components/ui/Button'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function SetLists() {
   const { isAuthenticated } = useAuth()
