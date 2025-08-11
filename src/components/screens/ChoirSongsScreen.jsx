@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import SongsAndLyrics from '../features/choir-songs/SongsAndLyrics'
-import SetLists from '../features/choir-songs/SetLists'
+import SongsAndLyrics from '../../features/choir-songs/SongsAndLyrics'
+import SetLists from '../../features/choir-songs/SetLists'
 
 export default function ChoirSongsScreen() {
   const [activeView, setActiveView] = useState('songs') // 'songs' or 'setlists'
