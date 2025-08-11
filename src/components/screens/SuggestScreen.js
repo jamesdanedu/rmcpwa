@@ -3,8 +3,8 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { checkSuggestionsRemaining } from '../../lib/api'
-import SuggestionForm from '../features/suggestions/SuggestionForm'
-import SuggestionsRemaining from '../features/suggestions/SuggestionsRemaining'
+import SuggestionForm from '../../features/suggestions/SuggestionForm'
+import SuggestionsRemaining from '../../features/suggestions/SuggestionsRemaining'
 import LoadingSpinner from '../ui/LoadingSpinner'
 
 export default function SuggestScreen() {
