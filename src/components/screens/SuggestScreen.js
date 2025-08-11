@@ -15,15 +15,26 @@ export default function SuggestScreen() {
 
   useEffect(() => {
     const loadSuggestionsRemaining = async () => {
-      if (!user) return
+      if (!user) {
+        setIsLoading(false)
+        return
+      }
       
       try {
         setIsLoading(true)
+        setError(null)
+        
+        console.log('Loading suggestions remaining for user:', user.id)
         const remaining = await checkSuggestionsRemaining(user.id)
+        console.log('Suggestions remaining:', remaining)
+        
         setRemainingSuggestions(remaining)
+        
       } catch (err) {
         console.error('Error loading suggestions remaining:', err)
-        setError('Failed to load suggestion limit')
+        setError('Could not load suggestion limit. You have 3 suggestions available.')
+        // Set default value on error
+        setRemainingSuggestions(3)
       } finally {
         setIsLoading(false)
       }
@@ -50,22 +61,20 @@ export default function SuggestScreen() {
     )
   }
 
-  if (error) {
-    return (
-      <div className="p-6">
-        <div className="glass rounded-xl p-6 border border-red-500/20 bg-red-500/10">
-          <div className="text-center">
-            <div className="text-red-400 text-2xl mb-3">⚠️</div>
-            <h3 className="text-red-300 font-semibold mb-2">Error</h3>
-            <p className="text-red-200 text-sm">{error}</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="p-5 space-y-6">
+      {/* Show error if there was one, but don't block the UI */}
+      {error && (
+        <div className="bg-yellow-500/20 border border-yellow-500/30 rounded-xl p-3">
+          <div className="flex items-center gap-2">
+            <span className="text-yellow-400 text-sm">⚠️</span>
+            <span className="text-yellow-300 text-sm">
+              {error}
+            </span>
+          </div>
+        </div>
+      )}
+      
       <SuggestionsRemaining remaining={remainingSuggestions} />
       
       {remainingSuggestions > 0 ? (
