@@ -1,6 +1,6 @@
 'use client'
 
-import Button from '../../ui/Button'
+import Button from '../../components/ui/Button'
 
 export default function VotingButtons({ onVote, isVoting, disabled }) {
   const buttons = [
