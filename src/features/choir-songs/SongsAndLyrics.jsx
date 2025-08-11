@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { getChoirSongs } from '../../../lib/api'
-import { GENRES } from '../../../lib/constants'
-import LoadingSpinner from '../../ui/LoadingSpinner'
-import Input from '../../ui/Input'
+import { getChoirSongs } from '../../lib/api'
+import { GENRES } from '../../lib/constants'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
+import Input from '../../components/ui/Input'
 
 export default function SongsAndLyrics() {
   const [songs, setSongs] = useState([])
