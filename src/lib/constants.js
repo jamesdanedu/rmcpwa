@@ -5,7 +5,6 @@ export const APP_CONFIG = {
   themeColor: '#FFD700',
   backgroundColor: '#111127',
   
-  // Roscommon colors
   colors: {
     primary: '#FFD700',    // Primrose
     secondary: '#4169E1',  // Royal Blue
@@ -13,31 +12,31 @@ export const APP_CONFIG = {
     surface: '#1a1a3a'
   },
   
-  // Suggestion limits
   maxSuggestionsPerMonth: 3,
-  
-  // Session duration (45 days in milliseconds)
-  sessionDuration: 45 * 24 * 60 * 60 * 1000,
-  
-  // Auto-archive setlists after 30 days
+  sessionDuration: 45 * 24 * 60 * 60 * 1000, // 45 days
   autoArchiveDays: 30
 }
 
 export const GENRES = [
   'Christmas',
   'Irish Folk', 
+  'Gospel',
   'Hymn',
   'Contemporary',
-  'Indie',
-  'Modern',
+  'Jazz Standard',
   'Classical',
   'Traditional'
 ]
-
-export const DIFFICULTY_LEVELS = [1, 2, 3, 4, 5]
 
 export const VOTE_TYPES = {
   UP: 'up',
   DOWN: 'down', 
   SKIP: 'skip'
 }
+
+export const TABS = [
+  { id: 'suggest', label: 'Suggest', icon: '💡' },
+  { id: 'vote', label: 'Vote', icon: '🗳️' },
+  { id: 'ranking', label: 'Ranking', icon: '🏆' },
+  { id: 'choir-songs', label: 'Choir Songs', icon: '🎼' }
+]
