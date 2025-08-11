@@ -12,7 +12,7 @@ const Input = forwardRef(({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-semibold text-gray-200">
+        <label className="block text-sm sm:text-base font-semibold text-gray-200">
           {label}
         </label>
       )}
@@ -20,9 +20,10 @@ const Input = forwardRef(({
       <Component
         ref={ref}
         className={`
-          w-full px-4 py-3 rounded-xl glass text-white placeholder-gray-400
+          w-full rounded-xl glass text-white placeholder-gray-400
           border-2 border-white/10 focus:border-yellow-400 focus:outline-none
-          transition-colors duration-200 text-base
+          transition-colors duration-200
+          responsive-input
           ${error ? 'border-red-400' : ''}
           ${className}
         `}
@@ -30,7 +31,7 @@ const Input = forwardRef(({
       />
       
       {error && (
-        <p className="text-red-400 text-xs font-medium">
+        <p className="text-red-400 text-xs sm:text-sm font-medium">
           {error}
         </p>
       )}
