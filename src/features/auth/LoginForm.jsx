@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '../../../hooks/useAuth'
-import Button from '../../ui/Button'
-import Input from '../../ui/Input'
+import { useAuth } from '../../hooks/useAuth'
+import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
 
 export default function LoginForm() {
   const { login, isLoading, error, clearError } = useAuth()
