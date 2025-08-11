@@ -7,8 +7,8 @@ export default function TabNavigation() {
   const { currentTab, setCurrentTab } = useAppStore()
 
   return (
-    <nav className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[430px] z-50">
-      <div className="glass bg-slate-900/80 border-t border-white/10">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 w-full">
+      <div className="w-full max-w-[430px] mx-auto glass bg-slate-900/80 border-t border-white/10">
         <div className="flex">
           {TABS.map((tab) => (
             <button
