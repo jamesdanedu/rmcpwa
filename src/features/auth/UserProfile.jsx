@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { formatDistanceToNow } from 'date-fns'
-import Button from '../components/ui/Button'
-import Modal from '../components/ui/Modal'
+import Button from '../../components/ui/Button'
+import Modal from '../../components/ui/Modal'
 
 export default function UserProfile({ isOpen, onClose }) {
   const { user, logout } = useAuth()
