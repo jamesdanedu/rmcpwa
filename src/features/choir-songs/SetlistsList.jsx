@@ -1,0 +1,165 @@
+'use client'
+
+import { formatDistanceToNow, isAfter, subDays } from 'date-fns'
+
+export default function SetlistsList({ setlists }) {
+  if (setlists.length === 0) {
+    return (
+      <div className="glass rounded-2xl p-8 border border-white/10 text-center">
+        <div className="text-4xl mb-4">🎼</div>
+        <h3 className="text-xl font-bold text-white mb-3">
+          No Setlists Yet
+        </h3>
+        <p className="text-gray-400 mb-6">
+          Create your first setlist to organize songs for performances and gigs.
+        </p>
+        
+        <div className="glass rounded-xl p-4 border border-white/5">
+          <h4 className="text-yellow-400 font-semibold mb-2">
+            Setlist Features
+          </h4>
+          <div className="text-sm text-gray-400 space-y-1">
+            <p>• Organize songs by performance order</p>
+            <p>• Track total duration for time limits</p>
+            <p>• Filter songs by genre for themed events</p>
+            <p>• Generate PDF setlists for printing</p>
+            <p>• Auto-archive old setlists after 30 days</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Separate active and archived setlists
+  const now = new Date()
+  const archiveDate = subDays(now, 30)
+  
+  const activeSetlists = setlists.filter(setlist => 
+    !setlist.is_archived && isAfter(new Date(setlist.event_date), archiveDate)
+  )
+  
+  const archivedSetlists = setlists.filter(setlist => 
+    setlist.is_archived || !isAfter(new Date(setlist.event_date), archiveDate)
+  )
+
+  return (
+    <div className="space-y-6">
+      {/* Active Setlists */}
+      {activeSetlists.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-bold text-white">
+            Active Setlists
+          </h3>
+          {activeSetlists.map((setlist) => (
+            <SetlistCard key={setlist.id} setlist={setlist} />
+          ))}
+        </div>
+      )}
+
+      {/* Archived Setlists */}
+      {archivedSetlists.length > 0 && (
+        <div className="space-y-3">
+          <h3 className="text-lg font-bold text-gray-400 flex items-center gap-2">
+            📦 Archived Setlists
+            <span className="text-xs font-normal text-gray-500">
+              (Auto-archived 30+ days post-event)
+            </span>
+          </h3>
+          {archivedSetlists.map((setlist) => (
+            <SetlistCard key={setlist.id} setlist={setlist} archived />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function SetlistCard({ setlist, archived = false }) {
+  const handleEdit = () => {
+    if (archived) {
+      alert('Archived setlists cannot be edited')
+      return
+    }
+    alert(`Edit setlist: ${setlist.name}`)
+  }
+
+  const handleGeneratePDF = () => {
+    alert(`Generate PDF for: ${setlist.name}`)
+  }
+
+  const eventDate = new Date(setlist.event_date)
+  const isUpcoming = isAfter(eventDate, new Date())
+
+  return (
+    <div className={`
+      glass rounded-xl p-4 border border-white/10 transition-all duration-200
+      ${archived ? 'opacity-60' : 'hover:border-yellow-400/30 hover:bg-white/5'}
+    `}>
+      <div className="flex items-start justify-between">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-2">
+            <h4 className="text-white font-semibold text-sm leading-tight">
+              {setlist.name}
+            </h4>
+            {isUpcoming && !archived && (
+              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                Upcoming
+              </span>
+            )}
+            {archived && (
+              <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-1 rounded-full">
+                Archived
+              </span>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-4 text-xs text-gray-400 mb-3">
+            <span>📅 {eventDate.toLocaleDateString()}</span>
+            
+            {setlist.total_duration_minutes && (
+              <span>⏱️ {setlist.total_duration_minutes} minutes</span>
+            )}
+            
+            {setlist.song_count && (
+              <span>🎵 {setlist.song_count} songs</span>
+            )}
+          </div>
+
+          {setlist.venue_notes && (
+            <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+              📍 {setlist.venue_notes}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="flex gap-2 pt-3 border-t border-white/10">
+        {!archived && (
+          <button
+            onClick={handleEdit}
+            className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
+          >
+            Edit
+          </button>
+        )}
+        
+        <button
+          onClick={handleGeneratePDF}
+          className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
+        >
+          📄 PDF
+        </button>
+        
+        {archived && (
+          <button
+            onClick={() => alert(`View archived setlist: ${setlist.name}`)}
+            className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
+          >
+            View Only
+          </button>
+        )}
+      </div>
+    </div>
+  )
+}
