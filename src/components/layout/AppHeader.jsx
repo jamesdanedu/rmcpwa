@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import UserProfile from '../features/auth/UserProfile'
+import UserProfile from '../../features/auth/UserProfile'
 
 export default function AppHeader() {
   const { user } = useAuth()
