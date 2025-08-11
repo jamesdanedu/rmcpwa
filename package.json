@@ -1,0 +1,32 @@
+{
+  "name": "rmcbuddy",
+  "version": "1.0.0",
+  "description": "Contemporary choir song management PWA",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "generate-types": "supabase gen types typescript --local > src/types/database.ts"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "@supabase/supabase-js": "^2.38.0",
+    "zustand": "^4.4.0",
+    "framer-motion": "^10.16.0",
+    "react-hook-form": "^7.47.0",
+    "zod": "^3.22.0",
+    "date-fns": "^2.30.0"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.3.0",
+    "autoprefixer": "^10.4.0",
+    "postcss": "^8.4.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0"
+  }
+}
