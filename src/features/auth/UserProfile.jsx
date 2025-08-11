@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '../../../hooks/useAuth'
+import { useAuth } from '../../hooks/useAuth'
 import { formatDistanceToNow } from 'date-fns'
 import Button from '../../ui/Button'
 import Modal from '../../ui/Modal'
