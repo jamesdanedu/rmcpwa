@@ -2,7 +2,16 @@ import { useEffect } from 'react'
 import { useAuthStore } from '../stores/authStore'
 
 export const useAuth = () => {
-  const { user, isLoading, error, init, login, logout, clearError, isAuthenticated } = useAuthStore()
+  const { 
+    user, 
+    isLoading, 
+    error, 
+    init, 
+    login, 
+    logout, 
+    clearError, 
+    isAuthenticated 
+  } = useAuthStore()
 
   useEffect(() => {
     init()
@@ -15,6 +24,11 @@ export const useAuth = () => {
     login,
     logout,
     clearError,
-    isAuthenticated: isAuthenticated()
+    isAuthenticated: isAuthenticated(),
+    
+    // Helper methods
+    isAdmin: () => user?.role === 'admin',
+    canCreateSetlists: () => !!user, // Any authenticated user can create setlists
+    userName: user?.name || 'Guest'
   }
 }
