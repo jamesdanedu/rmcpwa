@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '../../../hooks/useAuth'
-import { submitSuggestion } from '../../../lib/api'
-import Input from '../../ui/Input'
-import Button from '../../ui/Button'
+import { useAuth } from '../../hooks/useAuth'
+import { submitSuggestion } from '../../lib/api'
+import Input from '../../components/ui/Input'
+import Button from '../../components/ui/Button'
 import YouTubeSearch from './YouTubeSearch'
 
 export default function SuggestionForm({ onSuggestionSubmitted, remainingSuggestions }) {
