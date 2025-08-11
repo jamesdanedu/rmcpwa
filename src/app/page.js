@@ -43,15 +43,17 @@ export default function Home() {
   }
 
   return (
-    <div className="app-container">
-      <AppHeader />
-      
-      <main className="pb-20">
-        {renderScreen()}
-      </main>
+    <div className="min-h-screen w-full bg-gradient-to-br from-background to-surface">
+      <div className="app-container">
+        <AppHeader />
+        
+        <main className="pb-20">
+          {renderScreen()}
+        </main>
 
-      <TabNavigation />
-      <PWAInstallPrompt />
+        <TabNavigation />
+        <PWAInstallPrompt />
+      </div>
     </div>
   )
 }
