@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { searchYouTube } from '../../../lib/api'
-import { getYouTubeThumbnail } from '../../../lib/youtube-utils'
-import Button from '../../ui/Button'
-import LoadingSpinner from '../../ui/LoadingSpinner'
+import { searchYouTube } from '../../lib/api'
+import { getYouTubeThumbnail } from '../../lib/youtube-utils'
+import Button from '../../components/ui/Button'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import VideoSelector from './VideoSelector'
 
 export default function YouTubeSearch({ query, onVideoSelected, onCancel, isSubmitting }) {
