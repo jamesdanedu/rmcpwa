@@ -3,20 +3,13 @@
 import { useState, useEffect } from 'react'
 import { getChoirSongs } from '../../../lib/api'
 import { GENRES } from '../../../lib/constants'
-import SongsList from './SongsList'
-import LyricsModal from './LyricsModal'
 import LoadingSpinner from '../../ui/LoadingSpinner'
 import Input from '../../ui/Input'
 
 export default function SongsAndLyrics() {
   const [songs, setSongs] = useState([])
-  const [filteredSongs, setFilteredSongs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedGenre, setSelectedGenre] = useState('all')
-  const [selectedSong, setSelectedSong] = useState(null)
-  const [showLyricsModal, setShowLyricsModal] = useState(false)
 
   useEffect(() => {
     const loadSongs = async () => {
@@ -24,8 +17,27 @@ export default function SongsAndLyrics() {
         setIsLoading(true)
         setError(null)
         
-        const data = await getChoirSongs()
-        setSongs(data)
+        // Mock data for now since we don't have actual choir songs
+        const mockSongs = [
+          {
+            id: '1',
+            title: 'Amazing Grace',
+            artist: 'Traditional',
+            genre: 'Gospel',
+            duration_minutes: 4,
+            date_introduced: '2024-12-01'
+          },
+          {
+            id: '2',
+            title: 'Danny Boy',
+            artist: 'Traditional Irish',
+            genre: 'Irish Folk',
+            duration_minutes: 5,
+            date_introduced: '2024-11-15'
+          }
+        ]
+        
+        setSongs(mockSongs)
         
       } catch (err) {
         console.error('Error loading choir songs:', err)
@@ -37,44 +49,6 @@ export default function SongsAndLyrics() {
 
     loadSongs()
   }, [])
-
-  useEffect(() => {
-    // Apply filters
-    let filtered = songs
-
-    // Filter by genre
-    if (selectedGenre !== 'all') {
-      filtered = filtered.filter(song => song.genre === selectedGenre)
-    }
-
-    // Filter by search term
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase()
-      filtered = filtered.filter(song =>
-        song.title.toLowerCase().includes(term) ||
-        song.artist.toLowerCase().includes(term) ||
-        song.genre.toLowerCase().includes(term)
-      )
-    }
-
-    setFilteredSongs(filtered)
-  }, [songs, selectedGenre, searchTerm])
-
-  const handleSongClick = (song) => {
-    setSelectedSong(song)
-    setShowLyricsModal(true)
-  }
-
-  const handleCloseLyrics = () => {
-    setShowLyricsModal(false)
-    setSelectedSong(null)
-  }
-
-  // Get genre counts
-  const genreCounts = songs.reduce((acc, song) => {
-    acc[song.genre] = (acc[song.genre] || 0) + 1
-    return acc
-  }, {})
 
   if (isLoading) {
     return (
@@ -101,106 +75,30 @@ export default function SongsAndLyrics() {
     )
   }
 
-  if (songs.length === 0) {
-    return (
-      <div className="glass rounded-2xl p-8 border border-white/10 text-center">
-        <div className="text-4xl mb-4">🎵</div>
-        <h3 className="text-xl font-bold text-white mb-3">
-          No Choir Songs Yet
-        </h3>
-        <p className="text-gray-400 mb-6">
-          The choir's song collection will appear here once songs are added.
-        </p>
-        
-        <div className="glass rounded-xl p-4 border border-white/5">
-          <h4 className="text-yellow-400 font-semibold mb-2">
-            Coming Soon
-          </h4>
-          <div className="text-sm text-gray-400 space-y-1">
-            <p>• Browse songs with full lyrics</p>
-            <p>• Search by artist, genre, or date</p>
-            <p>• View performance notes and keys</p>
-            <p>• Structured lyrics with verses and chorus</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
   return (
-    <>
-      <div className="space-y-6">
-        {/* Search and Filters */}
-        <div className="space-y-4">
-          {/* Search Bar */}
-          <Input
-            type="text"
-            placeholder="🔍 Search by artist, genre, or date..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="text-base"
-          />
-
-          {/* Genre Filter */}
-          <div className="glass rounded-xl p-4 border border-white/10">
-            <h3 className="text-sm font-semibold text-yellow-400 mb-3">
-              Filter by Genre
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <button
-                onClick={() => setSelectedGenre('all')}
-                className={`
-                  px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200
-                  ${selectedGenre === 'all'
-                    ? 'gradient-roscommon text-white'
-                    : 'glass text-gray-300 hover:bg-white/10'
-                  }
-                `}
-              >
-                All ({songs.length})
-              </button>
-              
-              {GENRES.filter(genre => genreCounts[genre] > 0).map((genre) => (
-                <button
-                  key={genre}
-                  onClick={() => setSelectedGenre(genre)}
-                  className={`
-                    px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200
-                    ${selectedGenre === genre
-                      ? 'gradient-roscommon text-white'
-                      : 'glass text-gray-300 hover:bg-white/10'
-                    }
-                  `}
-                >
-                  {genre} ({genreCounts[genre]})
-                </button>
-              ))}
-            </div>
-            
-            {filteredSongs.length !== songs.length && (
-              <div className="mt-3 pt-3 border-t border-white/10">
-                <p className="text-xs text-gray-400">
-                  Showing {filteredSongs.length} of {songs.length} songs
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Songs List */}
-        <SongsList 
-          songs={filteredSongs} 
-          onSongClick={handleSongClick}
-          searchTerm={searchTerm}
-        />
-      </div>
-
-      {/* Lyrics Modal */}
-      <LyricsModal
-        isOpen={showLyricsModal}
-        onClose={handleCloseLyrics}
-        song={selectedSong}
+    <div className="space-y-6">
+      <Input
+        type="text"
+        placeholder="🔍 Search by artist, genre, or date..."
+        className="text-base"
       />
-    </>
+
+      <div className="space-y-3">
+        {songs.map((song) => (
+          <div
+            key={song.id}
+            className="glass rounded-xl p-4 border border-white/10 cursor-pointer
+                       transition-all duration-200 hover:border-yellow-400/30 hover:bg-white/5"
+          >
+            <h4 className="text-white font-semibold text-sm mb-1">
+              {song.title}
+            </h4>
+            <p className="text-gray-400 text-xs">
+              {song.artist} • {song.genre} • {song.duration_minutes} min
+            </p>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
