@@ -175,33 +175,6 @@ export default function LoginForm() {
             </div>
           </div>
         </div>
-
-        {/* App Features Card */}
-        <div className="mt-4 sm:mt-6 glass rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/5">
-          <div className="text-center">
-            <h3 className="text-base sm:text-lg font-bold text-yellow-400 mb-3 sm:mb-4">
-              🎵 About RMCBuddy
-            </h3>
-            <div className="grid grid-cols-1 gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="text-base sm:text-lg">💡</span>
-                <span>Suggest songs for the choir to sing</span>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="text-base sm:text-lg">🗳️</span>
-                <span>Vote on new song suggestions</span>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="text-base sm:text-lg">🎼</span>
-                <span>View choir repertoire and lyrics</span>
-              </div>
-              <div className="flex items-center gap-2 sm:gap-3">
-                <span className="text-base sm:text-lg">📋</span>
-                <span>Create setlists for performances</span>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )
