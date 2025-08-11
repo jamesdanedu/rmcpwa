@@ -62,19 +62,17 @@ export default function LoginForm() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-background to-surface">
-      <div className="w-full max-w-md mx-auto">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-background to-surface">
+      <div className="w-full max-w-sm sm:max-w-md lg:max-w-lg mx-auto">
         {/* Centered Title */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-extrabold tracking-tight mb-4 gradient-roscommon bg-clip-text text-transparent">
+        <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 gradient-roscommon bg-clip-text text-transparent">
             RMCBuddy
           </h1>
           
           {/* App Logo - 512x512 scaled down */}
-          <div className="w-32 h-32 mx-auto mb-6 filter drop-shadow-2xl">
+          <div className="w-24 h-24 sm:w-32 sm:h-32 lg:w-40 lg:h-40 mx-auto mb-4 sm:mb-6 filter drop-shadow-2xl">
             <svg 
-              width="128" 
-              height="128" 
               viewBox="0 0 192 192" 
               fill="none" 
               xmlns="http://www.w3.org/2000/svg"
@@ -92,29 +90,29 @@ export default function LoginForm() {
             </svg>
           </div>
           
-          <p className="text-lg text-gray-300 font-medium">
+          <p className="text-base sm:text-lg lg:text-xl text-gray-300 font-medium">
             Roscommon Mens Choir
           </p>
         </div>
 
         {/* Rounded Rectangle Login Container */}
-        <div className="glass rounded-3xl p-8 border border-white/10 shadow-2xl backdrop-blur-xl">
+        <div className="glass rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-10 border border-white/10 shadow-2xl backdrop-blur-xl">
           {/* Welcome Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-white mb-3">
+          <div className="text-center mb-6 sm:mb-8">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white mb-2 sm:mb-3">
               Welcome Back
             </h2>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <p className="text-gray-400 text-sm sm:text-base leading-relaxed">
               Enter your details to access the choir management system
             </p>
           </div>
 
           {/* Error Alert */}
           {error && (
-            <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-4 mb-6">
+            <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
               <div className="flex items-center gap-3">
-                <span className="text-red-400 text-lg">⚠️</span>
-                <span className="text-red-300 font-medium">
+                <span className="text-red-400 text-lg sm:text-xl">⚠️</span>
+                <span className="text-red-300 font-medium text-sm sm:text-base">
                   {error}
                 </span>
               </div>
@@ -122,7 +120,7 @@ export default function LoginForm() {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
             <Input
               label="Full Name"
               type="text"
@@ -132,7 +130,7 @@ export default function LoginForm() {
               error={formErrors.name}
               disabled={isLoading}
               autoComplete="name"
-              className="text-lg py-4"
+              className="text-base sm:text-lg py-4 sm:py-5 px-4 sm:px-5"
             />
 
             <Input
@@ -144,17 +142,17 @@ export default function LoginForm() {
               error={formErrors.phoneNumber}
               disabled={isLoading}
               autoComplete="tel"
-              className="text-lg py-4"
+              className="text-base sm:text-lg py-4 sm:py-5 px-4 sm:px-5"
             />
 
-            <div className="pt-4">
+            <div className="pt-2 sm:pt-4">
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
                 loading={isLoading}
                 disabled={isLoading}
-                className="w-full py-4 text-lg font-bold"
+                className="w-full py-4 sm:py-5 text-base sm:text-lg font-bold"
               >
                 {isLoading ? 'Signing In...' : '🔐 Sign In'}
               </Button>
@@ -162,17 +160,44 @@ export default function LoginForm() {
           </form>
 
           {/* Security & Info Section */}
-          <div className="mt-8 pt-6 border-t border-white/10">
-            <div className="space-y-4">
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/10">
+            <div className="space-y-3 sm:space-y-4">
               {/* Security Info */}
-              <div className="flex items-center gap-3 text-sm">
-                <span className="text-green-400 text-lg">🔒</span>
+              <div className="flex items-center gap-3 text-xs sm:text-sm">
+                <span className="text-green-400 text-lg sm:text-xl">🔒</span>
                 <span className="text-gray-300">Simple & secure authentication</span>
               </div>
               
-              <div className="flex items-center gap-3 text-sm">
-                <span className="text-blue-400 text-lg">⏰</span>
-                <span className="text-gray-300">You'll stay logged in for 45 days</span>
+              <div className="flex items-center gap-3 text-xs sm:text-sm">
+                <span className="text-blue-400 text-lg sm:text-xl">⏰</span>
+                <span className="text-gray-300">You'll stay logged in for 30 days</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* App Features Card */}
+        <div className="mt-4 sm:mt-6 glass rounded-xl sm:rounded-2xl p-4 sm:p-6 border border-white/5">
+          <div className="text-center">
+            <h3 className="text-base sm:text-lg font-bold text-yellow-400 mb-3 sm:mb-4">
+              🎵 About RMCBuddy
+            </h3>
+            <div className="grid grid-cols-1 gap-2 sm:gap-3 text-xs sm:text-sm text-gray-300">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-base sm:text-lg">💡</span>
+                <span>Suggest songs for the choir to sing</span>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-base sm:text-lg">🗳️</span>
+                <span>Vote on new song suggestions</span>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-base sm:text-lg">🎼</span>
+                <span>View choir repertoire and lyrics</span>
+              </div>
+              <div className="flex items-center gap-2 sm:gap-3">
+                <span className="text-base sm:text-lg">📋</span>
+                <span>Create setlists for performances</span>
               </div>
             </div>
           </div>
