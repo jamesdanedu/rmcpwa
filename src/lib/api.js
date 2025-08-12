@@ -158,38 +158,23 @@ export const submitVote = async (voteId, voteType) => {
 
 export const getRankings = async () => {
   try {
-    // First try the RPC function
+    console.log('Attempting to fetch rankings...')
+    
     const { data, error } = await supabase.rpc('get_song_rankings')
     
+    console.log('Raw RPC response:', { data, error })
+    
     if (error) {
-      console.error('Supabase RPC error:', error)
-      
-      // If RPC doesn't exist, try a simple query as fallback
-      if (error.code === 'PGRST116') {
-        console.warn('get_song_rankings RPC not found, using fallback query')
-        
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('songs')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .limit(20)
-          
-        if (fallbackError) {
-          console.error('Fallback query error:', fallbackError)
-          return []
-        }
-        
-        // Transform data to expected format
-        return fallbackData.map((song, index) => ({
-          ...song,
-          ranking: index + 1,
-          yes_votes: 0,
-          no_votes: 0,
-          song_id: song.id
-        }))
-      }
-      
-      throw error
+      console.error('Supabase RPC error details:', {
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      })
+      throw new Error('Failed to fetch rankings from database')
+    }
+    
+    if (!data || data.length === 0) {
+      console.warn('No ranking data returned')
     }
     
     // Sort by ranking, then by title for consistent ordering
@@ -201,11 +186,9 @@ export const getRankings = async () => {
     })
     
     return sortedData
-    
   } catch (err) {
-    console.error('Error in getRankings:', err)
-    // Return empty array instead of throwing to prevent app crash
-    return []
+    console.error('Comprehensive error in getRankings:', err)
+    throw err
   }
 }
 
