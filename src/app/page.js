@@ -45,14 +45,12 @@ export default function Home() {
     }
   }
 
-  return (
+ return (
     <div className="app-container">
       <AppHeader />
       
-      <main className="main-content">
-        <div className="screen-content">
-          {renderScreen()}
-        </div>
+      <main className="pb-20">
+        {renderScreen()}
       </main>
 
       <TabNavigation />
