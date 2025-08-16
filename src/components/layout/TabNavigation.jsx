@@ -15,8 +15,8 @@ export default function TabNavigation() {
               key={tab.id}
               onClick={() => setCurrentTab(tab.id)}
               className={`
-                flex-1 flex flex-col items-center gap-1 py-3 px-1 text-xs font-semibold
-                transition-all duration-300 relative uppercase tracking-wide min-w-0
+                flex-1 flex flex-col items-center justify-center gap-1 py-4 px-1 text-xs font-semibold
+                transition-all duration-300 relative uppercase tracking-wide min-w-0 min-h-[60px]
                 ${currentTab === tab.id 
                   ? 'text-yellow-400' 
                   : 'text-gray-400 hover:text-gray-200'
