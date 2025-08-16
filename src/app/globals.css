@@ -1,3 +1,14 @@
+/* Handle landscape orientation */
+@media (orientation: landscape) and (max-height: 500px) {
+  .app-container {
+    height: 100vh;
+  }
+  
+  .screen-content {
+    padding: 10px;
+    min-height: auto;
+  }
+}
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -126,14 +137,34 @@ body {
   }
 }
 
-/* Handle landscape orientation */
-@media (orientation: landscape) and (max-height: 500px) {
-  .app-container {
-    height: 100vh;
-  }
-  
-  .screen-content {
-    padding: 10px;
-    min-height: auto;
-  }
+/* Light theme input styling */
+.input-light {
+  background: white;
+  border: 1px solid #D1D5DB;
+  color: #1F2937;
+}
+
+.input-light:focus {
+  border-color: #2563EB;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Light theme button styling */
+.btn-light-primary {
+  background: #2563EB;
+  color: white;
+}
+
+.btn-light-primary:hover {
+  background: #1D4ED8;
+}
+
+.btn-light-secondary {
+  background: #F3F4F6;
+  color: #374151;
+  border: 1px solid #D1D5DB;
+}
+
+.btn-light-secondary:hover {
+  background: #E5E7EB;
 }
