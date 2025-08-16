@@ -7,7 +7,7 @@ export default function TabNavigation() {
   const { currentTab, setCurrentTab } = useAppStore()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 w-full z-50">
+    <nav className="fixed bottom-0 left-0 right-0 w-full z-50 pb-safe">
       <div className="max-w-[430px] mx-auto glass bg-slate-900/80 border-t border-white/10">
         <div className="flex w-full">
           {TABS.map((tab) => (
@@ -22,7 +22,7 @@ export default function TabNavigation() {
                   : 'text-gray-400 hover:text-gray-200'
                 }
               `}
-              style={{ width: '25%', height: '8vh' }}
+              style={{ width: '25%', height: '8vh', paddingBottom: 'env(safe-area-inset-bottom)' }}
             >
               {/* Active indicator */}
               {currentTab === tab.id && (
