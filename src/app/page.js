@@ -25,10 +25,13 @@ export default function Home() {
 
   if (!user) {
     return (
-      <>
-        <LoginForm />
+      <div className="app-container">
+        <AppHeader />
+        <div className="flex-1 flex items-center justify-center p-6">
+          <LoginForm />
+        </div>
         <PWAInstallPrompt />
-      </>
+      </div>
     )
   }
 
@@ -43,17 +46,17 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-background to-surface">
-      <div className="app-container">
-        <AppHeader />
-        
-        <main className="pb-20">
+    <div className="app-container">
+      <AppHeader />
+      
+      <main className="main-content">
+        <div className="screen-content">
           {renderScreen()}
-        </main>
+        </div>
+      </main>
 
-        <TabNavigation />
-        <PWAInstallPrompt />
-      </div>
+      <TabNavigation />
+      <PWAInstallPrompt />
     </div>
   )
 }
