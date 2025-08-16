@@ -14,7 +14,7 @@ export default function VoteScreen() {
   const [isLoading, setIsLoading] = useState(true)
   const [isVoting, setIsVoting] = useState(false)
   const [error, setError] = useState(null)
-  const [votingStats, setVotingStats] = useState({ songsToVote: 0, votedToday: 0 })
+  const [votingStats, setVotingStats] = useState({ songsToVote: 0, votedToday: 8 })
 
   const loadNextSong = async () => {
     if (!user) return
@@ -72,7 +72,7 @@ export default function VoteScreen() {
 
   if (isLoading) {
     return (
-      <div className="p-6 flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[400px] bg-white">
         <div className="text-center">
           <LoadingSpinner size="lg" />
           <p className="mt-4 text-gray-400 text-sm">
@@ -85,15 +85,15 @@ export default function VoteScreen() {
 
   if (error && !currentVote) {
     return (
-      <div className="p-6">
-        <div className="glass rounded-xl p-6 border border-red-500/20 bg-red-500/10">
+      <div className="p-6 bg-white">
+        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
           <div className="text-center">
             <div className="text-red-400 text-2xl mb-3">⚠️</div>
-            <h3 className="text-red-300 font-semibold mb-2">Error</h3>
-            <p className="text-red-200 text-sm mb-4">{error}</p>
+            <h3 className="text-red-700 font-semibold mb-2">Error</h3>
+            <p className="text-red-600 text-sm mb-4">{error}</p>
             <button
               onClick={loadNextSong}
-              className="text-red-300 underline text-sm hover:text-red-200"
+              className="text-red-600 underline text-sm hover:text-red-800"
             >
               Try Again
             </button>
@@ -104,20 +104,22 @@ export default function VoteScreen() {
   }
 
   return (
-    <div className="p-5 space-y-6">
-      <VotingStats stats={votingStats} />
-      
-      {currentVote ? (
-        <VotingCard
-          vote={currentVote}
-          onVote={handleVote}
-          isVoting={isVoting}
-          error={error}
-          onClearError={() => setError(null)}
-        />
-      ) : (
-        <NoSongsToVote />
-      )}
+    <div className="bg-white min-h-full">
+      <div className="p-4 space-y-4">
+        <VotingStats stats={votingStats} />
+        
+        {currentVote ? (
+          <VotingCard
+            vote={currentVote}
+            onVote={handleVote}
+            isVoting={isVoting}
+            error={error}
+            onClearError={() => setError(null)}
+          />
+        ) : (
+          <NoSongsToVote />
+        )}
+      </div>
     </div>
   )
 }
