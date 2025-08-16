@@ -5,8 +5,11 @@
 :root {
   --color-primary: #FFD700;
   --color-secondary: #4169E1;
-  --color-background: #111127;
-  --color-surface: #1a1a3a;
+  --color-background: #FFFFFF;
+  --color-surface: #F8FAFC;
+  --color-text: #1F2937;
+  --color-text-secondary: #6B7280;
+  --color-border: #E5E7EB;
 }
 
 * {
@@ -23,8 +26,8 @@ html {
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 100%);
-  color: #ffffff;
+  background: var(--color-background);
+  color: var(--color-text);
   height: 100vh;
   width: 100vw;
   overflow-x: hidden;
@@ -37,11 +40,12 @@ body {
   max-width: 430px;
   margin: 0 auto;
   height: 100vh;
-  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 100%);
+  background: var(--color-background);
   position: relative;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  box-shadow: 0 0 0 1px var(--color-border);
 }
 
 /* Main content area that fills remaining space */
@@ -53,14 +57,15 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Glassmorphism effect */
+/* Glassmorphism effect - updated for light theme */
 .glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
 
-/* Roscommon gradient */
+/* Primary gradient - keeping original RMC colors */
 .gradient-roscommon {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
 }
@@ -68,6 +73,8 @@ body {
 /* Tab navigation adjustments */
 .tab-navigation {
   flex-shrink: 0;
+  background: white;
+  border-top: 1px solid var(--color-border);
   /* Add safe area padding for devices with home indicators */
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -97,13 +104,13 @@ body {
   50% { transform: scale(1.05); }
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - updated for light theme */
 ::-webkit-scrollbar {
   width: 4px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--color-surface);
 }
 
 ::-webkit-scrollbar-thumb {
