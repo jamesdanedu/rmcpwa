@@ -7,7 +7,7 @@ export default function TabNavigation() {
   const { currentTab, setCurrentTab } = useAppStore()
 
   return (
-    <nav className="tab-navigation w-full border-t border-white/10 bg-slate-900/90 backdrop-blur-lg">
+    <nav className="tab-navigation w-full border-t border-gray-200 bg-white">
       <div className="flex w-full">
         {TABS.map((tab) => (
           <button
@@ -17,14 +17,14 @@ export default function TabNavigation() {
               flex-1 flex flex-col items-center gap-1 py-3 px-2 text-xs font-semibold
               transition-all duration-300 relative uppercase tracking-wide min-h-[70px]
               ${currentTab === tab.id 
-                ? 'text-yellow-400' 
-                : 'text-gray-400 hover:text-gray-200'
+                ? 'text-blue-600' 
+                : 'text-gray-500 hover:text-gray-700'
               }
             `}
           >
             {/* Active indicator */}
             {currentTab === tab.id && (
-              <div className="absolute top-0 left-0 right-0 h-1 gradient-roscommon" />
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-blue-600" />
             )}
             
             {/* Icon */}
