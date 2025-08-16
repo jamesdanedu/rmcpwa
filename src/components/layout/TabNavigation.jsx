@@ -7,7 +7,13 @@ export default function TabNavigation() {
   const { currentTab, setCurrentTab } = useAppStore()
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 w-full z-50" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+    <nav 
+      className="fixed left-0 right-0 w-full z-50" 
+      style={{ 
+        bottom: 'env(safe-area-inset-bottom, 0px)',
+        paddingBottom: 'env(safe-area-inset-bottom, 0px)'
+      }}
+    >
       <div className="max-w-[430px] mx-auto glass bg-slate-900/80 border-t border-white/10">
         <div className="flex w-full">
           {TABS.map((tab) => (
