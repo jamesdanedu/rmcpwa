@@ -85,9 +85,9 @@ body {
   flex-shrink: 0;
   background: white;
   border-top: 1px solid var(--color-border);
-  height: 64px; /* Fixed height for proper sizing */
+  min-height: 80px; /* Increased minimum height for better touch targets */
   /* Add safe area padding for devices with home indicators */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 8px);
 }
 
 /* Screen content that properly fills available space */
