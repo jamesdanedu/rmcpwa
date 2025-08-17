@@ -71,6 +71,7 @@ export default function RankingScreen() {
         break
     }
 
+    console.log('Filtered rankings:', filtered)
     setFilteredRankings(filtered)
   }, [rankings, filters])
 
@@ -147,62 +148,6 @@ export default function RankingScreen() {
         </div>
       </div>
     )
-  }
-
-  const mockRankings = [
-    {
-      position: 1,
-      title: "It All Works Out",
-      artist: "The Kanoeda Movement",
-      yes_votes: 26,
-      no_votes: 13,
-      youtube_view_count: 93500,
-      color: "bg-yellow-400"
-    },
-    {
-      position: 2,
-      title: "Lovely Day",
-      artist: "Bill Withers",
-      yes_votes: 23,
-      no_votes: 15,
-      youtube_view_count: 955000000,
-      color: "bg-yellow-400"
-    },
-    {
-      position: 3,
-      title: "Road to nowhere",
-      artist: "Talking Heads",
-      yes_votes: 23,
-      no_votes: 16,
-      youtube_view_count: 17000000,
-      color: "bg-yellow-400"
-    },
-    {
-      position: 4,
-      title: "I can see clearly now",
-      artist: "Hot Humid Flavors",
-      yes_votes: 21,
-      no_votes: 10,
-      youtube_view_count: 1600000,
-      color: "bg-blue-500"
-    },
-    {
-      position: 5,
-      title: "Africa",
-      artist: "Toto",
-      yes_votes: 20,
-      no_votes: 12,
-      youtube_view_count: 1100000000,
-      color: "bg-blue-500"
-    }
-  ]
-
-  const formatViewCount = (count) => {
-    if (!count) return '0'
-    if (count < 1000) return count.toString()
-    if (count < 1000000) return (count / 1000).toFixed(1).replace('.0', '') + 'K'
-    if (count < 1000000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M'
-    return (count / 1000000000).toFixed(2).replace('.00', '').replace(/\.?0+$/, '') + 'B'
   }
 
   return (
