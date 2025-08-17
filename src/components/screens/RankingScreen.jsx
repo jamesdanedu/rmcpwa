@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getRankings } from '../../lib/api'
-import LoadingSpinner from '../../components/ui/LoadingSpinner'
+import LoadingSpinner from '../ui/LoadingSpinner'
 
 export default function RankingScreen() {
   const [rankings, setRankings] = useState([])
