@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { getRankings } from '../../lib/api'
-import LoadingSpinner from '../ui/LoadingSpinner'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function RankingScreen() {
   const [rankings, setRankings] = useState([])
@@ -17,9 +17,7 @@ export default function RankingScreen() {
         setIsLoading(true)
         setError(null)
         
-        console.log('Calling getRankings()...')
         const data = await getRankings()
-        console.log('getRankings() returned:', data)
         setRankings(data || [])
         
       } catch (err) {
@@ -58,12 +56,14 @@ export default function RankingScreen() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] bg-white">
-        <div className="text-center">
-          <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-400 text-sm">
-            Loading song rankings...
-          </p>
+      <div className="p-4 bg-white">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <div className="text-center">
+            <LoadingSpinner size="lg" />
+            <p className="mt-4 text-gray-400 text-sm">
+              Loading song rankings...
+            </p>
+          </div>
         </div>
       </div>
     )
@@ -71,23 +71,12 @@ export default function RankingScreen() {
 
   if (error) {
     return (
-      <div className="p-6 bg-white">
+      <div className="p-4 bg-white">
         <div className="bg-red-50 border border-red-200 rounded-xl p-6">
           <div className="text-center">
             <div className="text-red-400 text-2xl mb-3">⚠️</div>
             <h3 className="text-red-700 font-semibold mb-2">Database Error</h3>
             <p className="text-red-600 text-sm mb-4">{error}</p>
-            
-            <div className="bg-white rounded-lg p-4 mb-4">
-              <h4 className="text-sm font-semibold text-gray-800 mb-2">Troubleshooting Steps:</h4>
-              <ul className="text-xs text-gray-600 text-left space-y-1">
-                <li>• Check if the `get_song_rankings` RPC function exists in Supabase</li>
-                <li>• Verify the function has proper permissions (executable by authenticated users)</li>
-                <li>• Ensure the `songs` and `votes` tables exist with the correct schema</li>
-                <li>• Check browser network tab for the exact error response</li>
-              </ul>
-            </div>
-            
             <button
               onClick={() => window.location.reload()}
               className="text-red-600 underline text-sm hover:text-red-800"
@@ -102,7 +91,7 @@ export default function RankingScreen() {
 
   if (rankings.length === 0) {
     return (
-      <div className="p-6 bg-white">
+      <div className="p-4 bg-white">
         <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200 text-center">
           <div className="text-4xl mb-4">🏆</div>
           <h3 className="text-xl font-bold text-gray-900 mb-3">
@@ -117,21 +106,21 @@ export default function RankingScreen() {
   }
 
   return (
-    <div className="bg-white min-h-full flex flex-col">
+    <div className="bg-white">
       {/* Header with pagination info */}
-      <div className="p-4 bg-gray-50 border-b border-gray-200">
-        <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">
+      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200">
+        <div className="flex justify-between items-center text-sm text-gray-600">
+          <span>
             Showing {startIndex + 1}-{Math.min(endIndex, rankings.length)} of {rankings.length} songs
           </span>
-          <span className="text-sm text-gray-600">
+          <span>
             Page {currentPage} of {totalPages}
           </span>
         </div>
       </div>
 
       {/* Table Header */}
-      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium">
+      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium sticky top-0 z-10">
         <div className="w-12 text-center">#</div>
         <div className="flex-1">Song</div>
         <div className="w-12 text-center">👍</div>
@@ -140,9 +129,9 @@ export default function RankingScreen() {
       </div>
 
       {/* Table Body */}
-      <div className="flex-1 bg-white">
-        {currentSongs.map((song, index) => (
-          <div key={song.song_id} className="px-4 py-3 flex items-center hover:bg-gray-50 transition-colors">
+      <div className="bg-white">
+        {currentSongs.map((song) => (
+          <div key={song.song_id} className="px-4 py-3 flex items-center hover:bg-gray-50 transition-colors border-b border-gray-100 last:border-b-0">
             {/* Position Badge */}
             <div className="w-12 text-center">
               <div className={`w-8 h-8 mx-auto rounded-full ${getPositionColor(song.ranking)} text-white flex items-center justify-center text-xs font-bold`}>
@@ -176,34 +165,47 @@ export default function RankingScreen() {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="p-4 bg-gray-50 border-t border-gray-200">
+        <div className="px-4 py-4 bg-gray-50 border-t border-gray-200">
           <div className="flex justify-center items-center space-x-2">
             <button
               onClick={() => goToPage(currentPage - 1)}
               disabled={currentPage === 1}
-              className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >
               Previous
             </button>
             
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => goToPage(page)}
-                className={`px-3 py-2 text-sm rounded-lg ${
-                  page === currentPage
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white border border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let page;
+              if (totalPages <= 5) {
+                page = i + 1;
+              } else if (currentPage <= 3) {
+                page = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                page = totalPages - 4 + i;
+              } else {
+                page = currentPage - 2 + i;
+              }
+              
+              return (
+                <button
+                  key={page}
+                  onClick={() => goToPage(page)}
+                  className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                    page === currentPage
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-white border border-gray-300 hover:bg-gray-50'
+                  }`}
+                >
+                  {page}
+                </button>
+              );
+            })}
             
             <button
               onClick={() => goToPage(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+              className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
             >
               Next
             </button>
