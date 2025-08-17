@@ -8,8 +8,6 @@ export default function RankingScreen() {
   const [rankings, setRankings] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [currentPage, setCurrentPage] = useState(1)
-  const songsPerPage = 20
 
   useEffect(() => {
     const loadRankings = async () => {
@@ -32,8 +30,8 @@ export default function RankingScreen() {
   }, [])
 
   const getPositionColor = (position) => {
-    if (position <= 3) return "bg-yellow-400"
-    return "bg-blue-500"
+    if (position <= 3) return "bg-yellow-500"
+    return "bg-blue-600"
   }
 
   const formatViewCount = (count) => {
@@ -42,16 +40,6 @@ export default function RankingScreen() {
     if (count < 1000000) return (count / 1000).toFixed(1).replace('.0', '') + 'K'
     if (count < 1000000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M'
     return (count / 1000000000).toFixed(2).replace('.00', '').replace(/\.?0+$/, '') + 'B'
-  }
-
-  // Pagination logic
-  const totalPages = Math.ceil(rankings.length / songsPerPage)
-  const startIndex = (currentPage - 1) * songsPerPage
-  const endIndex = startIndex + songsPerPage
-  const currentSongs = rankings.slice(startIndex, endIndex)
-
-  const goToPage = (page) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
   }
 
   if (isLoading) {
@@ -119,8 +107,8 @@ export default function RankingScreen() {
         </div>
       </div>
 
-      {/* Table Header - BLUE BACKGROUND */}
-      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium">
+      {/* Table Header */}
+      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium sticky top-0 z-10">
         <div className="w-12 text-center">#</div>
         <div className="flex-1">Song</div>
         <div className="w-12 text-center">👍</div>
