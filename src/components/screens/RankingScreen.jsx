@@ -6,14 +6,10 @@ import LoadingSpinner from '../ui/LoadingSpinner'
 
 export default function RankingScreen() {
   const [rankings, setRankings] = useState([])
-  const [filteredRankings, setFilteredRankings] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [filters, setFilters] = useState({
-    sortBy: 'ranking',
-    showAll: true,
-    minVotes: 0
-  })
+  const [currentPage, setCurrentPage] = useState(1)
+  const songsPerPage = 20
 
   useEffect(() => {
     const loadRankings = async () => {
@@ -28,11 +24,6 @@ export default function RankingScreen() {
         
       } catch (err) {
         console.error('Error loading rankings:', err)
-        console.error('Error details:', {
-          message: err.message,
-          stack: err.stack,
-          cause: err.cause
-        })
         setError(`Failed to load song rankings: ${err.message}`)
       } finally {
         setIsLoading(false)
@@ -41,39 +32,6 @@ export default function RankingScreen() {
 
     loadRankings()
   }, [])
-
-  useEffect(() => {
-    // Apply filters and sorting
-    let filtered = [...rankings]
-
-    // Filter by minimum votes
-    if (filters.minVotes > 0) {
-      filtered = filtered.filter(song => 
-        (song.yes_votes + song.no_votes) >= filters.minVotes
-      )
-    }
-
-    // Sort based on selected criteria
-    switch (filters.sortBy) {
-      case 'votes':
-        filtered.sort((a, b) => 
-          (b.yes_votes + b.no_votes) - (a.yes_votes + a.no_votes)
-        )
-        break
-      case 'views':
-        filtered.sort((a, b) => 
-          (b.youtube_view_count || 0) - (a.youtube_view_count || 0)
-        )
-        break
-      case 'ranking':
-      default:
-        // Already sorted by ranking from database
-        break
-    }
-
-    console.log('Filtered rankings:', filtered)
-    setFilteredRankings(filtered)
-  }, [rankings, filters])
 
   const getPositionColor = (position) => {
     if (position <= 3) return "bg-yellow-400"
@@ -86,6 +44,16 @@ export default function RankingScreen() {
     if (count < 1000000) return (count / 1000).toFixed(1).replace('.0', '') + 'K'
     if (count < 1000000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M'
     return (count / 1000000000).toFixed(2).replace('.00', '').replace(/\.?0+$/, '') + 'B'
+  }
+
+  // Pagination logic
+  const totalPages = Math.ceil(rankings.length / songsPerPage)
+  const startIndex = (currentPage - 1) * songsPerPage
+  const endIndex = startIndex + songsPerPage
+  const currentSongs = rankings.slice(startIndex, endIndex)
+
+  const goToPage = (page) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)))
   }
 
   if (isLoading) {
@@ -132,7 +100,7 @@ export default function RankingScreen() {
     )
   }
 
-  if (filteredRankings.length === 0) {
+  if (rankings.length === 0) {
     return (
       <div className="p-6 bg-white">
         <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200 text-center">
@@ -143,17 +111,6 @@ export default function RankingScreen() {
           <p className="text-gray-600 mb-6">
             Song rankings will appear here once members start voting on suggestions.
           </p>
-          
-          <div className="bg-white rounded-xl p-4 border border-gray-200">
-            <h4 className="text-blue-600 font-semibold mb-2">
-              How Rankings Work
-            </h4>
-            <div className="text-sm text-gray-600 space-y-1">
-              <p>• Songs are ranked by number of "Yes" votes</p>
-              <p>• Ties result in gaps in ranking positions</p>
-              <p>• Click any song to preview the video</p>
-            </div>
-          </div>
         </div>
       </div>
     )
@@ -161,8 +118,20 @@ export default function RankingScreen() {
 
   return (
     <div className="bg-white min-h-full flex flex-col">
-      {/* Rankings Table Header */}
-      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium flex-shrink-0">
+      {/* Header with pagination info */}
+      <div className="p-4 bg-gray-50 border-b border-gray-200">
+        <div className="flex justify-between items-center">
+          <span className="text-sm text-gray-600">
+            Showing {startIndex + 1}-{Math.min(endIndex, rankings.length)} of {rankings.length} songs
+          </span>
+          <span className="text-sm text-gray-600">
+            Page {currentPage} of {totalPages}
+          </span>
+        </div>
+      </div>
+
+      {/* Table Header */}
+      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium">
         <div className="w-12 text-center">#</div>
         <div className="flex-1">Song</div>
         <div className="w-12 text-center">👍</div>
@@ -170,9 +139,9 @@ export default function RankingScreen() {
         <div className="w-16 text-center">👁</div>
       </div>
 
-      {/* Rankings List - Scrollable */}
-      <div className="flex-1 overflow-y-auto">
-        {filteredRankings.map((song) => (
+      {/* Table Body */}
+      <div className="flex-1 bg-white">
+        {currentSongs.map((song, index) => (
           <div key={song.song_id} className="px-4 py-3 flex items-center hover:bg-gray-50 transition-colors">
             {/* Position Badge */}
             <div className="w-12 text-center">
@@ -183,20 +152,20 @@ export default function RankingScreen() {
 
             {/* Song Info */}
             <div className="flex-1 min-w-0 pr-4">
-              <div className="font-medium text-gray-900 text-sm truncate">
+              <div className="font-medium text-gray-900 text-sm leading-tight">
                 {song.title}
               </div>
-              <div className="text-xs text-gray-500 truncate">
+              <div className="text-xs text-gray-500 mt-1">
                 {song.artist}
               </div>
             </div>
 
             {/* Vote Stats */}
             <div className="w-12 text-center">
-              <span className="text-green-600 font-medium text-sm">{song.yes_votes}</span>
+              <span className="text-green-600 font-medium text-sm">{song.yes_votes || 0}</span>
             </div>
             <div className="w-12 text-center">
-              <span className="text-red-500 font-medium text-sm">{song.no_votes}</span>
+              <span className="text-red-500 font-medium text-sm">{song.no_votes || 0}</span>
             </div>
             <div className="w-16 text-center">
               <span className="text-blue-500 text-xs font-medium">{formatViewCount(song.youtube_view_count)}</span>
@@ -204,6 +173,43 @@ export default function RankingScreen() {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="p-4 bg-gray-50 border-t border-gray-200">
+          <div className="flex justify-center items-center space-x-2">
+            <button
+              onClick={() => goToPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Previous
+            </button>
+            
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => goToPage(page)}
+                className={`px-3 py-2 text-sm rounded-lg ${
+                  page === currentPage
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white border border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            
+            <button
+              onClick={() => goToPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-3 py-2 text-sm bg-white border border-gray-300 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+            >
+              Next
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
