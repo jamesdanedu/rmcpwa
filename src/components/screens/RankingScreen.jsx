@@ -119,8 +119,8 @@ export default function RankingScreen() {
         </div>
       </div>
 
-      {/* Table Header */}
-      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium sticky top-0 z-10">
+      {/* Table Header - BLUE BACKGROUND */}
+      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium">
         <div className="w-12 text-center">#</div>
         <div className="flex-1">Song</div>
         <div className="w-12 text-center">👍</div>
