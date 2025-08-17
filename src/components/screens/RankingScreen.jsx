@@ -10,7 +10,7 @@ export default function RankingScreen() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState(null)
   const [filters, setFilters] = useState({
-    sortBy: 'ranking', // 'ranking', 'votes', 'views'
+    sortBy: 'ranking',
     showAll: true,
     minVotes: 0
   })
@@ -75,8 +75,17 @@ export default function RankingScreen() {
     setFilteredRankings(filtered)
   }, [rankings, filters])
 
-  const handleFiltersChange = (newFilters) => {
-    setFilters(prev => ({ ...prev, ...newFilters }))
+  const getPositionColor = (position) => {
+    if (position <= 3) return "bg-yellow-400"
+    return "bg-blue-500"
+  }
+
+  const formatViewCount = (count) => {
+    if (!count) return '0'
+    if (count < 1000) return count.toString()
+    if (count < 1000000) return (count / 1000).toFixed(1).replace('.0', '') + 'K'
+    if (count < 1000000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M'
+    return (count / 1000000000).toFixed(2).replace('.00', '').replace(/\.?0+$/, '') + 'B'
   }
 
   if (isLoading) {
@@ -123,7 +132,7 @@ export default function RankingScreen() {
     )
   }
 
-  if (rankings.length === 0) {
+  if (filteredRankings.length === 0) {
     return (
       <div className="p-6 bg-white">
         <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200 text-center">
@@ -164,11 +173,11 @@ export default function RankingScreen() {
 
       {/* Rankings List */}
       <div className="divide-y divide-gray-100">
-        {mockRankings.map((song) => (
-          <div key={song.position} className="px-4 py-3 flex items-center hover:bg-gray-50 transition-colors">
+        {filteredRankings.map((song) => (
+          <div key={song.song_id} className="px-4 py-3 flex items-center hover:bg-gray-50 transition-colors">
             {/* Position Badge */}
-            <div className={`w-6 h-6 rounded-full ${song.color} text-white flex items-center justify-center text-xs font-bold mr-3`}>
-              {song.position}
+            <div className={`w-6 h-6 rounded-full ${getPositionColor(song.ranking)} text-white flex items-center justify-center text-xs font-bold mr-3`}>
+              {song.ranking}
             </div>
 
             {/* Song Info */}
