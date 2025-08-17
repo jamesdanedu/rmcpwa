@@ -25,8 +25,15 @@ export default function Home() {
 
   if (!user) {
     return (
-      <div className="app-container">
-        <AppHeader />
+      <div className="app-container bg-white">
+        <div className="gradient-roscommon p-5 text-center">
+          <h1 className="text-2xl font-extrabold tracking-tight mb-1 text-black">
+            RMCBuddy
+          </h1>
+          <p className="text-sm font-medium opacity-90 text-black">
+            Roscommon Mens Choir
+          </p>
+        </div>
         <div className="flex-1 flex items-center justify-center p-6">
           <LoginForm />
         </div>
@@ -45,12 +52,27 @@ export default function Home() {
     }
   }
 
- return (
-    <div className="app-container">
-      <AppHeader />
+  return (
+    <div className="app-container bg-white">
+      <div className="gradient-roscommon p-5 text-center">
+        <h1 className="text-2xl font-extrabold tracking-tight mb-1 text-black">
+          RMCBuddy
+        </h1>
+        <p className="text-sm font-medium opacity-90 text-black">
+          Roscommon Mens Choir
+        </p>
+        {user && (
+          <button className="absolute top-4 right-4 flex items-center gap-2 text-xs font-medium bg-black/20 hover:bg-black/30 px-3 py-2 rounded-full transition-all duration-200">
+            <span>👤</span>
+            <span className="hidden sm:inline">{user.name}</span>
+          </button>
+        )}
+      </div>
       
-      <main className="pb-20">
-        {renderScreen()}
+      <main className="main-content bg-white">
+        <div className="screen-content">
+          {renderScreen()}
+        </div>
       </main>
 
       <TabNavigation />
