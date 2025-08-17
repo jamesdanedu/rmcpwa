@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { getRankings } from '../../lib/api'
-import RankingList from '../../features/ranking/RankingList'
-import RankingFilters from '../../features/ranking/RankingFilters'
 import LoadingSpinner from '../ui/LoadingSpinner'
 
 export default function RankingScreen() {
@@ -23,12 +21,19 @@ export default function RankingScreen() {
         setIsLoading(true)
         setError(null)
         
+        console.log('Calling getRankings()...')
         const data = await getRankings()
-        setRankings(data)
+        console.log('getRankings() returned:', data)
+        setRankings(data || [])
         
       } catch (err) {
         console.error('Error loading rankings:', err)
-        setError('Failed to load song rankings')
+        console.error('Error details:', {
+          message: err.message,
+          stack: err.stack,
+          cause: err.cause
+        })
+        setError(`Failed to load song rankings: ${err.message}`)
       } finally {
         setIsLoading(false)
       }
@@ -92,8 +97,19 @@ export default function RankingScreen() {
         <div className="bg-red-50 border border-red-200 rounded-xl p-6">
           <div className="text-center">
             <div className="text-red-400 text-2xl mb-3">⚠️</div>
-            <h3 className="text-red-700 font-semibold mb-2">Error</h3>
+            <h3 className="text-red-700 font-semibold mb-2">Database Error</h3>
             <p className="text-red-600 text-sm mb-4">{error}</p>
+            
+            <div className="bg-white rounded-lg p-4 mb-4">
+              <h4 className="text-sm font-semibold text-gray-800 mb-2">Troubleshooting Steps:</h4>
+              <ul className="text-xs text-gray-600 text-left space-y-1">
+                <li>• Check if the `get_song_rankings` RPC function exists in Supabase</li>
+                <li>• Verify the function has proper permissions (executable by authenticated users)</li>
+                <li>• Ensure the `songs` and `votes` tables exist with the correct schema</li>
+                <li>• Check browser network tab for the exact error response</li>
+              </ul>
+            </div>
+            
             <button
               onClick={() => window.location.reload()}
               className="text-red-600 underline text-sm hover:text-red-800"
