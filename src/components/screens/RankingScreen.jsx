@@ -160,28 +160,29 @@ export default function RankingScreen() {
   }
 
   return (
-    <div className="bg-white min-h-full">
+    <div className="bg-white min-h-full flex flex-col">
       {/* Rankings Table Header */}
-      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-xs font-medium">
-        <div className="w-8">#</div>
+      <div className="bg-blue-600 text-white px-4 py-3 flex items-center text-sm font-medium flex-shrink-0">
+        <div className="w-12 text-center">#</div>
         <div className="flex-1">Song</div>
-        <div className="w-8 text-center">👍</div>
-        <div className="w-8 text-center">👎</div>
-        <div className="w-8 text-center">📊</div>
-        <div className="w-12 text-center">👁️</div>
+        <div className="w-12 text-center">👍</div>
+        <div className="w-12 text-center">👎</div>
+        <div className="w-16 text-center">👁</div>
       </div>
 
-      {/* Rankings List */}
-      <div className="divide-y divide-gray-100">
+      {/* Rankings List - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
         {filteredRankings.map((song) => (
           <div key={song.song_id} className="px-4 py-3 flex items-center hover:bg-gray-50 transition-colors">
             {/* Position Badge */}
-            <div className={`w-6 h-6 rounded-full ${getPositionColor(song.ranking)} text-white flex items-center justify-center text-xs font-bold mr-3`}>
-              {song.ranking}
+            <div className="w-12 text-center">
+              <div className={`w-8 h-8 mx-auto rounded-full ${getPositionColor(song.ranking)} text-white flex items-center justify-center text-xs font-bold`}>
+                {song.ranking}
+              </div>
             </div>
 
             {/* Song Info */}
-            <div className="flex-1 min-w-0">
+            <div className="flex-1 min-w-0 pr-4">
               <div className="font-medium text-gray-900 text-sm truncate">
                 {song.title}
               </div>
@@ -191,16 +192,13 @@ export default function RankingScreen() {
             </div>
 
             {/* Vote Stats */}
-            <div className="w-8 text-center">
+            <div className="w-12 text-center">
               <span className="text-green-600 font-medium text-sm">{song.yes_votes}</span>
             </div>
-            <div className="w-8 text-center">
+            <div className="w-12 text-center">
               <span className="text-red-500 font-medium text-sm">{song.no_votes}</span>
             </div>
-            <div className="w-8 text-center">
-              <span className="text-gray-400 text-xs">📊</span>
-            </div>
-            <div className="w-12 text-center">
+            <div className="w-16 text-center">
               <span className="text-blue-500 text-xs font-medium">{formatViewCount(song.youtube_view_count)}</span>
             </div>
           </div>
