@@ -7,7 +7,21 @@ export default function RankingList({ rankings }) {
   const [showVideoModal, setShowVideoModal] = useState(false)
   const [selectedSong, setSelectedSong] = useState(null)
 
+  // Debug logging
+  console.log('RankingList received rankings:', rankings)
+  console.log('Rankings type:', typeof rankings)
+  console.log('Rankings length:', rankings?.length)
+  console.log('Is array?', Array.isArray(rankings))
+
   if (!rankings || rankings.length === 0) {
+    console.log('Showing no songs found because:', {
+      rankings,
+      isNull: rankings === null,
+      isUndefined: rankings === undefined,
+      length: rankings?.length,
+      isArray: Array.isArray(rankings)
+    })
+    
     return (
       <div className="glass rounded-xl p-8 border border-white/10 text-center">
         <div className="text-gray-400 text-2xl mb-3">🔍</div>
@@ -15,6 +29,9 @@ export default function RankingList({ rankings }) {
         <p className="text-gray-400 text-sm">
           No songs have been ranked yet.
         </p>
+        <div className="mt-4 text-xs text-gray-500">
+          Debug: rankings = {JSON.stringify(rankings)} (length: {rankings?.length})
+        </div>
       </div>
     )
   }
