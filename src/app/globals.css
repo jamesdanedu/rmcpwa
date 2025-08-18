@@ -18,8 +18,8 @@
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 100%);
-  color: #ffffff;
+  background: #ffffff;
+  color: #000000;
   overflow-x: hidden;
   min-height: 100vh;
   overscroll-behavior: none;
@@ -31,7 +31,7 @@ body {
   width: 100% !important;
   max-width: none !important;
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--color-background) 0%, var(--color-surface) 100%);
+  background: #ffffff;
   position: relative;
 }
 
