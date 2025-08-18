@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import VideoModal from '../voting/VideoModal'
+import VideoModal from '../../features/voting/VideoModal'
 
 export default function RankingList({ rankings }) {
   const [showVideoModal, setShowVideoModal] = useState(false)
