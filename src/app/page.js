@@ -53,7 +53,7 @@ export default function Home() {
         className="w-full min-h-screen flex flex-col"
         style={{ 
           height: viewportHeight,
-          background: 'linear-gradient(135deg, #111127 0%, #1a1a3a 100%)'
+          background: '#ffffff'
         }}
       >
         <AppHeader />
@@ -87,7 +87,7 @@ export default function Home() {
       className="w-full min-h-screen flex flex-col"
       style={{ 
         height: viewportHeight,
-        background: 'linear-gradient(135deg, #111127 0%, #1a1a3a 100%)'
+        background: '#ffffff'
       }}
     >
       {/* Header - fixed height */}
