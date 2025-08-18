@@ -60,12 +60,12 @@ export default function Home() {
   if (!user) {
     return (
       <div 
-        className="app-container min-h-screen-mobile prevent-overscroll"
+        className="w-full min-h-screen-mobile prevent-overscroll"
         style={{ height: viewportHeight }}
       >
         <AppHeader />
-        <div className="flex items-center justify-center" style={{ height: 'calc(100% - 120px)' }}>
-          <div className="p-6 w-full">
+        <div className="flex items-center justify-center w-full" style={{ height: 'calc(100% - 120px)' }}>
+          <div className="p-6 w-full max-w-md mx-auto">
             <LoginForm />
           </div>
         </div>
@@ -86,14 +86,14 @@ export default function Home() {
 
   return (
     <div 
-      className="app-container min-h-screen-mobile prevent-overscroll flex flex-col"
+      className="w-full min-h-screen-mobile prevent-overscroll flex flex-col"
       style={{ height: viewportHeight }}
     >
       <AppHeader />
       
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 overflow-hidden w-full">
         <div 
-          className="h-full overflow-y-auto smooth-scroll"
+          className="h-full overflow-y-auto smooth-scroll w-full"
           style={{ 
             paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
             height: 'calc(100% - env(safe-area-inset-bottom, 0px))'
