@@ -137,7 +137,7 @@ export default function VotingCard({ vote, onVote, isVoting, error, onClearError
             </div>
           </div>
 
-          {/* Voting Buttons - prominent and well-spaced */}
+          {/* Voting Buttons - directly below video */}
           <div className="mb-6">
             <VotingButtons
               onVote={onVote}
