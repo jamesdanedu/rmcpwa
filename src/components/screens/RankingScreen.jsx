@@ -106,13 +106,6 @@ export default function RankingScreen() {
         </h2>
       </div>
 
-      {/* Debug Info */}
-      <div className="glass rounded-xl p-3 border border-yellow-400/20 bg-yellow-400/5">
-        <div className="text-xs text-yellow-400">
-          Debug: About to render RankingList with {rankings?.length || 0} songs
-        </div>
-      </div>
-
       {/* Rankings Table */}
       <RankingList rankings={rankings} />
     </div>
