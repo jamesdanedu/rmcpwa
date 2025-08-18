@@ -19,10 +19,57 @@ export default function RankingList({ rankings }) {
     )
   }
 
+  const calculateGolfRankings = (rankings) => {
+    if (!rankings || rankings.length === 0) return []
+    
+    // Sort by yes_votes descending to ensure proper ranking
+    const sorted = [...rankings].sort((a, b) => (b.yes_votes || 0) - (a.yes_votes || 0))
+    
+    const rankedSongs = []
+    let currentRank = 1
+    
+    for (let i = 0; i < sorted.length; i++) {
+      const song = sorted[i]
+      const currentVotes = song.yes_votes || 0
+      
+      if (i > 0) {
+        const prevVotes = sorted[i - 1].yes_votes || 0
+        if (currentVotes < prevVotes) {
+          // New rank starts here
+          currentRank = i + 1
+        }
+        // If votes are equal, keep the same rank
+      }
+      
+      rankedSongs.push({
+        ...song,
+        displayRank: currentRank
+      })
+    }
+    
+    return rankedSongs
+  }
+
+  const rankedSongs = calculateGolfRankings(rankings)
+
+  const formatViewCount = (count) => {
+    if (!count) return '0'
+    if (count < 1000) return count.toString()
+    if (count < 1000000) return (count / 1000).toFixed(1).replace('.0', '') + 'K'
+    if (count < 1000000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M'
+    return (count / 1000000000).toFixed(2).replace('.00', '').replace(/\.?0+$/, '') + 'B'
+  }
+
+  return (
+    <>
+      <div className="glass rounded-xl overflow-hidden border border-white/10">
+        <table className="w-full">
   const handleSongClick = (song) => {
     setSelectedSong(song)
     setShowVideoModal(true)
   }
+
+  const rankedSongs = calculateGolfRankings(rankings)
 
   const formatViewCount = (count) => {
     if (!count) return '0'
@@ -39,19 +86,17 @@ export default function RankingList({ rankings }) {
           {/* Table Header */}
           <thead>
             <tr className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black">
-              <th className="w-12 text-center py-3 px-2 font-bold text-sm">#</th>
-              <th className="text-left py-3 px-3 font-bold text-sm">Song and Artist</th>
-              <th className="w-12 text-center py-3 px-2 font-bold text-sm">👍</th>
-              <th className="w-12 text-center py-3 px-2 font-bold text-sm">👎</th>
-              <th className="w-16 text-center py-3 px-2 font-bold text-sm">📺</th>
+              <th className="w-12 text-center py-3 px-2 font-bold text-xs">#</th>
+              <th className="text-left py-3 px-3 font-bold text-xs">Song and Artist</th>
+              <th className="w-12 text-center py-3 px-2 font-bold text-xs">👍</th>
+              <th className="w-12 text-center py-3 px-2 font-bold text-xs">👎</th>
+              <th className="w-16 text-center py-3 px-2 font-bold text-xs">👁️</th>
             </tr>
           </thead>
 
           {/* Table Body */}
           <tbody className="divide-y divide-white/10">
-            {rankings.map((song, index) => {
-              const position = song.ranking || index + 1
-              
+            {rankedSongs.map((song, index) => {
               return (
                 <tr
                   key={song.song_id || song.id || index}
@@ -59,17 +104,17 @@ export default function RankingList({ rankings }) {
                   className="cursor-pointer transition-all duration-200 hover:bg-white/5"
                 >
                   {/* Position */}
-                  <td className="w-12 text-center py-3 px-2">
+                  <td className="w-12 text-center py-2 px-2">
                     <div className="w-6 h-6 mx-auto rounded-full bg-gradient-to-br from-yellow-500 to-yellow-600 text-black
                                     flex items-center justify-center font-bold text-xs">
-                      {position}
+                      {song.displayRank}
                     </div>
                   </td>
 
                   {/* Song and Artist */}
-                  <td className="py-3 px-3">
+                  <td className="py-2 px-3">
                     <div className="min-w-0">
-                      <h4 className="text-white font-semibold text-sm leading-tight mb-1 truncate">
+                      <h4 className="text-white font-medium text-xs leading-tight mb-1 truncate">
                         {song.title}
                       </h4>
                       <p className="text-gray-400 text-xs truncate">
@@ -79,21 +124,21 @@ export default function RankingList({ rankings }) {
                   </td>
 
                   {/* Yes Votes */}
-                  <td className="w-12 text-center py-3 px-2">
-                    <span className="text-green-400 font-medium text-sm">
+                  <td className="w-12 text-center py-2 px-2">
+                    <span className="text-green-400 font-medium text-xs">
                       {song.yes_votes || 0}
                     </span>
                   </td>
 
                   {/* No Votes */}
-                  <td className="w-12 text-center py-3 px-2">
-                    <span className="text-red-400 font-medium text-sm">
+                  <td className="w-12 text-center py-2 px-2">
+                    <span className="text-red-400 font-medium text-xs">
                       {song.no_votes || 0}
                     </span>
                   </td>
 
                   {/* YouTube Views */}
-                  <td className="w-16 text-center py-3 px-2">
+                  <td className="w-16 text-center py-2 px-2">
                     <span className="text-gray-400 text-xs">
                       {formatViewCount(song.youtube_view_count)}
                     </span>
@@ -101,6 +146,9 @@ export default function RankingList({ rankings }) {
                 </tr>
               )
             })}
+          </tbody>
+        </table>
+      </div>
           </tbody>
         </table>
       </div>
