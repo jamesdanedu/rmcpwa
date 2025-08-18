@@ -23,12 +23,15 @@ export const searchYouTube = async (query) => {
   return enhancedResults
 }
 
-// Fixed suggestions remaining check
+// Fixed suggestions remaining check with better caching
 export const checkSuggestionsRemaining = async (userId) => {
   try {
     const currentMonth = new Date().toISOString().slice(0, 7) // "2025-08"
     
-    console.log('Checking suggestions for user:', userId, 'month:', currentMonth)
+    // Only log once per function call, not repeatedly
+    if (window.rmcDebugLogging) {
+      console.log('Checking suggestions for user:', userId, 'month:', currentMonth)
+    }
     
     const { data, error } = await supabase
       .from('suggestion_limits')
@@ -46,7 +49,9 @@ export const checkSuggestionsRemaining = async (userId) => {
     const currentCount = data?.suggestion_count || 0
     const remaining = Math.max(0, 3 - currentCount)
     
-    console.log('Current suggestions used:', currentCount, 'Remaining:', remaining)
+    if (window.rmcDebugLogging) {
+      console.log('Current suggestions used:', currentCount, 'Remaining:', remaining)
+    }
     return remaining
     
   } catch (err) {
