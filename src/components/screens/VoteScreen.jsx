@@ -14,7 +14,7 @@ export default function VoteScreen() {
   const [isLoading, setIsLoading] = useState(true)
   const [isVoting, setIsVoting] = useState(false)
   const [error, setError] = useState(null)
-  const [votingStats, setVotingStats] = useState({ songsToVote: 0, votedToday: 8 })
+  const [votingStats, setVotingStats] = useState({ songsToVote: 0, votedToday: 0 })
 
   const loadNextSong = async () => {
     if (!user) return
@@ -26,12 +26,11 @@ export default function VoteScreen() {
       const vote = await getSongsForVoting(user.id)
       setCurrentVote(vote)
       
-      // TODO: Get actual voting stats from API
-      // For now, using mock data
-      setVotingStats({
-        songsToVote: vote ? 12 : 0,
-        votedToday: 8
-      })
+      // Update voting stats
+      setVotingStats(prev => ({
+        songsToVote: vote ? Math.max(0, prev.songsToVote) : 0,
+        votedToday: prev.votedToday
+      }))
       
     } catch (err) {
       console.error('Error loading song for voting:', err)
@@ -72,11 +71,17 @@ export default function VoteScreen() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px] bg-white">
+      <div className="flex flex-col items-center justify-center min-h-[70vh] p-6">
         <div className="text-center">
+          <div className="w-16 h-16 mx-auto mb-6 gradient-roscommon rounded-2xl flex items-center justify-center text-3xl animate-pulse">
+            🗳️
+          </div>
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-400 text-sm">
-            Loading songs to vote on...
+          <h3 className="mt-6 text-xl font-bold text-white mb-2">
+            Loading Songs to Vote On
+          </h3>
+          <p className="text-gray-400 text-sm max-w-sm">
+            Finding new song suggestions for you to review...
           </p>
         </div>
       </div>
@@ -85,18 +90,20 @@ export default function VoteScreen() {
 
   if (error && !currentVote) {
     return (
-      <div className="p-6 bg-white">
-        <div className="bg-red-50 border border-red-200 rounded-xl p-6">
-          <div className="text-center">
-            <div className="text-red-400 text-2xl mb-3">⚠️</div>
-            <h3 className="text-red-700 font-semibold mb-2">Error</h3>
-            <p className="text-red-600 text-sm mb-4">{error}</p>
-            <button
-              onClick={loadNextSong}
-              className="text-red-600 underline text-sm hover:text-red-800"
-            >
-              Try Again
-            </button>
+      <div className="flex flex-col min-h-[70vh] p-6">
+        <div className="flex-1 flex items-center justify-center">
+          <div className="glass rounded-2xl p-8 border border-red-500/20 bg-red-500/10 max-w-md w-full">
+            <div className="text-center">
+              <div className="text-red-400 text-4xl mb-4">⚠️</div>
+              <h3 className="text-red-300 font-bold text-lg mb-3">Error Loading Songs</h3>
+              <p className="text-red-200 text-sm mb-6 leading-relaxed">{error}</p>
+              <button
+                onClick={loadNextSong}
+                className="w-full gradient-roscommon text-white px-6 py-3 rounded-xl font-semibold hover:shadow-lg transition-all duration-200"
+              >
+                Try Again
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -104,10 +111,14 @@ export default function VoteScreen() {
   }
 
   return (
-    <div className="bg-white min-h-full">
-      <div className="p-4 space-y-4">
+    <div className="flex flex-col h-full min-h-[calc(100vh-140px)]">
+      {/* Stats Header - compact but informative */}
+      <div className="flex-shrink-0 p-4 pb-2">
         <VotingStats stats={votingStats} />
-        
+      </div>
+      
+      {/* Main Content Area - fills remaining space */}
+      <div className="flex-1 p-4 pt-2">
         {currentVote ? (
           <VotingCard
             vote={currentVote}
@@ -117,7 +128,9 @@ export default function VoteScreen() {
             onClearError={() => setError(null)}
           />
         ) : (
-          <NoSongsToVote />
+          <div className="h-full flex items-center justify-center">
+            <NoSongsToVote />
+          </div>
         )}
       </div>
     </div>
