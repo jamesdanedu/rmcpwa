@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useAuthStore } from '../stores/authStore'
 import { useAppStore } from '../stores/appStore'
 
@@ -18,24 +18,56 @@ import LoginForm from '../features/auth/LoginForm'
 export default function Home() {
   const { user, init } = useAuthStore()
   const { currentTab } = useAppStore()
+  const [viewportHeight, setViewportHeight] = useState('100vh')
 
   useEffect(() => {
     init()
   }, [init])
 
+  // Handle dynamic viewport height for mobile browsers
+  useEffect(() => {
+    const updateViewportHeight = () => {
+      const vh = window.innerHeight * 0.01
+      document.documentElement.style.setProperty('--vh', `${vh}px`)
+      setViewportHeight(`${window.innerHeight}px`)
+    }
+
+    updateViewportHeight()
+    window.addEventListener('resize', updateViewportHeight)
+    window.addEventListener('orientationchange', updateViewportHeight)
+    
+    // Also update when the address bar shows/hides on mobile
+    let ticking = false
+    const handleScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          updateViewportHeight()
+          ticking = false
+        })
+        ticking = true
+      }
+    }
+    
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      window.removeEventListener('resize', updateViewportHeight)
+      window.removeEventListener('orientationchange', updateViewportHeight)
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [])
+
   if (!user) {
     return (
-      <div className="app-container bg-white">
-        <div className="gradient-roscommon p-5 text-center">
-          <h1 className="text-2xl font-extrabold tracking-tight mb-1 text-black">
-            RMCBuddy
-          </h1>
-          <p className="text-sm font-medium opacity-90 text-black">
-            Roscommon Mens Choir
-          </p>
-        </div>
-        <div className="flex-1 flex items-center justify-center p-6">
-          <LoginForm />
+      <div 
+        className="app-container min-h-screen-mobile prevent-overscroll"
+        style={{ height: viewportHeight }}
+      >
+        <AppHeader />
+        <div className="flex items-center justify-center" style={{ height: 'calc(100% - 120px)' }}>
+          <div className="p-6 w-full">
+            <LoginForm />
+          </div>
         </div>
         <PWAInstallPrompt />
       </div>
@@ -53,24 +85,20 @@ export default function Home() {
   }
 
   return (
-    <div className="app-container bg-white">
-      <div className="gradient-roscommon p-5 text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight mb-1 text-black">
-          RMCBuddy
-        </h1>
-        <p className="text-sm font-medium opacity-90 text-black">
-          Roscommon Mens Choir
-        </p>
-        {user && (
-          <button className="absolute top-4 right-4 flex items-center gap-2 text-xs font-medium bg-black/20 hover:bg-black/30 px-3 py-2 rounded-full transition-all duration-200">
-            <span>👤</span>
-            <span className="hidden sm:inline">{user.name}</span>
-          </button>
-        )}
-      </div>
+    <div 
+      className="app-container min-h-screen-mobile prevent-overscroll flex flex-col"
+      style={{ height: viewportHeight }}
+    >
+      <AppHeader />
       
-      <main className="main-content bg-white">
-        <div className="screen-content">
+      <main className="flex-1 overflow-hidden">
+        <div 
+          className="h-full overflow-y-auto smooth-scroll"
+          style={{ 
+            paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
+            height: 'calc(100% - env(safe-area-inset-bottom, 0px))'
+          }}
+        >
           {renderScreen()}
         </div>
       </main>
