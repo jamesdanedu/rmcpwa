@@ -17,7 +17,7 @@ import LoginForm from '../features/auth/LoginForm'
 
 export default function Home() {
   const { user, init } = useAuthStore()
-  const { currentTab } = useAppStore()
+  const { currentTab, setCurrentTab } = useAppStore()
   const [viewportHeight, setViewportHeight] = useState('100vh')
 
   useEffect(() => {
@@ -35,37 +35,30 @@ export default function Home() {
     updateViewportHeight()
     window.addEventListener('resize', updateViewportHeight)
     window.addEventListener('orientationchange', updateViewportHeight)
-    
-    // Also update when the address bar shows/hides on mobile
-    let ticking = false
-    const handleScroll = () => {
-      if (!ticking) {
-        requestAnimationFrame(() => {
-          updateViewportHeight()
-          ticking = false
-        })
-        ticking = true
-      }
-    }
-    
-    window.addEventListener('scroll', handleScroll, { passive: true })
 
     return () => {
       window.removeEventListener('resize', updateViewportHeight)
       window.removeEventListener('orientationchange', updateViewportHeight)
-      window.removeEventListener('scroll', handleScroll)
     }
   }, [])
+
+  // Debug current tab
+  useEffect(() => {
+    console.log('Current tab changed to:', currentTab)
+  }, [currentTab])
 
   if (!user) {
     return (
       <div 
-        className="w-full min-h-screen-mobile prevent-overscroll"
-        style={{ height: viewportHeight }}
+        className="w-full min-h-screen flex flex-col"
+        style={{ 
+          height: viewportHeight,
+          background: 'linear-gradient(135deg, #111127 0%, #1a1a3a 100%)'
+        }}
       >
         <AppHeader />
-        <div className="flex items-center justify-center w-full" style={{ height: 'calc(100% - 120px)' }}>
-          <div className="p-6 w-full max-w-md mx-auto">
+        <div className="flex-1 flex items-center justify-center p-6">
+          <div className="w-full max-w-sm mx-auto">
             <LoginForm />
           </div>
         </div>
@@ -76,34 +69,49 @@ export default function Home() {
 
   const renderScreen = () => {
     switch (currentTab) {
-      case 'suggest': return <SuggestScreen />
-      case 'vote': return <VoteScreen />
-      case 'ranking': return <RankingScreen />
-      case 'choir-songs': return <ChoirSongsScreen />
-      default: return <SuggestScreen />
+      case 'suggest': 
+        return <SuggestScreen key="suggest" />
+      case 'vote': 
+        return <VoteScreen key="vote" />
+      case 'ranking': 
+        return <RankingScreen key="ranking" />
+      case 'choir-songs': 
+        return <ChoirSongsScreen key="choir-songs" />
+      default: 
+        return <SuggestScreen key="default" />
     }
   }
 
   return (
     <div 
-      className="w-full min-h-screen-mobile prevent-overscroll flex flex-col"
-      style={{ height: viewportHeight }}
+      className="w-full min-h-screen flex flex-col"
+      style={{ 
+        height: viewportHeight,
+        background: 'linear-gradient(135deg, #111127 0%, #1a1a3a 100%)'
+      }}
     >
-      <AppHeader />
+      {/* Header - fixed height */}
+      <div className="flex-shrink-0">
+        <AppHeader />
+      </div>
       
+      {/* Main content - fills remaining space */}
       <main className="flex-1 overflow-hidden w-full">
         <div 
-          className="h-full overflow-y-auto smooth-scroll w-full"
+          className="h-full w-full overflow-y-auto"
           style={{ 
-            paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 0px))',
-            height: 'calc(100% - env(safe-area-inset-bottom, 0px))'
+            paddingBottom: 'calc(80px + env(safe-area-inset-bottom, 20px))'
           }}
         >
           {renderScreen()}
         </div>
       </main>
 
-      <TabNavigation />
+      {/* Fixed bottom navigation */}
+      <div className="flex-shrink-0">
+        <TabNavigation />
+      </div>
+      
       <PWAInstallPrompt />
     </div>
   )
