@@ -8,17 +8,21 @@ export default function TabNavigation() {
 
   return (
     <nav 
-      className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[430px] z-50"
+      className="fixed bottom-0 left-0 right-0 w-full z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
-      <div className="glass bg-slate-900/90 border-t border-white/10 backdrop-blur-lg">
+      <div className="glass bg-slate-900/90 border-t border-white/10 backdrop-blur-lg mx-auto max-w-[430px]">
         <div className="flex">
           {TABS.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setCurrentTab(tab.id)}
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                setCurrentTab(tab.id)
+              }}
               className={`
                 flex-1 flex flex-col items-center gap-1 py-3 px-2 text-xs font-semibold
                 transition-all duration-300 relative uppercase tracking-wide touch-target
