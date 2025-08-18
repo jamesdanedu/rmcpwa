@@ -111,14 +111,14 @@ export default function RankingList({ rankings }) {
 
                   {/* Yes Votes */}
                   <td className="w-12 text-center py-2 px-2">
-                    <span className="text-green-400 font-medium text-xs">
+                    <span className="font-medium text-xs" style={{ color: '#22c55e' }}>
                       {song.yes_votes || 0}
                     </span>
                   </td>
 
                   {/* No Votes */}
                   <td className="w-12 text-center py-2 px-2">
-                    <span className="text-red-400 font-medium text-xs">
+                    <span className="font-medium text-xs" style={{ color: '#ef4444' }}>
                       {song.no_votes || 0}
                     </span>
                   </td>
