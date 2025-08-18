@@ -50,27 +50,11 @@ export default function RankingList({ rankings }) {
     return rankedSongs
   }
 
-  const rankedSongs = calculateGolfRankings(rankings)
-
-  const formatViewCount = (count) => {
-    if (!count) return '0'
-    if (count < 1000) return count.toString()
-    if (count < 1000000) return (count / 1000).toFixed(1).replace('.0', '') + 'K'
-    if (count < 1000000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M'
-    return (count / 1000000000).toFixed(2).replace('.00', '').replace(/\.?0+$/, '') + 'B'
-  }
-
-  return (
-    <>
-      <div className="glass rounded-xl overflow-hidden border border-white/10">
-        <table className="w-full">
   const handleSongClick = (song) => {
     setSelectedSong(song)
     setShowVideoModal(true)
   }
 
-  const rankedSongs = calculateGolfRankings(rankings)
-
   const formatViewCount = (count) => {
     if (!count) return '0'
     if (count < 1000) return count.toString()
@@ -78,6 +62,8 @@ export default function RankingList({ rankings }) {
     if (count < 1000000000) return (count / 1000000).toFixed(1).replace('.0', '') + 'M'
     return (count / 1000000000).toFixed(2).replace('.00', '').replace(/\.?0+$/, '') + 'B'
   }
+
+  const rankedSongs = calculateGolfRankings(rankings)
 
   return (
     <>
@@ -146,9 +132,6 @@ export default function RankingList({ rankings }) {
                 </tr>
               )
             })}
-          </tbody>
-        </table>
-      </div>
           </tbody>
         </table>
       </div>
