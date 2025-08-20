@@ -14,15 +14,8 @@ export default function TabNavigation() {
   const { currentTab, setCurrentTab } = useAppStore()
 
   const handleTabClick = (tabId) => {
-    console.log('=== TAB CLICK DEBUG ===')
-    console.log('Clicked tab ID:', tabId)
-    console.log('Current tab before:', currentTab)
-    
-    // Force re-render by using a slightly different approach
-    setTimeout(() => {
-      setCurrentTab(tabId)
-      console.log('Tab set to:', tabId)
-    }, 0)
+    console.log('Clicking tab:', tabId)
+    setCurrentTab(tabId)
   }
 
   return (
@@ -32,7 +25,7 @@ export default function TabNavigation() {
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
-      <div className="w-full bg-white/95 backdrop-blur-lg border-t border-gray-300 shadow-lg">
+      <div className="w-full bg-slate-900/95 backdrop-blur-lg border-t border-white/10">
         <div className="flex w-full">
           {TABS.map((tab) => (
             <button
@@ -43,14 +36,14 @@ export default function TabNavigation() {
                 transition-all duration-300 relative uppercase tracking-wide
                 min-h-[60px] min-w-0
                 ${currentTab === tab.id 
-                  ? 'text-blue-600' 
-                  : 'text-gray-500 hover:text-gray-700 active:text-gray-900'
+                  ? 'text-yellow-400' 
+                  : 'text-gray-400 hover:text-gray-200 active:text-gray-100'
                 }
               `}
             >
               {/* Active indicator */}
               {currentTab === tab.id && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-blue-600 rounded-b-sm" />
+                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-blue-500 rounded-b-sm" />
               )}
               
               {/* Icon */}
