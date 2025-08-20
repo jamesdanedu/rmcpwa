@@ -32,7 +32,7 @@ export default function TabNavigation() {
               key={tab.id}
               onClick={() => handleTabClick(tab.id)}
               className={`
-                flex-1 flex flex-col items-center gap-1 py-3 px-2 text-xs font-semibold
+                w-full flex flex-col items-center gap-1 py-3 px-2 text-xs font-semibold
                 transition-all duration-300 relative uppercase tracking-wide
                 min-h-[60px] min-w-0
                 ${currentTab === tab.id
