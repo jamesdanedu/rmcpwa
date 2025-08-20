@@ -26,7 +26,7 @@ export default function TabNavigation() {
       }}
     >
       <div className="w-full bg-slate-900/95 backdrop-blur-lg border-t border-white/10">
-        <div className="grid grid-cols-4">
+        <div className="grid grid-cols-4 w-full">
           {TABS.map((tab) => (
             <button
               key={tab.id}
