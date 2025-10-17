@@ -20,7 +20,7 @@ export default function TabNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50"
+      className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[430px] z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
