@@ -87,8 +87,32 @@ function SetlistCard({ setlist, archived = false }) {
     alert(`Generate PDF for: ${setlist.name}`)
   }
 
+  const handleOpenMaps = () => {
+    if (setlist.eircode) {
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(setlist.eircode)}`
+      window.open(mapsUrl, '_blank')
+    }
+  }
+
   const eventDate = new Date(setlist.event_date)
   const isUpcoming = isAfter(eventDate, new Date())
+  
+  // Format time if available
+  const formatTime = (timeString) => {
+    if (!timeString) return null
+    try {
+      const [hours, minutes] = timeString.split(':')
+      const date = new Date()
+      date.setHours(parseInt(hours), parseInt(minutes))
+      return date.toLocaleTimeString('en-US', { 
+        hour: 'numeric', 
+        minute: '2-digit',
+        hour12: true 
+      })
+    } catch {
+      return timeString
+    }
+  }
 
   return (
     <div className={`
@@ -113,8 +137,12 @@ function SetlistCard({ setlist, archived = false }) {
             )}
           </div>
           
-          <div className="flex items-center gap-4 text-xs text-gray-400 mb-3">
+          <div className="flex items-center flex-wrap gap-4 text-xs text-gray-400 mb-3">
             <span>📅 {eventDate.toLocaleDateString()}</span>
+            
+            {setlist.event_time && (
+              <span>🕐 {formatTime(setlist.event_time)}</span>
+            )}
             
             {setlist.total_duration_minutes && (
               <span>⏱️ {setlist.total_duration_minutes} minutes</span>
@@ -125,9 +153,18 @@ function SetlistCard({ setlist, archived = false }) {
             )}
           </div>
 
+          {setlist.eircode && (
+            <button
+              onClick={handleOpenMaps}
+              className="text-xs text-blue-400 hover:text-blue-300 mb-3 flex items-center gap-1 transition-colors"
+            >
+              📍 {setlist.eircode} - View in Maps
+            </button>
+          )}
+
           {setlist.venue_notes && (
             <p className="text-xs text-gray-500 mb-3 line-clamp-2">
-              📍 {setlist.venue_notes}
+              {setlist.venue_notes}
             </p>
           )}
         </div>
