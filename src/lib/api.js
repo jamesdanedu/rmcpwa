@@ -282,6 +282,7 @@ export const getSetlists = async (userId) => {
 export const createSetlist = async (setlistData, songs, userId) => {
   try {
     console.log('Creating setlist:', setlistData.name)
+    console.log('Setlist data:', setlistData)
     
     // Insert setlist
     const { data: setlist, error: setlistError } = await supabase
@@ -289,6 +290,8 @@ export const createSetlist = async (setlistData, songs, userId) => {
       .insert({
         name: setlistData.name,
         event_date: setlistData.eventDate,
+        event_time: setlistData.eventTime || null,
+        eircode: setlistData.eircode || null,
         venue_notes: setlistData.venueNotes || null,
         total_duration_minutes: setlistData.totalDuration,
         song_count: songs.length,
@@ -298,7 +301,10 @@ export const createSetlist = async (setlistData, songs, userId) => {
       .select()
       .single()
 
-    if (setlistError) throw setlistError
+    if (setlistError) {
+      console.error('Error creating setlist:', setlistError)
+      throw setlistError
+    }
     
     console.log('Setlist created with ID:', setlist.id)
 
@@ -314,7 +320,10 @@ export const createSetlist = async (setlistData, songs, userId) => {
         .from('setlist_songs')
         .insert(setlistSongs)
 
-      if (songsError) throw songsError
+      if (songsError) {
+        console.error('Error adding songs to setlist:', songsError)
+        throw songsError
+      }
       
       console.log('Added', songs.length, 'songs to setlist')
     }
@@ -337,6 +346,8 @@ export const updateSetlist = async (setlistId, setlistData, songs) => {
       .update({
         name: setlistData.name,
         event_date: setlistData.eventDate,
+        event_time: setlistData.eventTime || null,
+        eircode: setlistData.eircode || null,
         venue_notes: setlistData.venueNotes || null,
         total_duration_minutes: setlistData.totalDuration,
         song_count: songs.length
