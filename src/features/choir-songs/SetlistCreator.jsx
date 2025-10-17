@@ -36,9 +36,17 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
         
         const songs = await getChoirSongs()
         
-        // Debug logging to see what we're getting
-        console.log('Loaded songs from API:', songs)
-        console.log('First song structure:', songs[0])
+        // CRITICAL DEBUG INFO
+        console.log('=== SETLIST CREATOR DEBUG ===')
+        console.log('Total songs loaded:', songs.length)
+        console.log('First song object:', songs[0])
+        console.log('First song title:', songs[0]?.title)
+        console.log('First song artist:', songs[0]?.artist)
+        console.log('First song genre:', songs[0]?.genre)
+        console.log('First song duration:', songs[0]?.duration_minutes)
+        console.log('First song keys:', Object.keys(songs[0] || {}))
+        console.log('All songs:', songs)
+        console.log('===========================')
         
         setAvailableSongs(songs)
         
@@ -65,21 +73,31 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
     const setlistSongIds = currentSetlist.map(item => item.song.id)
     filtered = filtered.filter(song => !setlistSongIds.includes(song.id))
 
+    console.log('Filtered songs:', {
+      total: availableSongs.length,
+      selectedGenre,
+      filtered: filtered.length,
+      inSetlist: setlistSongIds.length
+    })
+
     setFilteredSongs(filtered)
   }, [availableSongs, selectedGenre, currentSetlist])
 
   const addToSetlist = (song) => {
+    console.log('Adding song to setlist:', song)
+    
     const newItem = {
       id: `setlist-${Date.now()}`,
       song,
       position: currentSetlist.length + 1
     }
     
-    console.log('Adding song to setlist:', song)
     setCurrentSetlist(prev => [...prev, newItem])
   }
 
   const removeFromSetlist = (itemId) => {
+    console.log('Removing song from setlist:', itemId)
+    
     setCurrentSetlist(prev => {
       const filtered = prev.filter(item => item.id !== itemId)
       // Reorder positions
@@ -91,6 +109,8 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
   }
 
   const reorderSetlist = (dragIndex, hoverIndex) => {
+    console.log('Reordering setlist:', { dragIndex, hoverIndex })
+    
     setCurrentSetlist(prev => {
       const newList = [...prev]
       const draggedItem = newList[dragIndex]
@@ -109,12 +129,20 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
   }
 
   const calculateTotalDuration = () => {
-    return currentSetlist.reduce((total, item) => {
-      return total + (item.song.duration_minutes || 0)
+    const total = currentSetlist.reduce((sum, item) => {
+      const duration = item.song.duration_minutes || 0
+      return sum + duration
     }, 0)
+    
+    console.log('Total duration calculated:', total, 'minutes')
+    return total
   }
 
   const handleSave = async () => {
+    console.log('Attempting to save setlist...')
+    console.log('Form data:', formData)
+    console.log('Current setlist:', currentSetlist)
+    
     if (!formData.name.trim()) {
       setError('Setlist name is required')
       return
@@ -134,19 +162,24 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
       setIsSaving(true)
       setError(null)
 
+      const totalDuration = calculateTotalDuration()
+      
       const setlistData = {
         name: formData.name.trim(),
-        event_date: formData.eventDate,
-        target_duration_minutes: formData.targetDuration ? parseInt(formData.targetDuration) : null,
-        venue_notes: formData.venueNotes.trim() || null,
-        total_duration_minutes: calculateTotalDuration(),
-        song_count: currentSetlist.length
+        eventDate: formData.eventDate,
+        venueNotes: formData.venueNotes.trim() || null,
+        totalDuration: totalDuration
       }
 
-      const newSetlist = await createSetlist(setlistData, user.id)
+      // Extract just the song data (not the wrapper with position)
+      const songs = currentSetlist.map(item => item.song)
       
-      // TODO: Save setlist songs to junction table
-      // This would require an additional API call to save the songs with positions
+      console.log('Creating setlist with data:', setlistData)
+      console.log('Songs to add:', songs.length)
+
+      const newSetlist = await createSetlist(setlistData, songs, user.id)
+      
+      console.log('Setlist created successfully:', newSetlist)
       
       onSetlistCreated(newSetlist)
       
@@ -201,12 +234,15 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
         </p>
       </div>
 
-      {/* Debug Info - Remove this after fixing */}
+      {/* Debug Info - Shows on screen */}
       {availableSongs.length > 0 && (
         <div className="glass rounded-xl p-4 border border-blue-500/20 bg-blue-500/10">
-          <div className="text-xs text-blue-300 font-mono">
-            <div>Debug: Loaded {availableSongs.length} songs</div>
-            <div>First song: {JSON.stringify(availableSongs[0], null, 2)}</div>
+          <div className="text-xs text-blue-300">
+            <div className="font-bold mb-2">🐛 Debug Info:</div>
+            <div>Loaded {availableSongs.length} songs</div>
+            <div className="mt-2 font-mono text-xs bg-black/30 p-2 rounded overflow-x-auto">
+              First song: {JSON.stringify(availableSongs[0], null, 2)}
+            </div>
           </div>
         </div>
       )}
