@@ -1,6 +1,14 @@
 'use client'
 
 export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre }) {
+  // ADD THIS DEBUG LOGGING
+  console.log('=== AVAILABLE SONGS DEBUG ===')
+  console.log('Total songs received:', songs.length)
+  console.log('First song:', songs[0])
+  console.log('First song title:', songs[0]?.title)
+  console.log('First song artist:', songs[0]?.artist)
+  console.log('============================')
+  
   const getGenreColor = (genre) => {
     const colors = {
       'Christmas': 'text-red-400 bg-red-400/20',
@@ -34,6 +42,13 @@ export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre })
 
   return (
     <div className="space-y-2 max-h-96 overflow-y-auto glass rounded-xl p-4 border border-white/10">
+      {/* ADD THIS DEBUG BOX */}
+      <div className="glass rounded-lg p-2 border border-blue-500/20 bg-blue-500/10 mb-3">
+        <div className="text-xs text-blue-300 font-mono">
+          Debug: {songs.length} songs | First: {songs[0]?.title || 'NO TITLE'} by {songs[0]?.artist || 'NO ARTIST'}
+        </div>
+      </div>
+      
       {songs.map((song) => (
         <div
           key={song.id}
@@ -45,16 +60,16 @@ export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre })
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
               <h5 className="text-white font-medium text-sm leading-tight mb-1">
-                {song.title}
+                {song.title || '[NO TITLE]'}
               </h5>
               
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-gray-400 text-xs">
-                  {song.artist}
+                  {song.artist || '[NO ARTIST]'}
                 </span>
                 <span className="text-gray-600">•</span>
                 <span className={`text-xs font-medium px-2 py-1 rounded ${getGenreColor(song.genre)}`}>
-                  {song.genre}
+                  {song.genre || '[NO GENRE]'}
                 </span>
               </div>
               
