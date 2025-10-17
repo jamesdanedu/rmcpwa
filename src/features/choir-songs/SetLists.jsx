@@ -6,52 +6,88 @@ import Button from '../../components/ui/Button'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function SetLists() {
-  const { isAuthenticated } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   const [setlists, setSetlists] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const [showCreator, setShowCreator] = useState(false)
+  const [editingSetlist, setEditingSetlist] = useState(null)
 
   useEffect(() => {
-    const loadSetlists = async () => {
-      try {
-        setIsLoading(true)
-        
-        // Mock data for now
-        const mockSetlists = [
-          {
-            id: '1',
-            name: 'Spring Concert 2025',
-            event_date: '2025-03-15',
-            total_duration_minutes: 45,
-            song_count: 8
-          }
-        ]
-        
-        setSetlists(mockSetlists)
-        
-      } catch (err) {
-        console.error('Error loading setlists:', err)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
     loadSetlists()
   }, [])
+
+  const loadSetlists = async () => {
+    try {
+      setIsLoading(true)
+      // TODO: Replace with actual API call
+      // const data = await getSetlists()
+      
+      // Mock data for now
+      const mockSetlists = [
+        {
+          id: '1',
+          name: 'Spring Concert 2025',
+          event_date: '2025-03-15',
+          total_duration_minutes: 45,
+          song_count: 8,
+          venue_notes: 'Roscommon Arts Centre'
+        }
+      ]
+      
+      setSetlists(mockSetlists)
+    } catch (err) {
+      console.error('Error loading setlists:', err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   const handleCreateClick = () => {
     if (!isAuthenticated) {
       alert('Please log in to create setlists')
       return
     }
-    alert('Create setlist functionality coming soon!')
+    setEditingSetlist(null)
+    setShowCreator(true)
+  }
+
+  const handleEditClick = (setlist) => {
+    setEditingSetlist(setlist)
+    setShowCreator(true)
+  }
+
+  const handleSetlistSaved = () => {
+    setShowCreator(false)
+    setEditingSetlist(null)
+    loadSetlists()
+  }
+
+  const handleCancel = () => {
+    setShowCreator(false)
+    setEditingSetlist(null)
+  }
+
+  if (showCreator) {
+    return (
+      <SetlistCreator
+        setlist={editingSetlist}
+        onSave={handleSetlistSaved}
+        onCancel={handleCancel}
+      />
+    )
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '400px'
+      }}>
+        <div style={{ textAlign: 'center' }}>
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-400 text-sm">
+          <p style={{ marginTop: '16px', color: '#9CA3AF', fontSize: '14px' }}>
             Loading setlists...
           </p>
         </div>
@@ -60,7 +96,7 @@ export default function SetLists() {
   }
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Button
         variant="primary"
         size="lg"
@@ -70,21 +106,616 @@ export default function SetLists() {
         ➕ Create New Setlist
       </Button>
 
-      <div className="space-y-3">
-        {setlists.map((setlist) => (
-          <div
-            key={setlist.id}
-            className="glass rounded-xl p-4 border border-white/10"
-          >
-            <h4 className="text-white font-semibold text-sm mb-1">
-              {setlist.name}
-            </h4>
-            <p className="text-gray-400 text-xs">
-              {setlist.event_date} • {setlist.total_duration_minutes} min • {setlist.song_count} songs
-            </p>
-          </div>
-        ))}
+      {setlists.length === 0 ? (
+        <NoSetlists />
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          {setlists.map((setlist) => (
+            <SetlistCard
+              key={setlist.id}
+              setlist={setlist}
+              onEdit={() => handleEditClick(setlist)}
+              onExport={() => exportToPDF(setlist)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function NoSetlists() {
+  return (
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.05)',
+      borderRadius: '20px',
+      padding: '48px 24px',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      textAlign: 'center',
+      backdropFilter: 'blur(20px)'
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎼</div>
+      <h3 style={{
+        fontSize: '20px',
+        fontWeight: 'bold',
+        color: '#ffffff',
+        marginBottom: '12px'
+      }}>
+        No Setlists Yet
+      </h3>
+      <p style={{ color: '#9CA3AF', fontSize: '14px', marginBottom: '24px' }}>
+        Create your first setlist to organize songs for performances.
+      </p>
+      
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.03)',
+        borderRadius: '12px',
+        padding: '16px',
+        border: '1px solid rgba(255, 255, 255, 0.05)'
+      }}>
+        <h4 style={{ color: '#FFD700', fontWeight: '600', marginBottom: '8px', fontSize: '14px' }}>
+          Setlist Features
+        </h4>
+        <div style={{ fontSize: '12px', color: '#9CA3AF', textAlign: 'left' }}>
+          <p>• Add/remove songs with drag-and-drop ordering</p>
+          <p>• Automatic duration calculation</p>
+          <p>• Filter songs by genre</p>
+          <p>• Export to PDF with lyrics</p>
+        </div>
       </div>
     </div>
   )
+}
+
+function SetlistCard({ setlist, onEdit, onExport }) {
+  const eventDate = new Date(setlist.event_date)
+  const isUpcoming = eventDate > new Date()
+
+  return (
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.05)',
+      borderRadius: '16px',
+      padding: '16px',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(20px)',
+      transition: 'all 0.2s'
+    }}
+    onMouseEnter={(e) => {
+      e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.3)'
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'
+    }}
+    onMouseLeave={(e) => {
+      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
+      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+    }}>
+      <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', marginBottom: '12px' }}>
+        <div style={{ flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <h4 style={{
+              color: '#ffffff',
+              fontWeight: '600',
+              fontSize: '16px'
+            }}>
+              {setlist.name}
+            </h4>
+            {isUpcoming && (
+              <span style={{
+                fontSize: '10px',
+                background: 'rgba(16, 185, 129, 0.2)',
+                color: '#10B981',
+                padding: '2px 8px',
+                borderRadius: '4px',
+                fontWeight: '600'
+              }}>
+                UPCOMING
+              </span>
+            )}
+          </div>
+          
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            fontSize: '12px',
+            color: '#9CA3AF',
+            marginBottom: '8px'
+          }}>
+            <span>📅 {eventDate.toLocaleDateString()}</span>
+            {setlist.total_duration_minutes && (
+              <span>⏱️ {setlist.total_duration_minutes} min</span>
+            )}
+            {setlist.song_count && (
+              <span>🎵 {setlist.song_count} songs</span>
+            )}
+          </div>
+
+          {setlist.venue_notes && (
+            <p style={{ fontSize: '12px', color: '#6B7280' }}>
+              📍 {setlist.venue_notes}
+            </p>
+          )}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', gap: '8px', paddingTop: '12px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+        <button
+          onClick={onEdit}
+          style={{
+            flex: 1,
+            padding: '10px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'rgba(255, 255, 255, 0.1)',
+            color: '#ffffff',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'}
+        >
+          ✏️ Edit
+        </button>
+        
+        <button
+          onClick={onExport}
+          style={{
+            flex: 1,
+            padding: '10px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'rgba(255, 215, 0, 0.2)',
+            color: '#FFD700',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            transition: 'all 0.2s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 215, 0, 0.3)'}
+          onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 215, 0, 0.2)'}
+        >
+          📄 Export PDF
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function SetlistCreator({ setlist, onSave, onCancel }) {
+  const [formData, setFormData] = useState({
+    name: setlist?.name || '',
+    eventDate: setlist?.event_date || '',
+    venueNotes: setlist?.venue_notes || ''
+  })
+  const [availableSongs, setAvailableSongs] = useState([])
+  const [selectedSongs, setSelectedSongs] = useState([])
+  const [selectedGenre, setSelectedGenre] = useState('all')
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    loadSongs()
+  }, [])
+
+  const loadSongs = async () => {
+    try {
+      setIsLoading(true)
+      // TODO: Load from actual API
+      // const songs = await getChoirSongs()
+      
+      // Mock data
+      const mockSongs = [
+        { id: '1', title: 'Lean On Me', artist: 'Bill Withers', genre: 'R&B, Soul', duration_minutes: 4 },
+        { id: '2', title: 'The Wild Rover', artist: 'The Dubliners', genre: 'Folk, Traditional Irish', duration_minutes: 3.5 },
+        { id: '3', title: 'Space Oddity', artist: 'David Bowie', genre: 'Folk Rock, Art Pop', duration_minutes: 3.5 }
+      ]
+      
+      setAvailableSongs(mockSongs)
+    } catch (err) {
+      console.error('Error loading songs:', err)
+      setError('Failed to load songs')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const addSong = (song) => {
+    setSelectedSongs(prev => [...prev, { ...song, position: prev.length + 1 }])
+  }
+
+  const removeSong = (songId) => {
+    setSelectedSongs(prev => {
+      const filtered = prev.filter(s => s.id !== songId)
+      return filtered.map((s, idx) => ({ ...s, position: idx + 1 }))
+    })
+  }
+
+  const moveSong = (fromIndex, toIndex) => {
+    setSelectedSongs(prev => {
+      const newList = [...prev]
+      const [moved] = newList.splice(fromIndex, 1)
+      newList.splice(toIndex, 0, moved)
+      return newList.map((s, idx) => ({ ...s, position: idx + 1 }))
+    })
+  }
+
+  const totalDuration = selectedSongs.reduce((sum, song) => sum + (song.duration_minutes || 0), 0)
+
+  const filteredAvailableSongs = availableSongs.filter(song => {
+    const notInSetlist = !selectedSongs.find(s => s.id === song.id)
+    const matchesGenre = selectedGenre === 'all' || song.genre.includes(selectedGenre)
+    return notInSetlist && matchesGenre
+  })
+
+  const handleSave = async () => {
+    if (!formData.name.trim()) {
+      setError('Setlist name is required')
+      return
+    }
+    if (!formData.eventDate) {
+      setError('Event date is required')
+      return
+    }
+    if (selectedSongs.length === 0) {
+      setError('Add at least one song')
+      return
+    }
+
+    try {
+      setIsSaving(true)
+      // TODO: Save to database
+      // await saveSetlist({ ...formData, songs: selectedSongs, totalDuration })
+      
+      alert('Setlist saved successfully!')
+      onSave()
+    } catch (err) {
+      setError('Failed to save setlist')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', padding: '48px' }}>
+        <LoadingSpinner size="lg" />
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Header */}
+      <div style={{ textAlign: 'center' }}>
+        <h2 style={{ fontSize: '24px', fontWeight: 'bold', color: '#ffffff', marginBottom: '8px' }}>
+          {setlist ? 'Edit Setlist' : '🎼 Create New Setlist'}
+        </h2>
+        <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
+          Add songs and organize your performance
+        </p>
+      </div>
+
+      {/* Form */}
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: '16px',
+        padding: '20px',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        {error && (
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.2)',
+            border: '1px solid rgba(239, 68, 68, 0.3)',
+            borderRadius: '12px',
+            padding: '12px',
+            marginBottom: '16px'
+          }}>
+            <span style={{ color: '#FCA5A5', fontSize: '14px' }}>⚠️ {error}</span>
+          </div>
+        )}
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#E5E7EB', marginBottom: '8px' }}>
+              Setlist Name
+            </label>
+            <input
+              type="text"
+              placeholder="e.g., Spring Concert 2025"
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                background: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                border: '2px solid rgba(255, 255, 255, 0.2)',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#E5E7EB', marginBottom: '8px' }}>
+              Event Date
+            </label>
+            <input
+              type="date"
+              value={formData.eventDate}
+              onChange={(e) => setFormData(prev => ({ ...prev, eventDate: e.target.value }))}
+              min={new Date().toISOString().split('T')[0]}
+              style={{
+                width: '100%',
+                padding: '12px',
+                borderRadius: '8px',
+                background: 'rgba(0, 0, 0, 0.3)',
+                color: '#ffffff',
+                border: '2px solid rgba(255, 255, 255, 0.2)',
+                fontSize: '14px'
+              }}
+            />
+          </div>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#E5E7EB', marginBottom: '8px' }}>
+            Venue/Notes
+          </label>
+          <textarea
+            placeholder="e.g., Roscommon Arts Centre - acoustic venue"
+            value={formData.venueNotes}
+            onChange={(e) => setFormData(prev => ({ ...prev, venueNotes: e.target.value }))}
+            rows={2}
+            style={{
+              width: '100%',
+              padding: '12px',
+              borderRadius: '8px',
+              background: 'rgba(0, 0, 0, 0.3)',
+              color: '#ffffff',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
+              fontSize: '14px',
+              resize: 'none'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* Duration Tracker */}
+      <div style={{
+        background: 'rgba(255, 215, 0, 0.1)',
+        border: '1px solid rgba(255, 215, 0, 0.3)',
+        borderRadius: '12px',
+        padding: '16px',
+        textAlign: 'center'
+      }}>
+        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FFD700', marginBottom: '4px' }}>
+          {totalDuration} minutes
+        </div>
+        <div style={{ fontSize: '12px', color: '#9CA3AF' }}>
+          {selectedSongs.length} song{selectedSongs.length !== 1 ? 's' : ''} in setlist
+        </div>
+      </div>
+
+      {/* Genre Filter */}
+      <div>
+        <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', color: '#E5E7EB', marginBottom: '8px' }}>
+          Filter by Genre
+        </label>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+          {['all', 'Folk', 'Rock', 'Pop', 'Gospel'].map(genre => (
+            <button
+              key={genre}
+              onClick={() => setSelectedGenre(genre)}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '8px',
+                border: 'none',
+                background: selectedGenre === genre ? 'linear-gradient(135deg, #FFD700, #4169E1)' : 'rgba(255, 255, 255, 0.1)',
+                color: 'white',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              {genre === 'all' ? 'All' : genre}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Two Column Layout */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+        {/* Available Songs */}
+        <div>
+          <h3 style={{ color: '#ffffff', fontWeight: '600', marginBottom: '12px', fontSize: '14px' }}>
+            Available Songs ({filteredAvailableSongs.length})
+          </h3>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '12px',
+            padding: '12px',
+            maxHeight: '400px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            {filteredAvailableSongs.map(song => (
+              <div
+                key={song.id}
+                onClick={() => addSong(song)}
+                style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  padding: '12px',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                  e.currentTarget.style.transform = 'translateX(4px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                  e.currentTarget.style.transform = 'translateX(0)'
+                }}
+              >
+                <div style={{ fontSize: '13px', fontWeight: '600', color: '#ffffff', marginBottom: '4px' }}>
+                  {song.title}
+                </div>
+                <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                  {song.artist} • {song.duration_minutes} min
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Selected Songs */}
+        <div>
+          <h3 style={{ color: '#ffffff', fontWeight: '600', marginBottom: '12px', fontSize: '14px' }}>
+            Setlist Order ({selectedSongs.length})
+          </h3>
+          <div style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            borderRadius: '12px',
+            padding: '12px',
+            maxHeight: '400px',
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px'
+          }}>
+            {selectedSongs.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '24px', color: '#6B7280', fontSize: '12px' }}>
+                No songs added yet. Click songs from the left to add them.
+              </div>
+            ) : (
+              selectedSongs.map((song, idx) => (
+                <div
+                  key={song.id}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}
+                >
+                  <div style={{
+                    width: '24px',
+                    height: '24px',
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #FFD700, #4169E1)',
+                    color: 'white',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '11px',
+                    fontWeight: 'bold',
+                    flexShrink: 0
+                  }}>
+                    {idx + 1}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: '13px', fontWeight: '600', color: '#ffffff', marginBottom: '2px' }}>
+                      {song.title}
+                    </div>
+                    <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
+                      {song.duration_minutes} min
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    {idx > 0 && (
+                      <button
+                        onClick={() => moveSong(idx, idx - 1)}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '4px',
+                          border: 'none',
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          fontSize: '12px'
+                        }}
+                      >
+                        ↑
+                      </button>
+                    )}
+                    {idx < selectedSongs.length - 1 && (
+                      <button
+                        onClick={() => moveSong(idx, idx + 1)}
+                        style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '4px',
+                          border: 'none',
+                          background: 'rgba(255, 255, 255, 0.1)',
+                          color: '#ffffff',
+                          cursor: 'pointer',
+                          fontSize: '12px'
+                        }}
+                      >
+                        ↓
+                      </button>
+                    )}
+                    <button
+                      onClick={() => removeSong(song.id)}
+                      style={{
+                        width: '24px',
+                        height: '24px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        background: 'rgba(239, 68, 68, 0.2)',
+                        color: '#EF4444',
+                        cursor: 'pointer',
+                        fontSize: '12px',
+                        fontWeight: 'bold'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div style={{ display: 'flex', gap: '12px', paddingTop: '16px', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
+        <Button
+          variant="secondary"
+          size="lg"
+          onClick={onCancel}
+          disabled={isSaving}
+          style={{ flex: 1 }}
+        >
+          Cancel
+        </Button>
+        <Button
+          variant="primary"
+          size="lg"
+          onClick={handleSave}
+          loading={isSaving}
+          disabled={isSaving || selectedSongs.length === 0}
+          style={{ flex: 1 }}
+        >
+          {isSaving ? 'Saving...' : setlist ? 'Update Setlist' : 'Create Setlist'}
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+// PDF Export function (placeholder - needs implementation)
+function exportToPDF(setlist) {
+  alert('PDF Export feature coming soon!\n\nWill export: ' + setlist.name + '\nWith all song lyrics in 2-column format')
+  // TODO: Implement PDF generation with jsPDF or similar library
 }
