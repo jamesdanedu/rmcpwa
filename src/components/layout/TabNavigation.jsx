@@ -20,40 +20,82 @@ export default function TabNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-[430px] z-50"
       style={{
+        position: 'fixed',
+        bottom: 0,
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: '100%',
+        maxWidth: '430px',
+        zIndex: 100,
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
-      <div className="w-full bg-slate-900/95 backdrop-blur-lg border-t border-white/10">
-        <div className="flex flex-row w-full">
+      <div style={{
+        width: '100%',
+        background: 'rgba(15, 23, 42, 0.95)',
+        backdropFilter: 'blur(12px)',
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'row',
+          width: '100%'
+        }}>
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabClick(tab.id)}
-              className={`
-                flex-1 flex flex-col items-center justify-center gap-1 py-3 px-1
-                text-xs font-semibold transition-all duration-300 relative 
-                uppercase tracking-wide min-h-[64px]
-                ${currentTab === tab.id
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-200 active:text-gray-100'
-                }
-              `}
-              style={{ flexBasis: '25%' }}
+              style={{ 
+                flex: '1 1 25%',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '4px',
+                padding: '12px 4px',
+                fontSize: '10px',
+                fontWeight: '600',
+                transition: 'all 0.3s',
+                position: 'relative',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                minHeight: '64px',
+                border: 'none',
+                background: 'transparent',
+                cursor: 'pointer',
+                color: currentTab === tab.id ? '#FFD700' : '#9CA3AF'
+              }}
             >
               {/* Active indicator */}
               {currentTab === tab.id && (
-                <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-blue-500 rounded-b-sm" />
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '3px',
+                  background: 'linear-gradient(90deg, #FFD700, #4169E1)',
+                  borderRadius: '0 0 3px 3px'
+                }} />
               )}
               
               {/* Icon */}
-              <span className="text-lg mb-0.5">
+              <span style={{ fontSize: '18px', marginBottom: '2px' }}>
                 {tab.icon}
               </span>
               
               {/* Label */}
-              <span className="leading-tight text-center text-[10px] whitespace-nowrap overflow-hidden text-ellipsis max-w-full px-0.5">
+              <span style={{
+                lineHeight: '1.2',
+                textAlign: 'center',
+                fontSize: '10px',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                maxWidth: '100%',
+                padding: '0 2px'
+              }}>
                 {tab.label}
               </span>
             </button>
