@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import SongsAndLyrics from '../../features/choir-songs/SongsAndLyrics'
+import SetLists from '../../features/choir-songs/SetLists'
 
 export default function ChoirSongsScreen() {
   const [activeView, setActiveView] = useState('songs') // 'songs' or 'setlists'
@@ -56,34 +57,8 @@ export default function ChoirSongsScreen() {
       {activeView === 'songs' ? (
         <SongsAndLyrics />
       ) : (
-        <SetListsPlaceholder />
+        <SetLists />
       )}
-    </div>
-  )
-}
-
-function SetListsPlaceholder() {
-  return (
-    <div style={{
-      background: 'rgba(255, 255, 255, 0.05)',
-      borderRadius: '20px',
-      padding: '48px 24px',
-      border: '1px solid rgba(255, 255, 255, 0.1)',
-      textAlign: 'center',
-      backdropFilter: 'blur(20px)'
-    }}>
-      <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎼</div>
-      <h3 style={{ 
-        fontSize: '20px', 
-        fontWeight: 'bold', 
-        color: '#ffffff', 
-        marginBottom: '12px' 
-      }}>
-        Set Lists Coming Soon
-      </h3>
-      <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
-        The setlist management features are currently under development.
-      </p>
     </div>
   )
 }
