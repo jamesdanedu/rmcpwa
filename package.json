@@ -21,6 +21,7 @@
     "react-hook-form": "^7.47.0",
     "zod": "^3.22.0",
     "date-fns": "^2.30.0"
+     "jspdf": "^2.5.2"
   },
   "devDependencies": {
     "tailwindcss": "^3.3.0",
