@@ -1,12 +1,19 @@
 'use client'
 
-import Input from '../../ui/Input'
+import Input from '../../components/ui/Input'
 
 export default function SetlistForm({ formData, onChange, error, onClearError }) {
   const handleChange = (field, value) => {
     onChange(prev => ({ ...prev, [field]: value }))
     if (error && onClearError) {
       onClearError()
+    }
+  }
+
+  const handleEircodeClick = () => {
+    if (formData.eircode && formData.eircode.trim()) {
+      const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(formData.eircode)}`
+      window.open(mapsUrl, '_blank')
     }
   }
 
@@ -30,7 +37,8 @@ export default function SetlistForm({ formData, onChange, error, onClearError })
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-4">
+        {/* Row 1: Name */}
         <Input
           label="Setlist Name"
           type="text"
@@ -40,37 +48,80 @@ export default function SetlistForm({ formData, onChange, error, onClearError })
           required
         />
 
-        <Input
-          label="Event Date"
-          type="date"
-          value={formData.eventDate}
-          onChange={(e) => handleChange('eventDate', e.target.value)}
-          min={today}
-          required
-        />
-
-        <Input
-          label="Target Duration (minutes)"
-          type="number"
-          placeholder="e.g., 45"
-          value={formData.targetDuration}
-          onChange={(e) => handleChange('targetDuration', e.target.value)}
-          min="1"
-          max="180"
-        />
-
-        <div className="md:col-span-1">
+        {/* Row 2: Date and Time */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Input
-            label="Venue/Notes"
-            as="textarea"
-            placeholder="e.g., Roscommon Arts Centre - acoustic venue, no mics"
-            value={formData.venueNotes}
-            onChange={(e) => handleChange('venueNotes', e.target.value)}
-            rows="3"
-            className="resize-none"
+            label="Event Date"
+            type="date"
+            value={formData.eventDate}
+            onChange={(e) => handleChange('eventDate', e.target.value)}
+            min={today}
+            required
+          />
+
+          <Input
+            label="Event Time"
+            type="time"
+            value={formData.eventTime}
+            onChange={(e) => handleChange('eventTime', e.target.value)}
           />
         </div>
+
+        {/* Row 3: Eircode and Duration */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="relative">
+            <Input
+              label="Eircode (Irish Postcode)"
+              type="text"
+              placeholder="e.g., D02 XY45"
+              value={formData.eircode}
+              onChange={(e) => handleChange('eircode', e.target.value.toUpperCase())}
+              maxLength="8"
+            />
+            {formData.eircode && formData.eircode.trim() && (
+              <button
+                type="button"
+                onClick={handleEircodeClick}
+                className="absolute right-3 top-9 text-blue-400 hover:text-blue-300 transition-colors"
+                title="Open in Google Maps"
+              >
+                📍
+              </button>
+            )}
+          </div>
+
+          <Input
+            label="Target Duration (minutes)"
+            type="number"
+            placeholder="e.g., 45"
+            value={formData.targetDuration}
+            onChange={(e) => handleChange('targetDuration', e.target.value)}
+            min="1"
+            max="180"
+          />
+        </div>
+
+        {/* Row 4: Venue Notes */}
+        <Input
+          label="Venue/Notes"
+          as="textarea"
+          placeholder="e.g., Roscommon Arts Centre - acoustic venue, no mics"
+          value={formData.venueNotes}
+          onChange={(e) => handleChange('venueNotes', e.target.value)}
+          rows="3"
+          className="resize-none"
+        />
       </div>
+
+      {/* Helper text */}
+      {formData.eircode && formData.eircode.trim() && (
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="text-xs text-gray-400 flex items-center gap-2">
+            <span>💡</span>
+            <span>Click the 📍 icon to view this location in Google Maps</span>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
