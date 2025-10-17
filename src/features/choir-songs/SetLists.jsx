@@ -648,7 +648,7 @@ function SetlistCreator({ setlist, onSave, onCancel, userId }) {
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '12px'
+                    gap: '8px'
                   }}
                 >
                   <div style={{
@@ -666,15 +666,29 @@ function SetlistCreator({ setlist, onSave, onCancel, userId }) {
                   }}>
                     {idx + 1}
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '13px', fontWeight: '600', color: '#ffffff', marginBottom: '2px' }}>
+                  <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
+                    <div style={{ 
+                      fontSize: '13px', 
+                      fontWeight: '600', 
+                      color: '#ffffff', 
+                      marginBottom: '2px',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
                       {song.title}
                     </div>
-                    <div style={{ fontSize: '11px', color: '#9CA3AF' }}>
-                      {song.duration_minutes} min
+                    <div style={{ 
+                      fontSize: '11px', 
+                      color: '#9CA3AF',
+                      whiteSpace: 'nowrap',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis'
+                    }}>
+                      {song.artist} • {song.duration_minutes} min
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '4px' }}>
+                  <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                     {idx > 0 && (
                       <button
                         onClick={() => moveSong(idx, idx - 1)}
@@ -719,7 +733,7 @@ function SetlistCreator({ setlist, onSave, onCancel, userId }) {
                         background: 'rgba(239, 68, 68, 0.2)',
                         color: '#EF4444',
                         cursor: 'pointer',
-                        fontSize: '12px',
+                        fontSize: '14px',
                         fontWeight: 'bold'
                       }}
                     >
