@@ -2,55 +2,86 @@
 
 import { useState } from 'react'
 import SongsAndLyrics from '../../features/choir-songs/SongsAndLyrics'
-import SetLists from '../../features/choir-songs/SetLists'
 
 export default function ChoirSongsScreen() {
   const [activeView, setActiveView] = useState('songs') // 'songs' or 'setlists'
 
   const views = [
-    { id: 'songs', label: '📝 Songs & Lyrics', component: SongsAndLyrics },
-    { id: 'setlists', label: '🎼 Set Lists', component: SetLists }
+    { id: 'songs', label: '📝 Songs & Lyrics' },
+    { id: 'setlists', label: '🎼 Set Lists' }
   ]
 
-  const ActiveComponent = views.find(view => view.id === activeView)?.component
-
   return (
-    <div className="p-5 space-y-6 bg-white min-h-full">
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Navigation */}
-      <div className="flex gap-3">
+      <div style={{ display: 'flex', gap: '12px' }}>
         {views.map((view) => (
           <button
             key={view.id}
             onClick={() => setActiveView(view.id)}
-            disabled={true} // Disabled since they're not useable yet
-            className={`
-              flex-1 py-4 px-6 rounded-xl font-semibold text-sm transition-all duration-200
-              bg-gray-300 text-gray-500 border border-gray-400 cursor-not-allowed
-            `}
+            style={{
+              flex: 1,
+              padding: '16px 24px',
+              borderRadius: '12px',
+              fontWeight: '600',
+              fontSize: '14px',
+              transition: 'all 0.2s',
+              cursor: 'pointer',
+              border: activeView === view.id ? 'none' : '2px solid rgba(255, 255, 255, 0.1)',
+              background: activeView === view.id 
+                ? 'linear-gradient(135deg, #FFD700 0%, #4169E1 100%)'
+                : 'rgba(255, 255, 255, 0.05)',
+              color: 'white',
+              backdropFilter: 'blur(20px)'
+            }}
+            onMouseEnter={(e) => {
+              if (activeView !== view.id) {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeView !== view.id) {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+              }
+            }}
           >
             {view.label}
           </button>
         ))}
       </div>
 
-      {/* Disabled Notice */}
-      <div className="glass rounded-xl p-4 border border-gray-300 bg-gray-100">
-        <div className="flex items-center gap-2 text-gray-600">
-          <span className="text-sm">🚧</span>
-          <span className="text-xs font-medium">
-            Choir songs and setlist features are coming soon. Currently in development.
-          </span>
-        </div>
-      </div>
+      {/* Active View */}
+      {activeView === 'songs' ? (
+        <SongsAndLyrics />
+      ) : (
+        <SetListsPlaceholder />
+      )}
+    </div>
+  )
+}
 
-      {/* Placeholder Content */}
-      <div className="glass rounded-xl p-8 border border-gray-300 bg-gray-50 text-center">
-        <div className="text-gray-400 text-2xl mb-3">🎼</div>
-        <h3 className="text-gray-600 font-semibold mb-2">Feature Coming Soon</h3>
-        <p className="text-gray-500 text-sm">
-          The choir songs and setlist management features are currently under development.
-        </p>
-      </div>
+function SetListsPlaceholder() {
+  return (
+    <div style={{
+      background: 'rgba(255, 255, 255, 0.05)',
+      borderRadius: '20px',
+      padding: '48px 24px',
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      textAlign: 'center',
+      backdropFilter: 'blur(20px)'
+    }}>
+      <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎼</div>
+      <h3 style={{ 
+        fontSize: '20px', 
+        fontWeight: 'bold', 
+        color: '#ffffff', 
+        marginBottom: '12px' 
+      }}>
+        Set Lists Coming Soon
+      </h3>
+      <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
+        The setlist management features are currently under development.
+      </p>
     </div>
   )
 }
