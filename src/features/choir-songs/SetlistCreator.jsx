@@ -1,16 +1,16 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '../../../hooks/useAuth'
-import { getChoirSongs, createSetlist } from '../../../lib/api'
-import { GENRES } from '../../../lib/constants'
+import { useAuth } from '../../hooks/useAuth'
+import { getChoirSongs, createSetlist } from '../../lib/api'
+import { GENRES } from '../../lib/constants'
 import SetlistForm from './SetlistForm'
 import GenreFilter from './GenreFilter'
 import AvailableSongs from './AvailableSongs'
 import CurrentSetlist from './CurrentSetlist'
 import DurationTracker from './DurationTracker'
-import Button from '../../ui/Button'
-import LoadingSpinner from '../../ui/LoadingSpinner'
+import Button from '../../components/ui/Button'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function SetlistCreator({ onSetlistCreated, onCancel }) {
   const { user } = useAuth()
@@ -35,6 +35,11 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
         setError(null)
         
         const songs = await getChoirSongs()
+        
+        // Debug logging to see what we're getting
+        console.log('Loaded songs from API:', songs)
+        console.log('First song structure:', songs[0])
+        
         setAvailableSongs(songs)
         
       } catch (err) {
@@ -70,6 +75,7 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
       position: currentSetlist.length + 1
     }
     
+    console.log('Adding song to setlist:', song)
     setCurrentSetlist(prev => [...prev, newItem])
   }
 
@@ -195,6 +201,16 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
         </p>
       </div>
 
+      {/* Debug Info - Remove this after fixing */}
+      {availableSongs.length > 0 && (
+        <div className="glass rounded-xl p-4 border border-blue-500/20 bg-blue-500/10">
+          <div className="text-xs text-blue-300 font-mono">
+            <div>Debug: Loaded {availableSongs.length} songs</div>
+            <div>First song: {JSON.stringify(availableSongs[0], null, 2)}</div>
+          </div>
+        </div>
+      )}
+
       {/* Form */}
       <SetlistForm
         formData={formData}
@@ -223,7 +239,7 @@ export default function SetlistCreator({ onSetlistCreated, onCancel }) {
         {/* Available Songs */}
         <div className="space-y-4">
           <h3 className="text-lg font-bold text-white">
-            Available Songs
+            Available Songs ({filteredSongs.length})
           </h3>
           <AvailableSongs
             songs={filteredSongs}
