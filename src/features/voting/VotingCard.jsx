@@ -3,9 +3,7 @@
 import { useState } from 'react'
 import Image from 'next/image'
 import { getYouTubeThumbnail } from '../../lib/youtube-utils'
-import VotingButtons from './VotingButtons'
 import VideoModal from './VideoModal'
-import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function VotingCard({ vote, onVote, isVoting, error, onClearError }) {
   const [showVideoModal, setShowVideoModal] = useState(false)
@@ -30,22 +28,43 @@ export default function VotingCard({ vote, onVote, isVoting, error, onClearError
     setShowVideoModal(true)
   }
 
+  const handleVote = (voteType) => {
+    if (isVoting) return
+    onVote(voteType)
+  }
+
   return (
     <>
-      {/* Full-height voting card that fills available space */}
-      <div className="flex flex-col h-full min-h-[600px] glass rounded-3xl overflow-hidden border border-white/10 shadow-2xl">
+      <div style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        borderRadius: '20px',
+        overflow: 'hidden',
+        border: '1px solid rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(20px)'
+      }}>
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-500/20 border-b border-red-500/30 p-4 flex-shrink-0">
-            <div className="flex items-center gap-3">
-              <span className="text-red-400 text-lg">⚠️</span>
-              <span className="text-red-300 text-sm font-medium flex-1">
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.2)',
+            borderBottom: '1px solid rgba(239, 68, 68, 0.3)',
+            padding: '12px'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ color: '#F87171', fontSize: '14px' }}>⚠️</span>
+              <span style={{ color: '#FCA5A5', fontSize: '14px', fontWeight: '500' }}>
                 {error}
               </span>
               {onClearError && (
                 <button
                   onClick={onClearError}
-                  className="text-red-300 hover:text-red-200 text-xl font-bold"
+                  style={{
+                    marginLeft: 'auto',
+                    color: '#FCA5A5',
+                    background: 'none',
+                    border: 'none',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
                 >
                   ✕
                 </button>
@@ -54,104 +73,301 @@ export default function VotingCard({ vote, onVote, isVoting, error, onClearError
           </div>
         )}
 
-        {/* Main content area - fills remaining space */}
-        <div className="flex-1 flex flex-col p-6 text-center">
-          
-          {/* Song Image - takes up significant space */}
-          <div className="flex-1 flex items-center justify-center mb-6">
-            <div className="relative w-full max-w-md aspect-video rounded-2xl overflow-hidden cursor-pointer group shadow-xl">
-              <div className="w-full h-full bg-gray-800 relative">
-                {!imageError ? (
-                  <>
-                    {imageLoading && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-gray-800">
-                        <div className="text-center">
-                          <LoadingSpinner size="lg" />
-                          <p className="mt-3 text-gray-400 text-sm">Loading video...</p>
-                        </div>
-                      </div>
-                    )}
-                    <Image
-                      src={thumbnailUrl}
-                      alt={`${song.title} by ${song.artist}`}
-                      fill
-                      className={`object-cover transition-all duration-500 ${
-                        imageLoading ? 'opacity-0 scale-110' : 'opacity-100 scale-100'
-                      } group-hover:scale-105`}
-                      onLoad={() => setImageLoading(false)}
-                      onError={() => {
-                        setImageError(true)
-                        setImageLoading(false)
-                      }}
-                      onClick={handleImageClick}
-                      priority
-                    />
-                  </>
-                ) : (
-                  <div 
-                    className="w-full h-full flex items-center justify-center text-gray-400 cursor-pointer hover:text-gray-300 transition-colors"
+        {/* Stats Bar */}
+        <div style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          padding: '16px 20px',
+          background: 'rgba(0, 0, 0, 0.2)',
+          fontSize: '13px',
+          color: '#9CA3AF'
+        }}>
+          <div>
+            <strong style={{ color: '#FFD700' }}>3</strong> Songs to Vote
+          </div>
+          <div>
+            <strong style={{ color: '#FFD700' }}>2</strong> Voted Today
+          </div>
+        </div>
+
+        <div style={{ padding: '24px', textAlign: 'center' }}>
+          {/* Song Thumbnail */}
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '100%',
+            margin: '0 auto 24px',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            cursor: 'pointer'
+          }}>
+            <div style={{
+              position: 'relative',
+              width: '100%',
+              paddingBottom: '56.25%', // 16:9 aspect ratio
+              background: '#1F2937'
+            }}>
+              {!imageError ? (
+                <>
+                  {imageLoading && (
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <div style={{
+                        width: '48px',
+                        height: '48px',
+                        border: '3px solid #374151',
+                        borderTop: '3px solid #FFD700',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                      }} />
+                    </div>
+                  )}
+                  <Image
+                    src={thumbnailUrl}
+                    alt={`${song.title} by ${song.artist}`}
+                    fill
+                    style={{
+                      objectFit: 'cover',
+                      opacity: imageLoading ? 0 : 1,
+                      transition: 'opacity 0.3s'
+                    }}
+                    onLoad={() => setImageLoading(false)}
+                    onError={() => {
+                      setImageError(true)
+                      setImageLoading(false)
+                    }}
                     onClick={handleImageClick}
-                  >
-                    <div className="text-center">
-                      <div className="text-6xl mb-4">🎵</div>
-                      <div className="text-lg font-medium">Click to play video</div>
-                      <div className="text-sm opacity-75">Thumbnail unavailable</div>
-                    </div>
+                  />
+                </>
+              ) : (
+                <div 
+                  onClick={handleImageClick}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#6B7280',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '8px' }}>🎵</div>
+                    <div style={{ fontSize: '14px' }}>Click to play video</div>
                   </div>
-                )}
-                
-                {/* Enhanced Play Overlay */}
-                {!imageError && (
-                  <div 
-                    className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 
-                               transition-all duration-300 flex items-center justify-center backdrop-blur-sm"
-                    onClick={handleImageClick}
-                  >
-                    <div className="w-20 h-20 bg-white/95 rounded-full flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
-                      <span className="text-black text-3xl ml-1">▶️</span>
-                    </div>
-                    <div className="absolute bottom-4 left-4 right-4 text-center">
-                      <div className="text-white text-sm font-medium bg-black/50 backdrop-blur-sm rounded-lg px-3 py-1">
-                        Click to preview video
-                      </div>
-                    </div>
+                </div>
+              )}
+              
+              {/* Play Overlay */}
+              {!imageError && (
+                <div 
+                  onClick={handleImageClick}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'rgba(0, 0, 0, 0.4)',
+                    opacity: 0,
+                    transition: 'opacity 0.3s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.opacity = '1'}
+                  onMouseLeave={(e) => e.currentTarget.style.opacity = '0'}
+                >
+                  <div style={{
+                    width: '72px',
+                    height: '72px',
+                    background: 'rgba(255, 255, 255, 0.95)',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)'
+                  }}>
+                    <span style={{ fontSize: '32px', marginLeft: '4px' }}>▶️</span>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Song Info - centered and prominent */}
-          <div className="mb-8 px-4">
-            <h1 className="text-3xl font-bold text-white mb-3 leading-tight">
+          {/* Song Info */}
+          <div style={{ marginBottom: '32px' }}>
+            <h2 style={{
+              fontSize: '24px',
+              fontWeight: 'bold',
+              color: '#ffffff',
+              marginBottom: '8px',
+              lineHeight: '1.3'
+            }}>
               {song.title}
-            </h1>
-            <p className="text-xl text-gray-300 mb-4 font-medium">
+            </h2>
+            <p style={{
+              fontSize: '18px',
+              color: '#D1D5DB',
+              marginBottom: '12px'
+            }}>
               {song.artist}
             </p>
-            <div className="flex items-center justify-center gap-6 text-base text-gray-400">
-              <span className="flex items-center gap-2 bg-white/5 px-4 py-2 rounded-full">
-                <span className="text-lg">👁️</span>
-                <span className="font-medium">{formatViewCount(song.youtube_view_count)} views</span>
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '16px',
+              fontSize: '14px',
+              color: '#9CA3AF'
+            }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                👁️ {formatViewCount(song.youtube_view_count)} views
               </span>
             </div>
           </div>
 
-          {/* Voting Buttons - directly below video */}
-          <div className="mb-6">
-            <VotingButtons
-              onVote={onVote}
-              isVoting={isVoting}
+          {/* Voting Buttons */}
+          <div style={{
+            display: 'flex',
+            gap: '12px',
+            width: '100%'
+          }}>
+            <button
+              onClick={() => handleVote('up')}
               disabled={isVoting}
-            />
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '24px 16px',
+                border: 'none',
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                cursor: isVoting ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                opacity: isVoting ? 0.5 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!isVoting) {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(16, 185, 129, 0.4)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isVoting) {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }
+              }}
+            >
+              <span style={{ fontSize: '36px' }}>{isVoting ? '⏳' : '👍'}</span>
+              <span style={{ fontSize: '13px' }}>{isVoting ? 'VOTING...' : 'YES'}</span>
+            </button>
+
+            <button
+              onClick={() => handleVote('down')}
+              disabled={isVoting}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '24px 16px',
+                border: 'none',
+                borderRadius: '16px',
+                background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                cursor: isVoting ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                opacity: isVoting ? 0.5 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!isVoting) {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(239, 68, 68, 0.4)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isVoting) {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }
+              }}
+            >
+              <span style={{ fontSize: '36px' }}>{isVoting ? '⏳' : '👎'}</span>
+              <span style={{ fontSize: '13px' }}>{isVoting ? 'VOTING...' : 'NO'}</span>
+            </button>
+
+            <button
+              onClick={() => handleVote('skip')}
+              disabled={isVoting}
+              style={{
+                flex: 1,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '24px 16px',
+                border: '2px solid rgba(156, 163, 175, 0.3)',
+                borderRadius: '16px',
+                background: 'rgba(156, 163, 175, 0.2)',
+                color: '#9CA3AF',
+                fontWeight: '700',
+                fontSize: '14px',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px',
+                cursor: isVoting ? 'not-allowed' : 'pointer',
+                transition: 'all 0.3s ease',
+                opacity: isVoting ? 0.5 : 1
+              }}
+              onMouseEnter={(e) => {
+                if (!isVoting) {
+                  e.currentTarget.style.transform = 'translateY(-4px)'
+                  e.currentTarget.style.background = 'rgba(156, 163, 175, 0.3)'
+                  e.currentTarget.style.borderColor = 'rgba(156, 163, 175, 0.5)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!isVoting) {
+                  e.currentTarget.style.transform = 'translateY(0)'
+                  e.currentTarget.style.background = 'rgba(156, 163, 175, 0.2)'
+                  e.currentTarget.style.borderColor = 'rgba(156, 163, 175, 0.3)'
+                }
+              }}
+            >
+              <span style={{ fontSize: '36px' }}>{isVoting ? '⏳' : '⏭️'}</span>
+              <span style={{ fontSize: '13px' }}>{isVoting ? 'VOTING...' : 'SKIP'}</span>
+            </button>
           </div>
 
-          {/* Instructions - subtle but helpful */}
-          <div className="pt-4 border-t border-white/10 flex-shrink-0">
-            <p className="text-sm text-gray-500 leading-relaxed">
-              🎵 <span className="font-medium">Click the image</span> to preview the song
-              <br />
-              Vote if you'd like the choir to add this to their repertoire
+          {/* Instructions */}
+          <div style={{
+            marginTop: '24px',
+            paddingTop: '16px',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            <p style={{
+              fontSize: '12px',
+              color: '#6B7280'
+            }}>
+              🎵 Click the image to preview • Vote if you'd like the choir to sing this song
             </p>
           </div>
         </div>
@@ -165,6 +381,12 @@ export default function VotingCard({ vote, onVote, isVoting, error, onClearError
         onVote={onVote}
         isVoting={isVoting}
       />
+
+      <style jsx>{`
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
     </>
   )
 }
