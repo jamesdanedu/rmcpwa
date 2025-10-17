@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
+import { getSetlists, createSetlist, updateSetlist, deleteSetlist, getSetlistById } from '../../lib/api'
+import { getChoirSongs } from '../../lib/api'
+import { exportSetlistToPDF } from '../../lib/pdf-export'
 import Button from '../../components/ui/Button'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
@@ -13,28 +16,16 @@ export default function SetLists() {
   const [editingSetlist, setEditingSetlist] = useState(null)
 
   useEffect(() => {
-    loadSetlists()
-  }, [])
+    if (user) {
+      loadSetlists()
+    }
+  }, [user])
 
   const loadSetlists = async () => {
     try {
       setIsLoading(true)
-      // TODO: Replace with actual API call
-      // const data = await getSetlists()
-      
-      // Mock data for now
-      const mockSetlists = [
-        {
-          id: '1',
-          name: 'Spring Concert 2025',
-          event_date: '2025-03-15',
-          total_duration_minutes: 45,
-          song_count: 8,
-          venue_notes: 'Roscommon Arts Centre'
-        }
-      ]
-      
-      setSetlists(mockSetlists)
+      const data = await getSetlists(user.id)
+      setSetlists(data || [])
     } catch (err) {
       console.error('Error loading setlists:', err)
     } finally {
@@ -51,9 +42,15 @@ export default function SetLists() {
     setShowCreator(true)
   }
 
-  const handleEditClick = (setlist) => {
-    setEditingSetlist(setlist)
-    setShowCreator(true)
+  const handleEditClick = async (setlist) => {
+    try {
+      const fullSetlist = await getSetlistById(setlist.id)
+      setEditingSetlist(fullSetlist)
+      setShowCreator(true)
+    } catch (err) {
+      console.error('Error loading setlist:', err)
+      alert('Failed to load setlist for editing')
+    }
   }
 
   const handleSetlistSaved = () => {
@@ -67,12 +64,23 @@ export default function SetLists() {
     setEditingSetlist(null)
   }
 
+  const handleExport = async (setlist) => {
+    try {
+      const fullSetlist = await getSetlistById(setlist.id)
+      await exportSetlistToPDF(fullSetlist)
+    } catch (err) {
+      console.error('Error exporting PDF:', err)
+      alert('Failed to export PDF. Please try again.')
+    }
+  }
+
   if (showCreator) {
     return (
       <SetlistCreator
         setlist={editingSetlist}
         onSave={handleSetlistSaved}
         onCancel={handleCancel}
+        userId={user.id}
       />
     )
   }
@@ -115,7 +123,7 @@ export default function SetLists() {
               key={setlist.id}
               setlist={setlist}
               onEdit={() => handleEditClick(setlist)}
-              onExport={() => exportToPDF(setlist)}
+              onExport={() => handleExport(setlist)}
             />
           ))}
         </div>
@@ -282,14 +290,14 @@ function SetlistCard({ setlist, onEdit, onExport }) {
   )
 }
 
-function SetlistCreator({ setlist, onSave, onCancel }) {
+function SetlistCreator({ setlist, onSave, onCancel, userId }) {
   const [formData, setFormData] = useState({
     name: setlist?.name || '',
     eventDate: setlist?.event_date || '',
     venueNotes: setlist?.venue_notes || ''
   })
   const [availableSongs, setAvailableSongs] = useState([])
-  const [selectedSongs, setSelectedSongs] = useState([])
+  const [selectedSongs, setSelectedSongs] = useState(setlist?.songs || [])
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
@@ -302,17 +310,8 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
   const loadSongs = async () => {
     try {
       setIsLoading(true)
-      // TODO: Load from actual API
-      // const songs = await getChoirSongs()
-      
-      // Mock data
-      const mockSongs = [
-        { id: '1', title: 'Lean On Me', artist: 'Bill Withers', genre: 'R&B, Soul', duration_minutes: 4 },
-        { id: '2', title: 'The Wild Rover', artist: 'The Dubliners', genre: 'Folk, Traditional Irish', duration_minutes: 3.5 },
-        { id: '3', title: 'Space Oddity', artist: 'David Bowie', genre: 'Folk Rock, Art Pop', duration_minutes: 3.5 }
-      ]
-      
-      setAvailableSongs(mockSongs)
+      const songs = await getChoirSongs()
+      setAvailableSongs(songs || [])
     } catch (err) {
       console.error('Error loading songs:', err)
       setError('Failed to load songs')
@@ -345,9 +344,11 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
 
   const filteredAvailableSongs = availableSongs.filter(song => {
     const notInSetlist = !selectedSongs.find(s => s.id === song.id)
-    const matchesGenre = selectedGenre === 'all' || song.genre.includes(selectedGenre)
+    const matchesGenre = selectedGenre === 'all' || song.genre?.includes(selectedGenre)
     return notInSetlist && matchesGenre
   })
+
+  const uniqueGenres = [...new Set(availableSongs.flatMap(s => s.genre?.split(',').map(g => g.trim()) || []))].filter(Boolean)
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
@@ -365,13 +366,24 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
 
     try {
       setIsSaving(true)
-      // TODO: Save to database
-      // await saveSetlist({ ...formData, songs: selectedSongs, totalDuration })
       
-      alert('Setlist saved successfully!')
+      const setlistData = {
+        name: formData.name,
+        eventDate: formData.eventDate,
+        venueNotes: formData.venueNotes,
+        totalDuration: Math.round(totalDuration * 100) / 100
+      }
+
+      if (setlist?.id) {
+        await updateSetlist(setlist.id, setlistData, selectedSongs)
+      } else {
+        await createSetlist(setlistData, selectedSongs, userId)
+      }
+      
       onSave()
     } catch (err) {
-      setError('Failed to save setlist')
+      console.error('Error saving setlist:', err)
+      setError('Failed to save setlist. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -410,9 +422,24 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
             border: '1px solid rgba(239, 68, 68, 0.3)',
             borderRadius: '12px',
             padding: '12px',
-            marginBottom: '16px'
+            marginBottom: '16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
           }}>
             <span style={{ color: '#FCA5A5', fontSize: '14px' }}>⚠️ {error}</span>
+            <button
+              onClick={() => setError(null)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#FCA5A5',
+                cursor: 'pointer',
+                fontSize: '18px'
+              }}
+            >
+              ×
+            </button>
           </div>
         )}
 
@@ -433,7 +460,8 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
                 background: 'rgba(0, 0, 0, 0.3)',
                 color: '#ffffff',
                 border: '2px solid rgba(255, 255, 255, 0.2)',
-                fontSize: '14px'
+                fontSize: '14px',
+                outline: 'none'
               }}
             />
           </div>
@@ -454,7 +482,8 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
                 background: 'rgba(0, 0, 0, 0.3)',
                 color: '#ffffff',
                 border: '2px solid rgba(255, 255, 255, 0.2)',
-                fontSize: '14px'
+                fontSize: '14px',
+                outline: 'none'
               }}
             />
           </div>
@@ -477,7 +506,8 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
               color: '#ffffff',
               border: '2px solid rgba(255, 255, 255, 0.2)',
               fontSize: '14px',
-              resize: 'none'
+              resize: 'none',
+              outline: 'none'
             }}
           />
         </div>
@@ -492,7 +522,7 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
         textAlign: 'center'
       }}>
         <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#FFD700', marginBottom: '4px' }}>
-          {totalDuration} minutes
+          {totalDuration.toFixed(1)} minutes
         </div>
         <div style={{ fontSize: '12px', color: '#9CA3AF' }}>
           {selectedSongs.length} song{selectedSongs.length !== 1 ? 's' : ''} in setlist
@@ -505,7 +535,22 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
           Filter by Genre
         </label>
         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {['all', 'Folk', 'Rock', 'Pop', 'Gospel'].map(genre => (
+          <button
+            onClick={() => setSelectedGenre('all')}
+            style={{
+              padding: '8px 16px',
+              borderRadius: '8px',
+              border: 'none',
+              background: selectedGenre === 'all' ? 'linear-gradient(135deg, #FFD700, #4169E1)' : 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              fontSize: '12px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            All
+          </button>
+          {uniqueGenres.map(genre => (
             <button
               key={genre}
               onClick={() => setSelectedGenre(genre)}
@@ -520,7 +565,7 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
                 cursor: 'pointer'
               }}
             >
-              {genre === 'all' ? 'All' : genre}
+              {genre}
             </button>
           ))}
         </div>
@@ -712,10 +757,4 @@ function SetlistCreator({ setlist, onSave, onCancel }) {
       </div>
     </div>
   )
-}
-
-// PDF Export function (placeholder - needs implementation)
-function exportToPDF(setlist) {
-  alert('PDF Export feature coming soon!\n\nWill export: ' + setlist.name + '\nWith all song lyrics in 2-column format')
-  // TODO: Implement PDF generation with jsPDF or similar library
 }
