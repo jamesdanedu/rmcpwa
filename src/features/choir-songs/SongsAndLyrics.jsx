@@ -16,35 +16,9 @@ export default function SongsAndLyrics() {
         setIsLoading(true)
         setError(null)
         
-        // Mock data for now - replace with actual API call
-        const mockSongs = [
-          {
-            id: '1',
-            title: 'Amazing Grace',
-            artist: 'Traditional',
-            genre: 'Gospel',
-            duration_minutes: 4,
-            lyrics: 'Amazing grace, how sweet the sound\nThat saved a wretch like me\nI once was lost, but now am found\nWas blind, but now I see'
-          },
-          {
-            id: '2',
-            title: 'Danny Boy',
-            artist: 'Traditional Irish',
-            genre: 'Irish Folk',
-            duration_minutes: 5,
-            lyrics: null // No lyrics yet
-          },
-          {
-            id: '3',
-            title: 'How Great Thou Art',
-            artist: 'Carl Boberg',
-            genre: 'Hymn',
-            duration_minutes: 4,
-            lyrics: 'O Lord my God, when I in awesome wonder\nConsider all the worlds Thy hands have made'
-          }
-        ]
-        
-        setSongs(mockSongs)
+        // Load actual songs from database
+        const data = await getChoirSongs()
+        setSongs(data || [])
         
       } catch (err) {
         console.error('Error loading choir songs:', err)
