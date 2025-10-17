@@ -20,13 +20,13 @@ export default function TabNavigation() {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 w-full z-50"
+      className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
       <div className="w-full bg-slate-900/95 backdrop-blur-lg border-t border-white/10">
-        <div className="flex flex-row w-full max-w-[430px] mx-auto">
+        <div className="flex flex-row w-full">
           {TABS.map((tab) => (
             <button
               key={tab.id}
