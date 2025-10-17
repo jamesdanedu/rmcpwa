@@ -644,13 +644,14 @@ function SetlistCreator({ setlist, onSave, onCancel, userId }) {
                   key={song.id}
                   style={{
                     background: 'rgba(255, 255, 255, 0.05)',
-                    padding: '12px',
+                    padding: '10px',
                     borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px'
                   }}
                 >
+                  {/* Position Number */}
                   <div style={{
                     width: '24px',
                     height: '24px',
@@ -666,41 +667,55 @@ function SetlistCreator({ setlist, onSave, onCancel, userId }) {
                   }}>
                     {idx + 1}
                   </div>
+                  
+                  {/* Song Info */}
                   <div style={{ flex: 1, minWidth: 0, overflow: 'hidden' }}>
                     <div style={{ 
                       fontSize: '13px', 
                       fontWeight: '600', 
-                      color: '#ffffff', 
-                      marginBottom: '2px',
+                      color: '#ffffff',
                       whiteSpace: 'nowrap',
                       overflow: 'hidden',
-                      textOverflow: 'ellipsis'
+                      textOverflow: 'ellipsis',
+                      lineHeight: '1.3'
                     }}>
-                      {song.title}
+                      {song.title || 'Untitled'}
                     </div>
-                    <div style={{ 
-                      fontSize: '11px', 
-                      color: '#9CA3AF',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis'
-                    }}>
-                      {song.artist} • {song.duration_minutes} min
-                    </div>
+                    {(song.artist || song.duration_minutes) && (
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: '#9CA3AF',
+                        marginTop: '2px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        lineHeight: '1.2'
+                      }}>
+                        {song.artist && <span>{song.artist}</span>}
+                        {song.artist && song.duration_minutes && <span> • </span>}
+                        {song.duration_minutes && <span>{parseFloat(song.duration_minutes).toFixed(1)} min</span>}
+                      </div>
+                    )}
                   </div>
+                  
+                  {/* Control Buttons */}
                   <div style={{ display: 'flex', gap: '4px', flexShrink: 0 }}>
                     {idx > 0 && (
                       <button
                         onClick={() => moveSong(idx, idx - 1)}
+                        title="Move up"
                         style={{
-                          width: '24px',
-                          height: '24px',
+                          width: '28px',
+                          height: '28px',
                           borderRadius: '4px',
                           border: 'none',
                           background: 'rgba(255, 255, 255, 0.1)',
                           color: '#ffffff',
                           cursor: 'pointer',
-                          fontSize: '12px'
+                          fontSize: '14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}
                       >
                         ↑
@@ -709,15 +724,19 @@ function SetlistCreator({ setlist, onSave, onCancel, userId }) {
                     {idx < selectedSongs.length - 1 && (
                       <button
                         onClick={() => moveSong(idx, idx + 1)}
+                        title="Move down"
                         style={{
-                          width: '24px',
-                          height: '24px',
+                          width: '28px',
+                          height: '28px',
                           borderRadius: '4px',
                           border: 'none',
                           background: 'rgba(255, 255, 255, 0.1)',
                           color: '#ffffff',
                           cursor: 'pointer',
-                          fontSize: '12px'
+                          fontSize: '14px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
                         }}
                       >
                         ↓
@@ -725,16 +744,20 @@ function SetlistCreator({ setlist, onSave, onCancel, userId }) {
                     )}
                     <button
                       onClick={() => removeSong(song.id)}
+                      title="Remove from setlist"
                       style={{
-                        width: '24px',
-                        height: '24px',
+                        width: '28px',
+                        height: '28px',
                         borderRadius: '4px',
                         border: 'none',
                         background: 'rgba(239, 68, 68, 0.2)',
                         color: '#EF4444',
                         cursor: 'pointer',
-                        fontSize: '14px',
-                        fontWeight: 'bold'
+                        fontSize: '16px',
+                        fontWeight: 'bold',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
                       }}
                     >
                       ×
