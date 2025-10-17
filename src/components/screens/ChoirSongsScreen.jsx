@@ -27,21 +27,23 @@ export default function ChoirSongsScreen() {
               fontSize: '14px',
               transition: 'all 0.2s',
               cursor: 'pointer',
-              border: activeView === view.id ? 'none' : '2px solid rgba(255, 255, 255, 0.1)',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
               background: activeView === view.id 
                 ? 'linear-gradient(135deg, #FFD700 0%, #4169E1 100%)'
                 : 'rgba(255, 255, 255, 0.05)',
-              color: 'white',
+              color: activeView === view.id ? 'white' : '#D1D5DB',
               backdropFilter: 'blur(20px)'
             }}
             onMouseEnter={(e) => {
               if (activeView !== view.id) {
                 e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'
               }
             }}
             onMouseLeave={(e) => {
               if (activeView !== view.id) {
                 e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
               }
             }}
           >
