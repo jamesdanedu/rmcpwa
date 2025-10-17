@@ -19,27 +19,28 @@ export default function TabNavigation() {
   }
 
   return (
-    <div
-      className="fixed bottom-0 left-0 w-screen z-50"
+    <nav
+      className="fixed bottom-0 left-0 right-0 w-full z-50"
       style={{
         paddingBottom: 'env(safe-area-inset-bottom, 0px)'
       }}
     >
       <div className="w-full bg-slate-900/95 backdrop-blur-lg border-t border-white/10">
-        <div className="grid grid-cols-4 w-full">
+        <div className="flex flex-row w-full max-w-[430px] mx-auto">
           {TABS.map((tab) => (
             <button
               key={tab.id}
               onClick={() => handleTabClick(tab.id)}
               className={`
-                w-full flex flex-col items-center gap-1 py-3 px-2 text-xs font-semibold
-                transition-all duration-300 relative uppercase tracking-wide
-                min-h-[60px] min-w-0
+                flex-1 flex flex-col items-center justify-center gap-1 py-3 px-1
+                text-xs font-semibold transition-all duration-300 relative 
+                uppercase tracking-wide min-h-[64px]
                 ${currentTab === tab.id
                   ? 'text-yellow-400'
                   : 'text-gray-400 hover:text-gray-200 active:text-gray-100'
                 }
               `}
+              style={{ flexBasis: '25%' }}
             >
               {/* Active indicator */}
               {currentTab === tab.id && (
@@ -47,18 +48,18 @@ export default function TabNavigation() {
               )}
               
               {/* Icon */}
-              <span className="text-lg mb-1">
+              <span className="text-lg mb-0.5">
                 {tab.icon}
               </span>
               
               {/* Label */}
-              <span className="leading-tight text-center text-xs">
+              <span className="leading-tight text-center text-[10px] whitespace-nowrap overflow-hidden text-ellipsis max-w-full px-0.5">
                 {tab.label}
               </span>
             </button>
           ))}
         </div>
       </div>
-    </div>
+    </nav>
   )
 }
