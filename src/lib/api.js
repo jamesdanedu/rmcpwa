@@ -1,8 +1,11 @@
-// src/lib/api.js - Clean API using your YouTube utils
+// src/lib/api.js - Complete API using your YouTube utils
 import { supabase } from './supabase'
 import { searchYouTubeVideos, getVideoStatistics } from './youtube-utils'
 
-// YouTube Search (using your existing function)
+// ============================================================================
+// YOUTUBE SEARCH
+// ============================================================================
+
 export const searchYouTube = async (query) => {
   const results = await searchYouTubeVideos(query)
   
@@ -23,12 +26,14 @@ export const searchYouTube = async (query) => {
   return enhancedResults
 }
 
-// Fixed suggestions remaining check with better caching
+// ============================================================================
+// SUGGESTIONS
+// ============================================================================
+
 export const checkSuggestionsRemaining = async (userId) => {
   try {
-    const currentMonth = new Date().toISOString().slice(0, 7) // "2025-08"
+    const currentMonth = new Date().toISOString().slice(0, 7) // "2025-01"
     
-    // Only log once per function call, not repeatedly
     if (window.rmcDebugLogging) {
       console.log('Checking suggestions for user:', userId, 'month:', currentMonth)
     }
@@ -38,11 +43,10 @@ export const checkSuggestionsRemaining = async (userId) => {
       .select('suggestion_count')
       .eq('user_id', userId)
       .eq('month_year', currentMonth)
-      .maybeSingle() // Use maybeSingle instead of single to avoid errors when no record exists
+      .maybeSingle()
 
     if (error) {
       console.error('Error checking suggestion limits:', error)
-      // If table doesn't exist or has issues, return default
       return 3
     }
 
@@ -56,7 +60,6 @@ export const checkSuggestionsRemaining = async (userId) => {
     
   } catch (err) {
     console.error('Error in checkSuggestionsRemaining:', err)
-    // Return default if there's any error
     return 3
   }
 }
@@ -79,7 +82,7 @@ export const submitSuggestion = async (artist, title, selectedVideo, userId) => 
 
     if (error) throw error
     
-    // Update suggestion count - handle case where record doesn't exist
+    // Update suggestion count
     const currentMonth = new Date().toISOString().slice(0, 7)
     
     try {
@@ -88,7 +91,7 @@ export const submitSuggestion = async (artist, title, selectedVideo, userId) => 
         .upsert({
           user_id: userId,
           month_year: currentMonth,
-          suggestion_count: 1 // Start with 1 if new record, or increment if exists
+          suggestion_count: 1
         }, {
           onConflict: 'user_id,month_year',
           ignoreDuplicates: false
@@ -96,11 +99,9 @@ export const submitSuggestion = async (artist, title, selectedVideo, userId) => 
       
       if (upsertError) {
         console.error('Error updating suggestion count:', upsertError)
-        // Don't fail the suggestion if we can't update the counter
       }
     } catch (countError) {
       console.error('Error with suggestion counting:', countError)
-      // Don't fail the suggestion if we can't update the counter
     }
 
     return data
@@ -109,6 +110,10 @@ export const submitSuggestion = async (artist, title, selectedVideo, userId) => 
     throw error
   }
 }
+
+// ============================================================================
+// VOTING
+// ============================================================================
 
 export const getSongsForVoting = async (userId) => {
   const { data } = await supabase
@@ -135,52 +140,6 @@ export const submitVote = async (voteId, voteType) => {
     .eq('id', voteId)
 }
 
-// Add better error handling and sorting to your existing getRankings function
-export const getRankings = async () => {
-  try {
-    console.log('Calling get_song_rankings RPC function...')
-    const { data, error } = await supabase.rpc('get_song_rankings')
-    
-    if (error) {
-      console.error('Supabase RPC error:', error)
-      throw new Error('Failed to fetch rankings from database')
-    }
-    
-    console.log('RPC call successful! Received data:', {
-      isArray: Array.isArray(data),
-      length: data?.length,
-      firstItem: data?.[0]
-    })
-    
-    // Validate the data structure
-    if (!Array.isArray(data)) {
-      console.error('Expected array but got:', typeof data, data)
-      throw new Error('Invalid data format received from rankings')
-    }
-    
-    console.log('Data validation successful. Processing', data.length, 'songs')
-    
-    // Sort by ranking, then by title for consistent ordering
-    const sortedData = data.sort((a, b) => {
-      // First sort by ranking (nulls last)
-      if (a.ranking === null && b.ranking === null) return a.title.localeCompare(b.title)
-      if (a.ranking === null) return 1
-      if (b.ranking === null) return -1
-      if (a.ranking !== b.ranking) return a.ranking - b.ranking
-      
-      // Then by title for ties
-      return a.title.localeCompare(b.title)
-    })
-    
-    console.log('Successfully processed rankings data')
-    return sortedData
-    
-  } catch (err) {
-    console.error('Error in getRankings:', err)
-    throw err
-  }
-}
-
 export const getVotingStats = async (userId) => {
   // Get total pending votes for user
   const { data: pendingVotes } = await supabase
@@ -204,7 +163,55 @@ export const getVotingStats = async (userId) => {
   }
 }
 
-// Get choir songs from the choir_songs table
+// ============================================================================
+// RANKINGS
+// ============================================================================
+
+export const getRankings = async () => {
+  try {
+    console.log('Calling get_song_rankings RPC function...')
+    const { data, error } = await supabase.rpc('get_song_rankings')
+    
+    if (error) {
+      console.error('Supabase RPC error:', error)
+      throw new Error('Failed to fetch rankings from database')
+    }
+    
+    console.log('RPC call successful! Received data:', {
+      isArray: Array.isArray(data),
+      length: data?.length,
+      firstItem: data?.[0]
+    })
+    
+    if (!Array.isArray(data)) {
+      console.error('Expected array but got:', typeof data, data)
+      throw new Error('Invalid data format received from rankings')
+    }
+    
+    console.log('Data validation successful. Processing', data.length, 'songs')
+    
+    // Sort by ranking, then by title for consistent ordering
+    const sortedData = data.sort((a, b) => {
+      if (a.ranking === null && b.ranking === null) return a.title.localeCompare(b.title)
+      if (a.ranking === null) return 1
+      if (b.ranking === null) return -1
+      if (a.ranking !== b.ranking) return a.ranking - b.ranking
+      return a.title.localeCompare(b.title)
+    })
+    
+    console.log('Successfully processed rankings data')
+    return sortedData
+    
+  } catch (err) {
+    console.error('Error in getRankings:', err)
+    throw err
+  }
+}
+
+// ============================================================================
+// CHOIR SONGS
+// ============================================================================
+
 export const getChoirSongs = async () => {
   try {
     console.log('Fetching choir songs from database...')
@@ -228,47 +235,204 @@ export const getChoirSongs = async () => {
   }
 }
 
-// Create a new setlist
-export const createSetlist = async (setlistData, userId) => {
+// ============================================================================
+// SETLISTS
+// ============================================================================
+
+// Get all setlists for a user with their songs
+export const getSetlists = async (userId) => {
   try {
+    console.log('Fetching setlists for user:', userId)
+    
     const { data, error } = await supabase
       .from('setlists')
+      .select(`
+        *,
+        setlist_songs (
+          position,
+          choir_songs (*)
+        )
+      `)
+      .eq('created_by', userId)
+      .order('event_date', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching setlists:', error)
+      return []
+    }
+    
+    // Transform data to include songs array
+    const setlists = (data || []).map(setlist => ({
+      ...setlist,
+      songs: (setlist.setlist_songs || [])
+        .sort((a, b) => a.position - b.position)
+        .map(ss => ss.choir_songs)
+    }))
+    
+    console.log('Successfully fetched', setlists.length, 'setlists')
+    return setlists
+    
+  } catch (err) {
+    console.error('Error in getSetlists:', err)
+    return []
+  }
+}
+
+// Create a new setlist with songs
+export const createSetlist = async (setlistData, songs, userId) => {
+  try {
+    console.log('Creating setlist:', setlistData.name)
+    
+    // Insert setlist
+    const { data: setlist, error: setlistError } = await supabase
+      .from('setlists')
       .insert({
-        ...setlistData,
+        name: setlistData.name,
+        event_date: setlistData.eventDate,
+        venue_notes: setlistData.venueNotes || null,
+        total_duration_minutes: setlistData.totalDuration,
+        song_count: songs.length,
         created_by: userId,
         is_archived: false
       })
       .select()
       .single()
 
-    if (error) throw error
-    return data
+    if (setlistError) throw setlistError
     
+    console.log('Setlist created with ID:', setlist.id)
+
+    // Insert setlist songs
+    if (songs.length > 0) {
+      const setlistSongs = songs.map((song, index) => ({
+        setlist_id: setlist.id,
+        song_id: song.id,
+        position: index + 1
+      }))
+
+      const { error: songsError } = await supabase
+        .from('setlist_songs')
+        .insert(setlistSongs)
+
+      if (songsError) throw songsError
+      
+      console.log('Added', songs.length, 'songs to setlist')
+    }
+
+    return setlist
   } catch (err) {
     console.error('Error creating setlist:', err)
     throw err
   }
 }
 
-// Get setlists (if you have a setlists table)
-export const getSetlists = async () => {
+// Update an existing setlist
+export const updateSetlist = async (setlistId, setlistData, songs) => {
   try {
-    const { data, error } = await supabase
+    console.log('Updating setlist:', setlistId)
+    
+    // Update setlist
+    const { data: setlist, error: setlistError } = await supabase
       .from('setlists')
-      .select('*')
-      .order('event_date', { ascending: false })
+      .update({
+        name: setlistData.name,
+        event_date: setlistData.eventDate,
+        venue_notes: setlistData.venueNotes || null,
+        total_duration_minutes: setlistData.totalDuration,
+        song_count: songs.length
+      })
+      .eq('id', setlistId)
+      .select()
+      .single()
 
-    if (error) {
-      console.error('Error fetching setlists:', error)
-      // Return empty array if table doesn't exist yet
-      return []
+    if (setlistError) throw setlistError
+
+    // Delete existing setlist songs
+    await supabase
+      .from('setlist_songs')
+      .delete()
+      .eq('setlist_id', setlistId)
+
+    // Insert new setlist songs
+    if (songs.length > 0) {
+      const setlistSongs = songs.map((song, index) => ({
+        setlist_id: setlistId,
+        song_id: song.id,
+        position: index + 1
+      }))
+
+      const { error: songsError } = await supabase
+        .from('setlist_songs')
+        .insert(setlistSongs)
+
+      if (songsError) throw songsError
     }
 
-    return data || []
+    console.log('Setlist updated successfully')
+    return setlist
+  } catch (err) {
+    console.error('Error updating setlist:', err)
+    throw err
+  }
+}
+
+// Delete a setlist
+export const deleteSetlist = async (setlistId) => {
+  try {
+    console.log('Deleting setlist:', setlistId)
+    
+    // Delete setlist songs first (foreign key constraint)
+    await supabase
+      .from('setlist_songs')
+      .delete()
+      .eq('setlist_id', setlistId)
+
+    // Delete setlist
+    const { error } = await supabase
+      .from('setlists')
+      .delete()
+      .eq('id', setlistId)
+
+    if (error) throw error
+    
+    console.log('Setlist deleted successfully')
+  } catch (err) {
+    console.error('Error deleting setlist:', err)
+    throw err
+  }
+}
+
+// Get a single setlist with all songs and full details
+export const getSetlistById = async (setlistId) => {
+  try {
+    console.log('Fetching setlist by ID:', setlistId)
+    
+    const { data, error } = await supabase
+      .from('setlists')
+      .select(`
+        *,
+        setlist_songs (
+          position,
+          choir_songs (*)
+        )
+      `)
+      .eq('id', setlistId)
+      .single()
+
+    if (error) throw error
+
+    const setlist = {
+      ...data,
+      songs: (data.setlist_songs || [])
+        .sort((a, b) => a.position - b.position)
+        .map(ss => ({ ...ss.choir_songs, position: ss.position }))
+    }
+    
+    console.log('Setlist loaded with', setlist.songs.length, 'songs')
+    return setlist
     
   } catch (err) {
-    console.error('Error in getSetlists:', err)
-    // Return empty array if there's any error
-    return []
+    console.error('Error fetching setlist:', err)
+    throw err
   }
 }
