@@ -225,7 +225,7 @@ function SetlistCard({ setlist, archived = false, onView, onGeneratePDF, isGener
       <div style={{ marginBottom: '16px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
           <h4 style={{ 
-            color: 'white', 
+            color: 'black', 
             fontWeight: '600', 
             fontSize: '18px',
             margin: 0,
