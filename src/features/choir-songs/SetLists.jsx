@@ -6,14 +6,14 @@ import { getSetlists } from '../../lib/api'
 import Button from '../../components/ui/Button'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import SetlistCreatorWizard from './SetlistCreatorWizard'
-import SetlistsListView from './SetlistsListView'
+import SetlistsList from './SetlistsList'
 
 export default function SetLists() {
   const { user, isAuthenticated } = useAuth()
   const [setlists, setSetlists] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [currentView, setCurrentView] = useState('list') // 'list' | 'detail' | 'create'
-  const [selectedSetlistId, setSelectedSetlistId] = useState(null)
+  const [showCreator, setShowCreator] = useState(false)
+  const [editingSetlist, setEditingSetlist] = useState(null)
 
   useEffect(() => {
     if (user) {
@@ -38,46 +38,40 @@ export default function SetLists() {
       alert('Please log in to create setlists')
       return
     }
-    setCurrentView('create')
+    setEditingSetlist(null)
+    setShowCreator(true)
+  }
+
+  const handleEditSetlist = (setlist) => {
+    if (!isAuthenticated) {
+      alert('Please log in to edit setlists')
+      return
+    }
+    setEditingSetlist(setlist)
+    setShowCreator(true)
   }
 
   const handleSetlistCreated = () => {
-    setCurrentView('list')
+    setShowCreator(false)
+    setEditingSetlist(null)
     loadSetlists()
   }
 
   const handleCancel = () => {
-    setCurrentView('list')
-    setSelectedSetlistId(null)
+    setShowCreator(false)
+    setEditingSetlist(null)
   }
 
-  const handleSetlistClick = (setlist) => {
-    console.log('Setlist clicked:', setlist)
-    setSelectedSetlistId(setlist.id)
-    // Phase 2: setCurrentView('detail')
-    alert(`Detail view coming in Phase 2!\n\nSetlist: ${setlist.name}\nDate: ${setlist.event_date}\nSongs: ${setlist.song_count}`)
-  }
-
-  // Show the SetlistCreator component
-  if (currentView === 'create') {
+  // Show the SetlistCreatorWizard component for create or edit
+  if (showCreator) {
     return (
       <SetlistCreatorWizard
         onSetlistCreated={handleSetlistCreated}
         onCancel={handleCancel}
+        editingSetlist={editingSetlist}
       />
     )
   }
-
-  // Phase 2: Detail view will go here
-  // if (currentView === 'detail') {
-  //   return (
-  //     <SetlistDetailView
-  //       setlistId={selectedSetlistId}
-  //       onBack={handleCancel}
-  //       onEdit={() => setCurrentView('edit')}
-  //     />
-  //   )
-  // }
 
   // Loading state
   if (isLoading) {
@@ -93,7 +87,7 @@ export default function SetLists() {
     )
   }
 
-  // List view (Phase 1)
+  // Main view
   return (
     <div className="space-y-6">
       <Button
@@ -105,9 +99,9 @@ export default function SetLists() {
         ➕ Create New Setlist
       </Button>
 
-      <SetlistsListView 
+      <SetlistsList 
         setlists={setlists} 
-        onSetlistClick={handleSetlistClick}
+        onEdit={handleEditSetlist}
       />
     </div>
   )
