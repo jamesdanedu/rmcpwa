@@ -32,105 +32,122 @@ export default function SetlistFormStep({
 
   return (
     <div className="space-y-6">
-      {/* Form */}
-      <div className="glass rounded-2xl p-6 border border-white/10">
-        <h3 className="text-lg font-bold text-white mb-4">
-          Event Information
-        </h3>
-
-        <div className="space-y-4">
-          {/* Row 1: Name */}
-          <Input
-            label="Setlist Name"
-            type="text"
-            placeholder="e.g., Spring Concert 2025"
-            value={localData.name}
-            onChange={(e) => handleChange('name', e.target.value)}
-            required
-          />
-
-          {/* Row 2: Date and Time */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Input
-              label="Event Date"
-              type="date"
-              value={localData.eventDate}
-              onChange={(e) => handleChange('eventDate', e.target.value)}
-              min={today}
-              required
-            />
-
-            <Input
-              label="Event Time"
-              type="time"
-              value={localData.eventTime}
-              onChange={(e) => handleChange('eventTime', e.target.value)}
-            />
+      {/* Form Container with enhanced styling */}
+      <div className="glass rounded-2xl p-6 sm:p-8 border border-white/10 shadow-xl">
+        {/* Header with icon */}
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
+          <span className="text-3xl">📋</span>
+          <div>
+            <h3 className="text-xl font-bold text-white">
+              Event Information
+            </h3>
+            <p className="text-sm text-gray-400 mt-0.5">
+              Fill in the details for your performance
+            </p>
           </div>
-
-          {/* Row 3: Eircode and Duration */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative">
-              <Input
-                label="Eircode (Irish Postcode)"
-                type="text"
-                placeholder="e.g., D02 XY45"
-                value={localData.eircode}
-                onChange={(e) => handleChange('eircode', e.target.value.toUpperCase())}
-                maxLength="8"
-              />
-              {localData.eircode && localData.eircode.trim() && (
-                <button
-                  type="button"
-                  onClick={handleEircodeClick}
-                  className="absolute right-3 top-9 text-blue-400 hover:text-blue-300 transition-colors"
-                  title="Open in Google Maps"
-                >
-                  📍
-                </button>
-              )}
-            </div>
-
-            <Input
-              label="Target Duration (minutes)"
-              type="number"
-              placeholder="e.g., 45"
-              value={localData.targetDuration}
-              onChange={(e) => handleChange('targetDuration', e.target.value)}
-              min="1"
-              max="180"
-            />
-          </div>
-
-          {/* Row 4: Venue Notes */}
-          <Input
-            label="Venue/Notes"
-            as="textarea"
-            placeholder="e.g., Roscommon Arts Centre - acoustic venue, no mics"
-            value={localData.venueNotes}
-            onChange={(e) => handleChange('venueNotes', e.target.value)}
-            rows="3"
-            className="resize-none"
-          />
         </div>
 
-        {/* Helper text */}
-        {localData.eircode && localData.eircode.trim() && (
-          <div className="mt-4 pt-4 border-t border-white/10">
-            <div className="text-xs text-gray-400 flex items-center gap-2">
-              <span>💡</span>
-              <span>Click the 📍 icon to view this location in Google Maps</span>
+        <div className="space-y-6">
+          {/* Section 1: Basic Info */}
+          <div className="space-y-4">
+            <Input
+              label="Setlist Name"
+              type="text"
+              placeholder="e.g., Spring Concert 2025"
+              value={localData.name}
+              onChange={(e) => handleChange('name', e.target.value)}
+              required
+            />
+          </div>
+
+          {/* Section 2: Date & Time */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-gray-300 font-medium">
+              <span className="text-lg">🗓️</span>
+              <span>Schedule</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Input
+                label="Event Date"
+                type="date"
+                value={localData.eventDate}
+                onChange={(e) => handleChange('eventDate', e.target.value)}
+                min={today}
+                required
+              />
+              <Input
+                label="Event Time"
+                type="time"
+                value={localData.eventTime}
+                onChange={(e) => handleChange('eventTime', e.target.value)}
+              />
             </div>
           </div>
-        )}
+
+          {/* Section 3: Location & Duration */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-gray-300 font-medium">
+              <span className="text-lg">📍</span>
+              <span>Location & Duration</span>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="relative">
+                <Input
+                  label="Eircode (Irish Postcode)"
+                  type="text"
+                  placeholder="e.g., D02 XY45"
+                  value={localData.eircode}
+                  onChange={(e) => handleChange('eircode', e.target.value.toUpperCase())}
+                  maxLength="8"
+                />
+                {localData.eircode && localData.eircode.trim() && (
+                  <button
+                    type="button"
+                    onClick={handleEircodeClick}
+                    className="absolute right-4 top-[42px] text-blue-400 hover:text-blue-300 transition-colors text-xl"
+                    title="Open in Google Maps"
+                  >
+                    🗺️
+                  </button>
+                )}
+              </div>
+
+              <Input
+                label="Target Duration (minutes)"
+                type="number"
+                placeholder="e.g., 45"
+                value={localData.targetDuration}
+                onChange={(e) => handleChange('targetDuration', e.target.value)}
+                min="1"
+              />
+            </div>
+          </div>
+
+          {/* Section 4: Additional Notes */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm text-gray-300 font-medium">
+              <span className="text-lg">📝</span>
+              <span>Venue Notes</span>
+            </div>
+            <Input
+              label="Venue/Notes"
+              as="textarea"
+              rows="3"
+              placeholder="e.g., Roscommon Arts Centre - acoustic venue, no mics"
+              value={localData.venueNotes}
+              onChange={(e) => handleChange('venueNotes', e.target.value)}
+              className="resize-none"
+            />
+          </div>
+        </div>
       </div>
 
-      {/* Actions */}
-      <div className="flex gap-3">
+      {/* Action Buttons - Enhanced styling */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button
           variant="secondary"
           size="lg"
-          className="flex-1"
+          className="flex-1 order-2 sm:order-1"
           onClick={onCancel}
         >
           Cancel
@@ -138,10 +155,10 @@ export default function SetlistFormStep({
         <Button
           variant="primary"
           size="lg"
-          className="flex-2"
+          className="flex-1 order-1 sm:order-2 shadow-lg shadow-yellow-500/20"
           onClick={handleNext}
         >
-          {isEditMode ? 'Next: Update Songs →' : 'Next: Add Songs →'}
+          Next: Add Songs →
         </Button>
       </div>
     </div>
