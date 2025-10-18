@@ -4,7 +4,12 @@ import { useState } from 'react'
 import Input from '../../components/ui/Input'
 import Button from '../../components/ui/Button'
 
-export default function SetlistFormStep({ formData, onNext, onCancel }) {
+export default function SetlistFormStep({ 
+  formData, 
+  onNext, 
+  onCancel, 
+  isEditMode = false 
+}) {
   const [localData, setLocalData] = useState(formData)
 
   const handleChange = (field, value) => {
@@ -27,16 +32,6 @@ export default function SetlistFormStep({ formData, onNext, onCancel }) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-white mb-2">
-          🎼 Create New Setlist
-        </h2>
-        <p className="text-gray-400 text-sm">
-          First, let's set up the basic event information
-        </p>
-      </div>
-
       {/* Form */}
       <div className="glass rounded-2xl p-6 border border-white/10">
         <h3 className="text-lg font-bold text-white mb-4">
@@ -146,7 +141,7 @@ export default function SetlistFormStep({ formData, onNext, onCancel }) {
           className="flex-2"
           onClick={handleNext}
         >
-          Next: Add Songs →
+          {isEditMode ? 'Next: Update Songs →' : 'Next: Add Songs →'}
         </Button>
       </div>
     </div>
