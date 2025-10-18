@@ -246,13 +246,7 @@ export const getSetlists = async (userId) => {
     
     const { data, error } = await supabase
       .from('setlists')
-      .select(`
-        *,
-        setlist_songs (
-          position,
-          choir_songs (*)
-        )
-      `)
+      .select('*')
       .eq('created_by', userId)
       .order('event_date', { ascending: false })
 
@@ -261,16 +255,8 @@ export const getSetlists = async (userId) => {
       return []
     }
     
-    // Transform data to include songs array
-    const setlists = (data || []).map(setlist => ({
-      ...setlist,
-      songs: (setlist.setlist_songs || [])
-        .sort((a, b) => a.position - b.position)
-        .map(ss => ss.choir_songs)
-    }))
-    
-    console.log('Successfully fetched', setlists.length, 'setlists')
-    return setlists
+    console.log('Successfully fetched', data?.length || 0, 'setlists')
+    return data || []
     
   } catch (err) {
     console.error('Error in getSetlists:', err)
