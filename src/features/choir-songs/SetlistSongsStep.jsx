@@ -126,10 +126,15 @@ export default function SetlistSongsStep({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center">
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '400px'
+      }}>
+        <div style={{ textAlign: 'center' }}>
           <LoadingSpinner size="lg" />
-          <p className="mt-4 text-gray-400 text-sm">
+          <p style={{ marginTop: '16px', color: '#6b7280', fontSize: '14px' }}>
             Loading songs...
           </p>
         </div>
@@ -139,11 +144,20 @@ export default function SetlistSongsStep({
 
   if (error) {
     return (
-      <div className="glass rounded-xl p-6 border border-red-500/20 bg-red-500/10">
-        <div className="text-center">
-          <div className="text-red-400 text-2xl mb-3">⚠️</div>
-          <h3 className="text-red-300 font-semibold mb-2">Error</h3>
-          <p className="text-red-200 text-sm mb-4">{error}</p>
+      <div style={{
+        background: 'rgba(239, 68, 68, 0.1)',
+        border: '2px solid rgba(239, 68, 68, 0.3)',
+        borderRadius: '16px',
+        padding: '24px'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚠️</div>
+          <h3 style={{ color: '#dc2626', fontWeight: '600', marginBottom: '8px', fontSize: '18px' }}>
+            Error
+          </h3>
+          <p style={{ color: '#ef4444', fontSize: '14px', marginBottom: '16px' }}>
+            {error}
+          </p>
           <Button variant="secondary" onClick={onBack}>
             Back
           </Button>
@@ -156,7 +170,7 @@ export default function SetlistSongsStep({
   const targetDuration = parseInt(formData.targetDuration) || 0
 
   return (
-    <div className="space-y-6">
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       {/* Duration Tracker */}
       <DurationTracker
         currentDuration={totalDuration}
@@ -173,11 +187,34 @@ export default function SetlistSongsStep({
       />
 
       {/* Two Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Available Songs */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-white">
-            Available Songs ({filteredSongs.length})
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: '1fr 1fr',
+        gap: '24px',
+        minHeight: '500px'
+      }}>
+        {/* Available Songs - LEFT COLUMN */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: '#111827',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span>🎵</span>
+            Available Songs
+            <span style={{
+              fontSize: '14px',
+              fontWeight: 'normal',
+              color: '#6b7280',
+              background: 'rgba(0, 0, 0, 0.05)',
+              padding: '4px 12px',
+              borderRadius: '12px'
+            }}>
+              {filteredSongs.length}
+            </span>
           </h3>
           <AvailableSongs
             songs={filteredSongs}
@@ -186,13 +223,40 @@ export default function SetlistSongsStep({
           />
         </div>
 
-        {/* Current Setlist */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            Current Setlist
-            <span className="text-sm font-normal text-gray-400">
-              ({currentSetlist.length} songs)
+        {/* Current Setlist - RIGHT COLUMN */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <h3 style={{
+            fontSize: '18px',
+            fontWeight: 'bold',
+            color: '#111827',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
+          }}>
+            <span>🎼</span>
+            Your Setlist
+            <span style={{
+              fontSize: '14px',
+              fontWeight: 'normal',
+              color: '#6b7280',
+              background: 'rgba(0, 0, 0, 0.05)',
+              padding: '4px 12px',
+              borderRadius: '12px'
+            }}>
+              {currentSetlist.length} {currentSetlist.length === 1 ? 'song' : 'songs'}
             </span>
+            {totalDuration > 0 && (
+              <span style={{
+                fontSize: '14px',
+                fontWeight: 'normal',
+                color: '#4169E1',
+                background: 'rgba(65, 105, 225, 0.1)',
+                padding: '4px 12px',
+                borderRadius: '12px'
+              }}>
+                ⏱️ {totalDuration} min
+              </span>
+            )}
           </h3>
           <CurrentSetlist
             setlist={currentSetlist}
@@ -203,11 +267,16 @@ export default function SetlistSongsStep({
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 pt-6 border-t border-white/10">
+      <div style={{
+        display: 'flex',
+        gap: '12px',
+        paddingTop: '24px',
+        borderTop: '2px solid rgba(0, 0, 0, 0.1)'
+      }}>
         <Button
           variant="secondary"
           size="lg"
-          className="flex-1"
+          style={{ flex: 1 }}
           onClick={onBack}
           disabled={isSaving}
         >
@@ -216,7 +285,7 @@ export default function SetlistSongsStep({
         <Button
           variant="primary"
           size="lg"
-          className="flex-2"
+          style={{ flex: 2 }}
           onClick={handleSave}
           loading={isSaving}
           disabled={isSaving || currentSetlist.length === 0}
