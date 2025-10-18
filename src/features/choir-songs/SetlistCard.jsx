@@ -1,5 +1,6 @@
 'use client'
 
+import React from 'react'
 import { format, parseISO } from 'date-fns'
 
 export default function SetlistCard({ setlist, status, onClick }) {
@@ -87,17 +88,18 @@ export default function SetlistCard({ setlist, status, onClick }) {
         boxShadow: isHovered ? '0 20px 40px rgba(255, 215, 0, 0.1)' : 'none'
       }}
     >
-      {/* Header Row */}
+      {/* Header Row - Date, Event Name, Song Count */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between',
         alignItems: 'flex-start',
-        marginBottom: '20px'
+        marginBottom: '16px',
+        gap: '16px'
       }}>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          {/* Date */}
+        {/* Left: Date and Status */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '140px' }}>
           <div style={{ 
-            fontSize: '28px', 
+            fontSize: '22px', 
             fontWeight: '700',
             color: styles.dateColor,
             lineHeight: '1.2'
@@ -105,13 +107,12 @@ export default function SetlistCard({ setlist, status, onClick }) {
             {format(eventDate, 'MMM d, yyyy')}
           </div>
           
-          {/* Status Badge */}
           <div style={{
             display: 'inline-flex',
             alignItems: 'center',
-            fontSize: '12px',
+            fontSize: '11px',
             fontWeight: '600',
-            padding: '6px 12px',
+            padding: '4px 10px',
             borderRadius: '999px',
             background: styles.badgeBg,
             color: styles.badgeText,
@@ -121,17 +122,36 @@ export default function SetlistCard({ setlist, status, onClick }) {
             {status === 'upcoming' ? 'Upcoming' : status === 'past' ? 'Past' : 'Archived'}
           </div>
         </div>
+
+        {/* Center: Event Name */}
+        <div style={{ 
+          flex: 1,
+          minWidth: 0,
+          display: 'flex',
+          alignItems: 'center'
+        }}>
+          <h4 style={{
+            color: '#FFFFFF',
+            fontSize: '18px',
+            fontWeight: '700',
+            lineHeight: '1.3',
+            margin: 0
+          }}>
+            {setlist.name}
+          </h4>
+        </div>
         
-        {/* Song Count Badge */}
+        {/* Right: Song Count Badge */}
         {setlist.song_count && (
           <div style={{ 
             display: 'flex', 
             flexDirection: 'column', 
             alignItems: 'flex-end',
-            gap: '4px'
+            gap: '4px',
+            minWidth: '60px'
           }}>
             <div style={{ 
-              fontSize: '11px',
+              fontSize: '10px',
               color: '#9CA3AF',
               fontWeight: '500'
             }}>
@@ -150,17 +170,6 @@ export default function SetlistCard({ setlist, status, onClick }) {
           </div>
         )}
       </div>
-
-      {/* Event Name */}
-      <h4 style={{
-        color: '#FFFFFF',
-        fontSize: '20px',
-        fontWeight: '700',
-        marginBottom: '20px',
-        lineHeight: '1.3'
-      }}>
-        {setlist.name}
-      </h4>
 
       {/* Details Section */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -274,6 +283,3 @@ export default function SetlistCard({ setlist, status, onClick }) {
     </div>
   )
 }
-
-// Add React import at the top if not already there
-import React from 'react'
