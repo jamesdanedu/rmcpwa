@@ -60,64 +60,94 @@ export default function SetlistsListView({ setlists, onSetlistClick }) {
   })
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Upcoming Setlists */}
       {upcomingSetlists.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            📅 Upcoming Events
-            <span className="text-xs font-normal text-gray-400">
-              ({upcomingSetlists.length})
-            </span>
-          </h3>
-          {upcomingSetlists.map((setlist) => (
-            <SetlistCard 
-              key={setlist.id} 
-              setlist={setlist}
-              status="upcoming"
-              onClick={() => onSetlistClick(setlist)}
-            />
-          ))}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl 
+                          bg-gradient-to-br from-green-400 to-green-600">
+              <span className="text-white text-xl">📅</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                Upcoming Events
+              </h3>
+              <p className="text-sm text-gray-400">
+                {upcomingSetlists.length} scheduled performance{upcomingSetlists.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {upcomingSetlists.map((setlist) => (
+              <SetlistCard 
+                key={setlist.id} 
+                setlist={setlist}
+                status="upcoming"
+                onClick={() => onSetlistClick(setlist)}
+              />
+            ))}
+          </div>
         </div>
       )}
 
       {/* Recent/Past Setlists */}
       {recentSetlists.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-lg font-bold text-white flex items-center gap-2">
-            🎵 Recent Performances
-            <span className="text-xs font-normal text-gray-400">
-              ({recentSetlists.length})
-            </span>
-          </h3>
-          {recentSetlists.map((setlist) => (
-            <SetlistCard 
-              key={setlist.id} 
-              setlist={setlist}
-              status="past"
-              onClick={() => onSetlistClick(setlist)}
-            />
-          ))}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl 
+                          bg-gradient-to-br from-blue-400 to-blue-600">
+              <span className="text-white text-xl">🎵</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-white">
+                Recent Performances
+              </h3>
+              <p className="text-sm text-gray-400">
+                {recentSetlists.length} performance{recentSetlists.length !== 1 ? 's' : ''} in the last 30 days
+              </p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {recentSetlists.map((setlist) => (
+              <SetlistCard 
+                key={setlist.id} 
+                setlist={setlist}
+                status="past"
+                onClick={() => onSetlistClick(setlist)}
+              />
+            ))}
+          </div>
         </div>
       )}
 
       {/* Archived Setlists */}
       {archivedSetlists.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-lg font-bold text-gray-400 flex items-center gap-2">
-            📦 Archived
-            <span className="text-xs font-normal text-gray-500">
-              (30+ days ago • {archivedSetlists.length})
-            </span>
-          </h3>
-          {archivedSetlists.map((setlist) => (
-            <SetlistCard 
-              key={setlist.id} 
-              setlist={setlist}
-              status="archived"
-              onClick={() => onSetlistClick(setlist)}
-            />
-          ))}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-10 h-10 rounded-xl 
+                          bg-gradient-to-br from-gray-500 to-gray-700">
+              <span className="text-white text-xl">📦</span>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-400">
+                Archived
+              </h3>
+              <p className="text-sm text-gray-500">
+                {archivedSetlists.length} older performance{archivedSetlists.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
+          <div className="space-y-3">
+            {archivedSetlists.map((setlist) => (
+              <SetlistCard 
+                key={setlist.id} 
+                setlist={setlist}
+                status="archived"
+                onClick={() => onSetlistClick(setlist)}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
