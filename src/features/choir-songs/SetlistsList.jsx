@@ -67,7 +67,8 @@ export default function SetlistsList({ setlists, onEdit }) {
   }
 
   // Handle PDF generation
-  const handleGeneratePDF = async (setlistId) => {
+  const handleGeneratePDF = async (setlistId, e) => {
+    if (e) e.stopPropagation() // Prevent card click
     try {
       setIsGeneratingPDF(setlistId)
       const fullSetlist = await getSetlistById(setlistId)
@@ -142,7 +143,7 @@ export default function SetlistsList({ setlists, onEdit }) {
         }}
         setlist={selectedSetlist}
         onEdit={handleEdit}
-        onGeneratePDF={handleGeneratePDF}
+        onGeneratePDF={(id) => handleGeneratePDF(id, null)}
         isGeneratingPDF={isGeneratingPDF === selectedSetlist?.id}
       />
     </>
@@ -159,12 +160,13 @@ function SetlistCard({ setlist, archived = false, onView, onGeneratePDF, isGener
   }
 
   const handlePDFClick = (e) => {
-    e.stopPropagation() // Prevent card click
-    onGeneratePDF(setlist.id)
+    onGeneratePDF(setlist.id, e)
   }
 
   const handleCardClick = () => {
-    onView(setlist.id)
+    if (!isLoadingDetail) {
+      onView(setlist.id)
+    }
   }
 
   const eventDate = new Date(setlist.event_date)
@@ -195,53 +197,62 @@ function SetlistCard({ setlist, archived = false, onView, onGeneratePDF, isGener
         ${archived 
           ? 'opacity-60' 
           : 'hover:border-yellow-400/30 hover:bg-white/5 hover:shadow-lg hover:scale-[1.01]'}
+        ${isLoadingDetail ? 'opacity-50 pointer-events-none' : ''}
       `}
     >
-      <div className="flex items-start justify-between">
+      <div className="flex items-start justify-between mb-3">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
-            <h4 className="text-white font-semibold text-sm leading-tight">
+            <h4 className="text-white font-semibold text-base leading-tight">
               {setlist.name}
             </h4>
             {isUpcoming && !archived && (
-              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full font-medium">
                 Upcoming
               </span>
             )}
             {archived && (
-              <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-1 rounded-full">
+              <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-1 rounded-full font-medium">
                 Archived
               </span>
             )}
           </div>
           
           <div className="flex items-center flex-wrap gap-4 text-xs text-gray-400 mb-3">
-            <span>📅 {eventDate.toLocaleDateString()}</span>
+            <span className="flex items-center gap-1">
+              📅 {eventDate.toLocaleDateString()}
+            </span>
             
             {setlist.event_time && (
-              <span>🕐 {formatTime(setlist.event_time)}</span>
+              <span className="flex items-center gap-1">
+                🕐 {formatTime(setlist.event_time)}
+              </span>
             )}
             
             {setlist.total_duration_minutes && (
-              <span>⏱️ {setlist.total_duration_minutes} minutes</span>
+              <span className="flex items-center gap-1">
+                ⏱️ {setlist.total_duration_minutes} min
+              </span>
             )}
             
             {setlist.song_count && (
-              <span>🎵 {setlist.song_count} songs</span>
+              <span className="flex items-center gap-1">
+                🎵 {setlist.song_count} songs
+              </span>
             )}
           </div>
 
           {setlist.eircode && (
             <button
               onClick={handleOpenMaps}
-              className="text-xs text-blue-400 hover:text-blue-300 mb-3 flex items-center gap-1 transition-colors"
+              className="text-xs text-blue-400 hover:text-blue-300 mb-2 flex items-center gap-1 transition-colors font-medium"
             >
               📍 {setlist.eircode} - View in Maps
             </button>
           )}
 
           {setlist.venue_notes && (
-            <p className="text-xs text-gray-500 mb-3 line-clamp-2">
+            <p className="text-xs text-gray-400 mb-2 line-clamp-2">
               {setlist.venue_notes}
             </p>
           )}
@@ -252,17 +263,18 @@ function SetlistCard({ setlist, archived = false, onView, onGeneratePDF, isGener
       <div className="flex gap-2 pt-3 border-t border-white/10">
         <button
           onClick={handleCardClick}
-          className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors flex-1"
+          disabled={isLoadingDetail}
+          className="flex-1 text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          👁️ View Details
+          {isLoadingDetail ? '⏳ Loading...' : '👁️ View Details'}
         </button>
         
         <button
           onClick={handlePDFClick}
           disabled={isGeneratingPDF || isLoadingDetail}
-          className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isGeneratingPDF ? '⏳' : '📄'} PDF
+          {isGeneratingPDF ? '⏳ PDF...' : '📄 PDF'}
         </button>
       </div>
     </div>
