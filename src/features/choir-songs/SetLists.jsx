@@ -57,7 +57,7 @@ export default function SetLists() {
   // Show the SetlistCreator component
   if (showCreator) {
     return (
-      <SetlistCreator
+      <SetlistCreatorWizard    
         onSetlistCreated={handleSetlistCreated}
         onCancel={handleCancel}
       />
