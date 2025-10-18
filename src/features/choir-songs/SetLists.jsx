@@ -15,11 +15,12 @@ export default function SetLists() {
   const [showCreator, setShowCreator] = useState(false)
   const [editingSetlist, setEditingSetlist] = useState(null)
 
+  // FIX: Use user?.id instead of user to prevent infinite loop
   useEffect(() => {
-    if (user) {
+    if (user?.id) {
       loadSetlists()
     }
-  }, [user])
+  }, [user?.id])  // ← CRITICAL FIX: Only depend on user.id, not entire user object
 
   const loadSetlists = async () => {
     try {
