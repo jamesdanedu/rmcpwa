@@ -1,10 +1,17 @@
 'use client'
 
+import { useState } from 'react'
 import { formatDistanceToNow, isAfter, subDays } from 'date-fns'
 import { getSetlistById } from '../../lib/api'
 import { exportSetlistToPDF } from '../../lib/pdf-export'
+import SetlistDetailView from './SetlistDetailView'
 
-export default function SetlistsList({ setlists }) {
+export default function SetlistsList({ setlists, onEdit }) {
+  const [selectedSetlist, setSelectedSetlist] = useState(null)
+  const [isDetailViewOpen, setIsDetailViewOpen] = useState(false)
+  const [isLoadingDetail, setIsLoadingDetail] = useState(false)
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(null)
+
   if (setlists.length === 0) {
     return (
       <div className="glass rounded-2xl p-8 border border-white/10 text-center">
@@ -44,73 +51,120 @@ export default function SetlistsList({ setlists }) {
     setlist.is_archived || !isAfter(new Date(setlist.event_date), archiveDate)
   )
 
-  return (
-    <div className="space-y-6">
-      {/* Active Setlists */}
-      {activeSetlists.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-lg font-bold text-white">
-            Active Setlists
-          </h3>
-          {activeSetlists.map((setlist) => (
-            <SetlistCard key={setlist.id} setlist={setlist} />
-          ))}
-        </div>
-      )}
+  // Handle viewing setlist details
+  const handleViewSetlist = async (setlistId) => {
+    try {
+      setIsLoadingDetail(true)
+      const fullSetlist = await getSetlistById(setlistId)
+      setSelectedSetlist(fullSetlist)
+      setIsDetailViewOpen(true)
+    } catch (err) {
+      console.error('Error loading setlist details:', err)
+      alert('Failed to load setlist details')
+    } finally {
+      setIsLoadingDetail(false)
+    }
+  }
 
-      {/* Archived Setlists */}
-      {archivedSetlists.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-lg font-bold text-gray-400 flex items-center gap-2">
-            📦 Archived Setlists
-            <span className="text-xs font-normal text-gray-500">
-              (Auto-archived 30+ days post-event)
-            </span>
-          </h3>
-          {archivedSetlists.map((setlist) => (
-            <SetlistCard key={setlist.id} setlist={setlist} archived />
-          ))}
-        </div>
-      )}
-    </div>
+  // Handle PDF generation
+  const handleGeneratePDF = async (setlistId) => {
+    try {
+      setIsGeneratingPDF(setlistId)
+      const fullSetlist = await getSetlistById(setlistId)
+      await exportSetlistToPDF(fullSetlist)
+    } catch (err) {
+      console.error('Error generating PDF:', err)
+      alert('Failed to generate PDF')
+    } finally {
+      setIsGeneratingPDF(null)
+    }
+  }
+
+  // Handle edit from detail view
+  const handleEdit = (setlist) => {
+    if (onEdit) {
+      onEdit(setlist)
+    }
+  }
+
+  return (
+    <>
+      <div className="space-y-6">
+        {/* Active Setlists */}
+        {activeSetlists.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-lg font-bold text-white">
+              Active Setlists
+            </h3>
+            {activeSetlists.map((setlist) => (
+              <SetlistCard 
+                key={setlist.id} 
+                setlist={setlist}
+                onView={handleViewSetlist}
+                onGeneratePDF={handleGeneratePDF}
+                isGeneratingPDF={isGeneratingPDF === setlist.id}
+                isLoadingDetail={isLoadingDetail}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Archived Setlists */}
+        {archivedSetlists.length > 0 && (
+          <div className="space-y-3">
+            <h3 className="text-lg font-bold text-gray-400 flex items-center gap-2">
+              📦 Archived Setlists
+              <span className="text-xs font-normal text-gray-500">
+                (Auto-archived 30+ days post-event)
+              </span>
+            </h3>
+            {archivedSetlists.map((setlist) => (
+              <SetlistCard 
+                key={setlist.id} 
+                setlist={setlist} 
+                archived
+                onView={handleViewSetlist}
+                onGeneratePDF={handleGeneratePDF}
+                isGeneratingPDF={isGeneratingPDF === setlist.id}
+                isLoadingDetail={isLoadingDetail}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Detail View Modal */}
+      <SetlistDetailView
+        isOpen={isDetailViewOpen}
+        onClose={() => {
+          setIsDetailViewOpen(false)
+          setSelectedSetlist(null)
+        }}
+        setlist={selectedSetlist}
+        onEdit={handleEdit}
+        onGeneratePDF={handleGeneratePDF}
+        isGeneratingPDF={isGeneratingPDF === selectedSetlist?.id}
+      />
+    </>
   )
 }
 
-function SetlistCard({ setlist, archived = false }) {
-  const handleEdit = () => {
-    if (archived) {
-      alert('Archived setlists cannot be edited')
-      return
-    }
-    alert(`Edit setlist: ${setlist.name}`)
-  }
-
-  const handleGeneratePDF = async () => {
-    try {
-      console.log('Generating PDF for setlist:', setlist.id)
-      
-      // Fetch the full setlist with songs if not already loaded
-      let fullSetlist = setlist
-      if (!setlist.songs || setlist.songs.length === 0) {
-        console.log('Fetching full setlist data...')
-        fullSetlist = await getSetlistById(setlist.id)
-      }
-      
-      console.log('Exporting setlist to PDF:', fullSetlist)
-      await exportSetlistToPDF(fullSetlist)
-      
-      console.log('PDF generated successfully!')
-    } catch (err) {
-      console.error('Error generating PDF:', err)
-      alert('Failed to generate PDF. Please check the console for details.')
-    }
-  }
-
-  const handleOpenMaps = () => {
+function SetlistCard({ setlist, archived = false, onView, onGeneratePDF, isGeneratingPDF, isLoadingDetail }) {
+  const handleOpenMaps = (e) => {
+    e.stopPropagation() // Prevent card click
     if (setlist.eircode) {
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(setlist.eircode)}`
       window.open(mapsUrl, '_blank')
     }
+  }
+
+  const handlePDFClick = (e) => {
+    e.stopPropagation() // Prevent card click
+    onGeneratePDF(setlist.id)
+  }
+
+  const handleCardClick = () => {
+    onView(setlist.id)
   }
 
   const eventDate = new Date(setlist.event_date)
@@ -134,10 +188,15 @@ function SetlistCard({ setlist, archived = false }) {
   }
 
   return (
-    <div className={`
-      glass rounded-xl p-4 border border-white/10 transition-all duration-200
-      ${archived ? 'opacity-60' : 'hover:border-yellow-400/30 hover:bg-white/5'}
-    `}>
+    <div 
+      onClick={handleCardClick}
+      className={`
+        glass rounded-xl p-4 border border-white/10 transition-all duration-200 cursor-pointer
+        ${archived 
+          ? 'opacity-60' 
+          : 'hover:border-yellow-400/30 hover:bg-white/5 hover:shadow-lg hover:scale-[1.01]'}
+      `}
+    >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-2">
@@ -191,30 +250,20 @@ function SetlistCard({ setlist, archived = false }) {
 
       {/* Actions */}
       <div className="flex gap-2 pt-3 border-t border-white/10">
-        {!archived && (
-          <button
-            onClick={handleEdit}
-            className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
-          >
-            Edit
-          </button>
-        )}
-        
         <button
-          onClick={handleGeneratePDF}
-          className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
+          onClick={handleCardClick}
+          className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors flex-1"
         >
-          📄 PDF
+          👁️ View Details
         </button>
         
-        {archived && (
-          <button
-            onClick={() => alert(`View archived setlist: ${setlist.name}`)}
-            className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors"
-          >
-            View Only
-          </button>
-        )}
+        <button
+          onClick={handlePDFClick}
+          disabled={isGeneratingPDF || isLoadingDetail}
+          className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isGeneratingPDF ? '⏳' : '📄'} PDF
+        </button>
       </div>
     </div>
   )
