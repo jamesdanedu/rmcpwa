@@ -1,6 +1,8 @@
 'use client'
 
 import { formatDistanceToNow, isAfter, subDays } from 'date-fns'
+import { getSetlistById } from '../../lib/api'
+import { exportSetlistToPDF } from '../../lib/pdf-export'
 
 export default function SetlistsList({ setlists }) {
   if (setlists.length === 0) {
@@ -83,8 +85,25 @@ function SetlistCard({ setlist, archived = false }) {
     alert(`Edit setlist: ${setlist.name}`)
   }
 
-  const handleGeneratePDF = () => {
-    alert(`Generate PDF for: ${setlist.name}`)
+  const handleGeneratePDF = async () => {
+    try {
+      console.log('Generating PDF for setlist:', setlist.id)
+      
+      // Fetch the full setlist with songs if not already loaded
+      let fullSetlist = setlist
+      if (!setlist.songs || setlist.songs.length === 0) {
+        console.log('Fetching full setlist data...')
+        fullSetlist = await getSetlistById(setlist.id)
+      }
+      
+      console.log('Exporting setlist to PDF:', fullSetlist)
+      await exportSetlistToPDF(fullSetlist)
+      
+      console.log('PDF generated successfully!')
+    } catch (err) {
+      console.error('Error generating PDF:', err)
+      alert('Failed to generate PDF. Please check the console for details.')
+    }
   }
 
   const handleOpenMaps = () => {
