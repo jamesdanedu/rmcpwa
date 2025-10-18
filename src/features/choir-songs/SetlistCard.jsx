@@ -193,7 +193,7 @@ export default function SetlistCard({ setlist, status, onClick }) {
             🎤
           </div>
           <div style={{
-            color: '#FFFFFF',
+            color: '#D1D5DB',
             fontSize: '17px',
             fontWeight: '700',
             lineHeight: '1.4',
