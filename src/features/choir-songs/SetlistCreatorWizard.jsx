@@ -1,26 +1,49 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
-import { createSetlist } from '../../lib/api'
+import { createSetlist, updateSetlist } from '../../lib/api'
 import Button from '../../components/ui/Button'
 import SetlistFormStep from './SetlistFormStep'
 import SetlistSongsStep from './SetlistSongsStep'
 
-export default function SetlistCreatorWizard({ onSetlistCreated, onCancel }) {
+export default function SetlistCreatorWizard({ 
+  onSetlistCreated, 
+  onCancel, 
+  editingSetlist = null 
+}) {
   const { user } = useAuth()
   const [currentStep, setCurrentStep] = useState(1)
-  const [formData, setFormData] = useState({
-    name: '',
-    eventDate: '',
-    eventTime: '',
-    eircode: '',
-    targetDuration: '',
-    venueNotes: ''
-  })
-  const [selectedSongs, setSelectedSongs] = useState([])
+  
+  // Pre-fill form data if editing
+  const [formData, setFormData] = useState(
+    editingSetlist ? {
+      name: editingSetlist.name || '',
+      eventDate: editingSetlist.event_date || '',
+      eventTime: editingSetlist.event_time || '',
+      eircode: editingSetlist.eircode || '',
+      targetDuration: editingSetlist.total_duration_minutes?.toString() || '',
+      venueNotes: editingSetlist.venue_notes || ''
+    } : {
+      name: '',
+      eventDate: '',
+      eventTime: '',
+      eircode: '',
+      targetDuration: '',
+      venueNotes: ''
+    }
+  )
+  
+  // Pre-fill selected songs if editing
+  const [selectedSongs, setSelectedSongs] = useState(
+    editingSetlist?.songs || []
+  )
+  
   const [error, setError] = useState(null)
   const [isSaving, setIsSaving] = useState(false)
+
+  // Determine if we're in edit mode
+  const isEditMode = !!editingSetlist
 
   const handleFormNext = (data) => {
     // Validate Step 1
@@ -52,7 +75,9 @@ export default function SetlistCreatorWizard({ onSetlistCreated, onCancel }) {
       setIsSaving(true)
       setError(null)
 
-      const totalDuration = songs.reduce((sum, song) => sum + (song.duration_minutes || 0), 0)
+      const totalDuration = songs.reduce((sum, song) => {
+        return sum + (song.duration_minutes || 0)
+      }, 0)
       
       const setlistData = {
         name: formData.name.trim(),
@@ -63,18 +88,30 @@ export default function SetlistCreatorWizard({ onSetlistCreated, onCancel }) {
         totalDuration: totalDuration
       }
 
-      console.log('Creating setlist with data:', setlistData)
-      console.log('Songs:', songs.length)
+      let result
 
-      const newSetlist = await createSetlist(setlistData, songs, user.id)
+      if (isEditMode) {
+        // Update existing setlist
+        console.log('Updating setlist:', editingSetlist.id)
+        console.log('Setlist data:', setlistData)
+        console.log('Songs:', songs.length)
+        
+        result = await updateSetlist(editingSetlist.id, setlistData, songs)
+        console.log('Setlist updated successfully:', result)
+      } else {
+        // Create new setlist
+        console.log('Creating setlist with data:', setlistData)
+        console.log('Songs:', songs.length)
+        
+        result = await createSetlist(setlistData, songs, user.id)
+        console.log('Setlist created successfully:', result)
+      }
       
-      console.log('Setlist created successfully:', newSetlist)
-      
-      onSetlistCreated(newSetlist)
+      onSetlistCreated(result)
       
     } catch (err) {
-      console.error('Error creating setlist:', err)
-      setError(err.message || 'Failed to create setlist')
+      console.error(`Error ${isEditMode ? 'updating' : 'creating'} setlist:`, err)
+      setError(err.message || `Failed to ${isEditMode ? 'update' : 'create'} setlist`)
     } finally {
       setIsSaving(false)
     }
@@ -82,6 +119,19 @@ export default function SetlistCreatorWizard({ onSetlistCreated, onCancel }) {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-white mb-2">
+          {isEditMode ? '✏️ Edit Setlist' : '🎼 Create New Setlist'}
+        </h2>
+        <p className="text-gray-400 text-sm">
+          {isEditMode 
+            ? 'Update your setlist details and song order'
+            : 'Build your setlist by adding songs and organizing the performance order'
+          }
+        </p>
+      </div>
+
       {/* Progress Indicator */}
       <div className="flex items-center justify-center gap-3">
         <div className="flex items-center gap-2">
@@ -112,7 +162,7 @@ export default function SetlistCreatorWizard({ onSetlistCreated, onCancel }) {
             2
           </div>
           <span className={`text-sm font-semibold ${currentStep === 2 ? 'text-white' : 'text-gray-400'}`}>
-            Add Songs
+            {isEditMode ? 'Update Songs' : 'Add Songs'}
           </span>
         </div>
       </div>
@@ -129,6 +179,23 @@ export default function SetlistCreatorWizard({ onSetlistCreated, onCancel }) {
         </div>
       )}
 
+      {/* Edit Mode Info Banner */}
+      {isEditMode && currentStep === 1 && (
+        <div className="glass rounded-xl p-4 border border-blue-500/20 bg-blue-500/5">
+          <div className="flex items-center gap-2">
+            <span className="text-blue-400 text-lg">ℹ️</span>
+            <div className="flex-1">
+              <p className="text-blue-300 text-sm font-medium">
+                Editing: {editingSetlist.name}
+              </p>
+              <p className="text-blue-400 text-xs mt-1">
+                You can update event details and modify the song list
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Step Content */}
       {currentStep === 1 && (
         <SetlistFormStep
@@ -137,6 +204,7 @@ export default function SetlistCreatorWizard({ onSetlistCreated, onCancel }) {
           onCancel={onCancel}
           error={error}
           onClearError={() => setError(null)}
+          isEditMode={isEditMode}
         />
       )}
 
@@ -150,6 +218,7 @@ export default function SetlistCreatorWizard({ onSetlistCreated, onCancel }) {
           isSaving={isSaving}
           error={error}
           onClearError={() => setError(null)}
+          isEditMode={isEditMode}
         />
       )}
     </div>
