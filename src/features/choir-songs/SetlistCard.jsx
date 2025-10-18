@@ -178,7 +178,7 @@ export default function SetlistCard({ setlist, status, onClick }) {
       {/* Details Section */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {/* Event Name (moved from header) */}
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <div style={{
             width: '36px',
             height: '36px',
@@ -192,16 +192,15 @@ export default function SetlistCard({ setlist, status, onClick }) {
           }}>
             🎤
           </div>
-          <h4 style={{
+          <div style={{
             color: '#FFFFFF',
-            fontSize: '18px',
+            fontSize: '17px',
             fontWeight: '700',
             lineHeight: '1.4',
-            margin: 0,
-            paddingTop: '6px'
+            flex: 1
           }}>
             {setlist.name}
-          </h4>
+          </div>
         </div>
 
         {/* Duration */}
