@@ -88,7 +88,7 @@ export default function SetlistCard({ setlist, status, onClick }) {
         boxShadow: isHovered ? '0 20px 40px rgba(255, 215, 0, 0.1)' : 'none'
       }}
     >
-      {/* Header Row - Date, Event Name, Song Count */}
+      {/* Header Row - Date, Time, Song Count */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between',
@@ -123,23 +123,27 @@ export default function SetlistCard({ setlist, status, onClick }) {
           </div>
         </div>
 
-        {/* Center: Event Name */}
-        <div style={{ 
-          flex: 1,
-          minWidth: 0,
-          display: 'flex',
-          alignItems: 'center'
-        }}>
-          <h4 style={{
-            color: '#FFFFFF',
-            fontSize: '18px',
-            fontWeight: '700',
-            lineHeight: '1.3',
-            margin: 0
+        {/* Center: Time (moved from details) */}
+        {setlist.event_time && (
+          <div style={{ 
+            flex: 1,
+            minWidth: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
-            {setlist.name}
-          </h4>
-        </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '20px' }}>🕐</span>
+              <span style={{ 
+                color: '#D1D5DB', 
+                fontWeight: '600', 
+                fontSize: '18px' 
+              }}>
+                {formatTime(setlist.event_time)}
+              </span>
+            </div>
+          </div>
+        )}
         
         {/* Right: Song Count Badge */}
         {setlist.song_count && (
@@ -173,26 +177,32 @@ export default function SetlistCard({ setlist, status, onClick }) {
 
       {/* Details Section */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-        {/* Time */}
-        {setlist.event_time && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '10px',
-              background: 'rgba(255, 215, 0, 0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '18px'
-            }}>
-              🕐
-            </div>
-            <span style={{ color: '#D1D5DB', fontWeight: '500', fontSize: '15px' }}>
-              {formatTime(setlist.event_time)}
-            </span>
+        {/* Event Name (moved from header) */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '10px',
+            background: 'rgba(255, 215, 0, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '18px',
+            flexShrink: 0
+          }}>
+            🎤
           </div>
-        )}
+          <h4 style={{
+            color: '#FFFFFF',
+            fontSize: '18px',
+            fontWeight: '700',
+            lineHeight: '1.4',
+            margin: 0,
+            paddingTop: '6px'
+          }}>
+            {setlist.name}
+          </h4>
+        </div>
 
         {/* Duration */}
         {setlist.total_duration_minutes && (
