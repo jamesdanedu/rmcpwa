@@ -5,7 +5,6 @@ import { isAfter } from 'date-fns'
 import { createPortal } from 'react-dom'
 import { useEffect, useState } from 'react'
 import Button from '../../components/ui/Button'
-import LyricsModal from './LyricsModal'
 
 export default function SetlistDetailView({ 
   isOpen, 
@@ -83,11 +82,13 @@ export default function SetlistDetailView({
 
   const handleSongClick = (song) => {
     console.log('Song clicked:', song.title)
+    console.log('Song has lyrics:', !!song.lyrics)
     setSelectedSong(song)
     setIsLyricsModalOpen(true)
   }
 
   const handleCloseLyricsModal = () => {
+    console.log('Closing lyrics modal')
     setIsLyricsModalOpen(false)
     setSelectedSong(null)
   }
@@ -477,13 +478,153 @@ export default function SetlistDetailView({
       `}</style>
     </div>
     
-    {/* Lyrics Modal */}
+    {/* Lyrics Modal - Inline with higher z-index */}
     {isLyricsModalOpen && selectedSong && (
-      <LyricsModal
-        isOpen={isLyricsModalOpen}
-        onClose={handleCloseLyricsModal}
-        song={selectedSong}
-      />
+      <div>
+        {/* Lyrics Backdrop */}
+        <div 
+          onClick={handleCloseLyricsModal}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.85)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 10500,
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+        />
+        
+        {/* Lyrics Modal */}
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10501,
+          padding: '20px',
+          pointerEvents: 'none'
+        }}>
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'linear-gradient(135deg, #111127 0%, #1a1a3a 100%)',
+              borderRadius: '20px',
+              maxWidth: '700px',
+              width: '100%',
+              maxHeight: '85vh',
+              overflow: 'hidden',
+              border: '2px solid rgba(255, 215, 0, 0.4)',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
+              pointerEvents: 'auto',
+              animation: 'scaleIn 0.2s ease-out',
+              position: 'relative'
+            }}
+          >
+            {/* Lyrics Header */}
+            <div style={{
+              background: 'linear-gradient(135deg, #FFD700 0%, #4169E1 100%)',
+              padding: '24px',
+              textAlign: 'center',
+              color: 'white',
+              position: 'relative'
+            }}>
+              <button
+                onClick={handleCloseLyricsModal}
+                style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  background: 'rgba(255, 255, 255, 0.2)',
+                  border: 'none',
+                  color: 'white',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background 0.2s',
+                  fontWeight: 'bold',
+                  lineHeight: '1'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+              >
+                ×
+              </button>
+              <h2 style={{ 
+                fontSize: '22px', 
+                fontWeight: 'bold', 
+                marginBottom: '8px',
+                paddingRight: '40px'
+              }}>
+                {selectedSong.title}
+              </h2>
+              <p style={{ fontSize: '16px', opacity: 0.95 }}>
+                {selectedSong.artist}
+              </p>
+            </div>
+
+            {/* Lyrics Content */}
+            <div style={{
+              padding: '28px',
+              maxHeight: 'calc(85vh - 160px)',
+              overflowY: 'auto'
+            }}>
+              {selectedSong.lyrics ? (
+                <div style={{
+                  color: '#ffffff',
+                  fontSize: '17px',
+                  lineHeight: '1.9',
+                  whiteSpace: 'pre-wrap',
+                  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif'
+                }}>
+                  {selectedSong.lyrics}
+                </div>
+              ) : (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '60px 24px',
+                  color: '#9CA3AF'
+                }}>
+                  <div style={{ fontSize: '64px', marginBottom: '20px' }}>📝</div>
+                  <p style={{ 
+                    fontSize: '20px', 
+                    fontWeight: '600', 
+                    marginBottom: '12px', 
+                    color: '#D1D5DB' 
+                  }}>
+                    No Lyrics Available
+                  </p>
+                  <p style={{ fontSize: '15px' }}>
+                    Lyrics haven't been added for this song yet.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer with metadata */}
+            {(selectedSong.genre || selectedSong.duration_minutes) && (
+              <div style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                padding: '16px 24px',
+                display: 'flex',
+                gap: '16px',
+                flexWrap: 'wrap',
+                fontSize: '13px',
+                color: '#9CA3AF'
+              }}>
+                {selectedSong.genre && <span>🎵 {selectedSong.genre}</span>}
+                {selectedSong.duration_minutes && <span>⏱️ {selectedSong.duration_minutes} min</span>}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     )}
     </div>
   )
