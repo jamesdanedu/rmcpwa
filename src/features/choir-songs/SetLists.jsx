@@ -6,7 +6,7 @@ import { getSetlists, getSetlistById } from '../../lib/api'
 import { exportSetlistToPDF } from '../../lib/pdf-export'
 import Button from '../../components/ui/Button'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
-import SetlistCreator from './SetlistCreator'
+import SetlistCreatorWizard from './SetlistCreatorWizard'
 import SetlistsList from './SetlistsList'
 
 export default function SetLists() {
