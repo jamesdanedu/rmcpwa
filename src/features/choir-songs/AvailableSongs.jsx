@@ -1,12 +1,16 @@
 'use client'
 
 export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre }) {
-  // ADD THIS DEBUG LOGGING
+  // Enhanced debug logging
   console.log('=== AVAILABLE SONGS DEBUG ===')
-  console.log('Total songs received:', songs.length)
-  console.log('First song:', songs[0])
-  console.log('First song title:', songs[0]?.title)
-  console.log('First song artist:', songs[0]?.artist)
+  console.log('Total songs received:', songs?.length || 0)
+  console.log('Songs array:', songs)
+  if (songs && songs.length > 0) {
+    console.log('First song object:', songs[0])
+    console.log('First song keys:', Object.keys(songs[0]))
+    console.log('First song title:', songs[0]?.title)
+    console.log('First song artist:', songs[0]?.artist)
+  }
   console.log('============================')
   
   const getGenreColor = (genre) => {
@@ -18,12 +22,27 @@ export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre })
       'Contemporary': 'text-cyan-400 bg-cyan-400/20',
       'Jazz Standard': 'text-amber-400 bg-amber-400/20',
       'Classical': 'text-indigo-400 bg-indigo-400/20',
-      'Traditional': 'text-gray-400 bg-gray-400/20'
+      'Traditional': 'text-gray-400 bg-gray-400/20',
+      'R&B, Soul': 'text-pink-400 bg-pink-400/20',
+      'Folk, Traditional Irish': 'text-green-400 bg-green-400/20',
+      'Folk Rock, Art Pop': 'text-purple-400 bg-purple-400/20',
+      'Progressive Rock, Folk Rock': 'text-blue-400 bg-blue-400/20',
+      'Alternative Rock, Jangle Pop': 'text-cyan-400 bg-cyan-400/20',
+      'Roots Rock, Country Rock': 'text-amber-400 bg-amber-400/20',
+      'Celtic Folk Ballad, Celtic Rock, Folk Rock': 'text-green-400 bg-green-400/20',
+      'Folk, Celtic Folk': 'text-green-400 bg-green-400/20',
+      'New Wave, Pop Rock': 'text-indigo-400 bg-indigo-400/20',
+      'Alternative Rock, Indie Rock': 'text-cyan-400 bg-cyan-400/20',
+      'Pop, Pop Ballad': 'text-pink-400 bg-pink-400/20',
+      'Soft Rock, Pop Ballad': 'text-blue-400 bg-blue-400/20',
+      'Alternative Rock, Indie Pop': 'text-purple-400 bg-purple-400/20',
+      'Folk': 'text-green-400 bg-green-400/20',
+      'Indie Dance, Alternative Rock': 'text-indigo-400 bg-indigo-400/20'
     }
     return colors[genre] || 'text-gray-400 bg-gray-400/20'
   }
 
-  if (songs.length === 0) {
+  if (!songs || songs.length === 0) {
     return (
       <div className="glass rounded-xl p-6 border border-white/10 text-center">
         <div className="text-gray-400 text-2xl mb-3">🎵</div>
@@ -42,13 +61,6 @@ export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre })
 
   return (
     <div className="space-y-2 max-h-96 overflow-y-auto glass rounded-xl p-4 border border-white/10">
-      {/* ADD THIS DEBUG BOX */}
-      <div className="glass rounded-lg p-2 border border-blue-500/20 bg-blue-500/10 mb-3">
-        <div className="text-xs text-blue-300 font-mono">
-          Debug: {songs.length} songs | First: {songs[0]?.title || 'NO TITLE'} by {songs[0]?.artist || 'NO ARTIST'}
-        </div>
-      </div>
-      
       {songs.map((song) => (
         <div
           key={song.id}
@@ -59,10 +71,12 @@ export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre })
         >
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              <h5 className="text-white font-medium text-sm leading-tight mb-1">
-                {song.title || '[NO TITLE]'}
+              {/* TITLE - Made more prominent and visible */}
+              <h5 className="text-white font-semibold text-base leading-tight mb-2">
+                {song.title || song.song_title || '[NO TITLE]'}
               </h5>
               
+              {/* ARTIST AND GENRE */}
               <div className="flex items-center gap-2 mb-2">
                 <span className="text-gray-400 text-xs">
                   {song.artist || '[NO ARTIST]'}
@@ -73,6 +87,7 @@ export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre })
                 </span>
               </div>
               
+              {/* DURATION AND OTHER INFO */}
               <div className="flex items-center gap-3 text-xs text-gray-500">
                 {song.duration_minutes && (
                   <span>⏱️ {song.duration_minutes} min</span>
