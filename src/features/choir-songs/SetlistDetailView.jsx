@@ -2,7 +2,8 @@
 
 import { useAuth } from '../../hooks/useAuth'
 import { isAfter } from 'date-fns'
-import Modal from '../../components/ui/Modal'
+import { createPortal } from 'react-dom'
+import { useEffect } from 'react'
 import Button from '../../components/ui/Button'
 
 export default function SetlistDetailView({ 
@@ -15,17 +16,45 @@ export default function SetlistDetailView({
 }) {
   const { user, isAuthenticated } = useAuth()
 
-  if (!setlist) return null
+  console.log('SetlistDetailView rendered, isOpen:', isOpen, 'setlist:', setlist)
+
+  useEffect(() => {
+    if (isOpen) {
+      console.log('Modal is open, preventing body scroll')
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        console.log('Escape pressed, closing modal')
+        onClose()
+      }
+    }
+    document.addEventListener('keydown', handleEscape)
+    return () => document.removeEventListener('keydown', handleEscape)
+  }, [isOpen, onClose])
+
+  if (!isOpen || !setlist) {
+    console.log('Modal not rendering because isOpen=', isOpen, 'or no setlist')
+    return null
+  }
+
+  console.log('Modal rendering with setlist:', setlist.name)
 
   const eventDate = new Date(setlist.event_date)
   const isUpcoming = isAfter(eventDate, new Date())
   
-  // Permission check: can edit if authenticated, not archived, and user created it
   const canEdit = isAuthenticated && 
                   !setlist.is_archived && 
                   setlist.created_by === user?.id
 
-  // Format time if available
   const formatTime = (timeString) => {
     if (!timeString) return null
     try {
@@ -49,214 +78,377 @@ export default function SetlistDetailView({
     }
   }
 
-  // Get genre color styling
   const getGenreColor = (genre) => {
     const colors = {
-      'Christmas': 'bg-red-500/20 text-red-400',
-      'Irish Folk': 'bg-green-500/20 text-green-400',
-      'Gospel': 'bg-purple-500/20 text-purple-400',
-      'Hymn': 'bg-blue-500/20 text-blue-400',
-      'Contemporary': 'bg-yellow-500/20 text-yellow-400',
-      'Jazz Standard': 'bg-orange-500/20 text-orange-400',
-      'Classical': 'bg-indigo-500/20 text-indigo-400',
-      'Traditional': 'bg-emerald-500/20 text-emerald-400'
+      'Christmas': 'background: rgba(239, 68, 68, 0.2); color: #f87171',
+      'Irish Folk': 'background: rgba(34, 197, 94, 0.2); color: #4ade80',
+      'Gospel': 'background: rgba(168, 85, 247, 0.2); color: #c084fc',
+      'Hymn': 'background: rgba(59, 130, 246, 0.2); color: #60a5fa',
+      'Contemporary': 'background: rgba(234, 179, 8, 0.2); color: #facc15',
+      'Jazz Standard': 'background: rgba(249, 115, 22, 0.2); color: #fb923c',
+      'Classical': 'background: rgba(99, 102, 241, 0.2); color: #a5b4fc',
+      'Traditional': 'background: rgba(16, 185, 129, 0.2); color: #34d399'
     }
-    return colors[genre] || 'bg-gray-500/20 text-gray-400'
+    return colors[genre] || 'background: rgba(107, 114, 128, 0.2); color: #9ca3af'
   }
 
-  return (
-    <Modal 
-      isOpen={isOpen} 
-      onClose={onClose}
-      size="lg"
-    >
-      {/* Header */}
-      <div className="gradient-roscommon px-6 py-5 text-center relative">
-        <div className="flex items-center justify-center gap-2 mb-2">
-          <h2 className="text-xl font-bold text-white">
-            {setlist.name}
-          </h2>
-          {isUpcoming && !setlist.is_archived && (
-            <span className="text-xs bg-green-500/30 text-green-200 px-2 py-1 rounded-full">
-              Upcoming
-            </span>
-          )}
-          {setlist.is_archived && (
-            <span className="text-xs bg-gray-500/30 text-gray-200 px-2 py-1 rounded-full">
-              Archived
-            </span>
-          )}
-        </div>
-        
-        {/* Event Details */}
-        <div className="flex items-center justify-center flex-wrap gap-4 text-sm text-white/90">
-          <span>📅 {eventDate.toLocaleDateString()}</span>
-          
-          {setlist.event_time && (
-            <span>🕐 {formatTime(setlist.event_time)}</span>
-          )}
-          
-          {setlist.total_duration_minutes && (
-            <span>⏱️ {setlist.total_duration_minutes} minutes</span>
-          )}
-          
-          <span>🎵 {setlist.song_count || setlist.songs?.length || 0} songs</span>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="p-6 space-y-6">
-        {/* Venue Information */}
-        {(setlist.eircode || setlist.venue_notes) && (
-          <div className="glass rounded-xl p-4 border border-white/10 space-y-3">
-            <h3 className="text-sm font-semibold text-yellow-400 flex items-center gap-2">
-              📍 Venue Information
-            </h3>
-            
-            {setlist.eircode && (
-              <button
-                onClick={handleOpenMaps}
-                className="text-sm text-blue-400 hover:text-blue-300 flex items-center gap-2 transition-colors"
-              >
-                <span className="font-mono">{setlist.eircode}</span>
-                <span className="text-xs">→ Open in Maps</span>
-              </button>
+  const modalContent = (
+    <div style={{
+      position: 'fixed',
+      inset: 0,
+      zIndex: 9999,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '16px',
+      background: 'rgba(0, 0, 0, 0.8)',
+      backdropFilter: 'blur(8px)',
+      animation: 'fadeIn 0.2s ease-out'
+    }}>
+      {/* Backdrop */}
+      <div 
+        onClick={onClose}
+        style={{
+          position: 'absolute',
+          inset: 0,
+          cursor: 'pointer'
+        }}
+      />
+      
+      {/* Modal */}
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        maxWidth: '896px',
+        maxHeight: '90vh',
+        background: 'rgba(26, 26, 58, 0.95)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: '24px',
+        border: '2px solid rgba(255, 255, 255, 0.1)',
+        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+        overflow: 'hidden',
+        animation: 'scaleIn 0.2s ease-out'
+      }}>
+        {/* Header */}
+        <div style={{
+          background: 'linear-gradient(135deg, #FFD700 0%, #4169E1 100%)',
+          padding: '24px',
+          textAlign: 'center',
+          position: 'relative'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
+            <h2 style={{ 
+              fontSize: '24px', 
+              fontWeight: 'bold', 
+              color: 'white',
+              margin: 0
+            }}>
+              {setlist.name}
+            </h2>
+            {isUpcoming && !setlist.is_archived && (
+              <span style={{
+                fontSize: '11px',
+                background: 'rgba(34, 197, 94, 0.3)',
+                color: '#d1fae5',
+                padding: '4px 10px',
+                borderRadius: '999px',
+                fontWeight: '600'
+              }}>
+                Upcoming
+              </span>
             )}
-            
-            {setlist.venue_notes && (
-              <p className="text-sm text-gray-300">
-                {setlist.venue_notes}
-              </p>
+            {setlist.is_archived && (
+              <span style={{
+                fontSize: '11px',
+                background: 'rgba(107, 114, 128, 0.3)',
+                color: '#e5e7eb',
+                padding: '4px 10px',
+                borderRadius: '999px',
+                fontWeight: '600'
+              }}>
+                Archived
+              </span>
             )}
           </div>
-        )}
-
-        {/* Song List */}
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-yellow-400 flex items-center gap-2">
-            🎼 Setlist Order
-          </h3>
           
-          <div className="space-y-2 max-h-96 overflow-y-auto">
-            {setlist.songs && setlist.songs.length > 0 ? (
-              setlist.songs.map((song, index) => (
-                <div 
-                  key={song.id || index}
-                  className="glass rounded-lg p-4 border border-white/10 hover:border-white/20 transition-colors"
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            flexWrap: 'wrap', 
+            gap: '16px',
+            fontSize: '14px',
+            color: 'rgba(255, 255, 255, 0.9)'
+          }}>
+            <span>📅 {eventDate.toLocaleDateString()}</span>
+            {setlist.event_time && <span>🕐 {formatTime(setlist.event_time)}</span>}
+            {setlist.total_duration_minutes && <span>⏱️ {setlist.total_duration_minutes} minutes</span>}
+            <span>🎵 {setlist.song_count || setlist.songs?.length || 0} songs</span>
+          </div>
+
+          {/* Close button */}
+          <button
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
+              background: 'rgba(255, 255, 255, 0.2)',
+              border: 'none',
+              color: 'white',
+              fontSize: '20px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'background 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
+            onMouseOut={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Content */}
+        <div style={{
+          padding: '24px',
+          maxHeight: 'calc(90vh - 200px)',
+          overflowY: 'auto'
+        }}>
+          {/* Venue Information */}
+          {(setlist.eircode || setlist.venue_notes) && (
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              padding: '16px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              marginBottom: '24px'
+            }}>
+              <h3 style={{
+                fontSize: '14px',
+                fontWeight: '600',
+                color: '#fbbf24',
+                marginBottom: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                📍 Venue Information
+              </h3>
+              
+              {setlist.eircode && (
+                <button
+                  onClick={handleOpenMaps}
+                  style={{
+                    fontSize: '14px',
+                    color: '#60a5fa',
+                    background: 'none',
+                    border: 'none',
+                    padding: '0',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    marginBottom: setlist.venue_notes ? '8px' : '0'
+                  }}
                 >
-                  {/* Song Header */}
-                  <div className="flex items-start gap-3 mb-2">
-                    {/* Position Number */}
-                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-yellow-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
-                      {index + 1}
-                    </div>
-                    
-                    {/* Song Info */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-white font-semibold text-sm leading-tight mb-1">
-                        {song.title}
-                      </h4>
-                      <p className="text-gray-400 text-xs mb-2">
-                        {song.artist}
-                      </p>
+                  <span style={{ fontFamily: 'monospace' }}>{setlist.eircode}</span>
+                  <span style={{ fontSize: '12px' }}>→ Open in Maps</span>
+                </button>
+              )}
+              
+              {setlist.venue_notes && (
+                <p style={{
+                  fontSize: '14px',
+                  color: '#d1d5db',
+                  margin: 0
+                }}>
+                  {setlist.venue_notes}
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Song List */}
+          <div style={{ marginBottom: '24px' }}>
+            <h3 style={{
+              fontSize: '14px',
+              fontWeight: '600',
+              color: '#fbbf24',
+              marginBottom: '12px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              🎼 Setlist Order
+            </h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              {setlist.songs && setlist.songs.length > 0 ? (
+                setlist.songs.map((song, index) => (
+                  <div 
+                    key={song.id || index}
+                    style={{
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      backdropFilter: 'blur(10px)',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      border: '1px solid rgba(255, 255, 255, 0.1)',
+                      transition: 'border-color 0.2s'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+                      <div style={{
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #FFD700, #4169E1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontWeight: 'bold',
+                        fontSize: '14px',
+                        flexShrink: 0
+                      }}>
+                        {index + 1}
+                      </div>
                       
-                      {/* Metadata */}
-                      <div className="flex items-center flex-wrap gap-2">
-                        {song.genre && (
-                          <span className={`text-xs font-medium px-2 py-1 rounded ${getGenreColor(song.genre)}`}>
-                            {song.genre}
-                          </span>
-                        )}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h4 style={{
+                          color: 'white',
+                          fontWeight: '600',
+                          fontSize: '14px',
+                          margin: '0 0 4px 0',
+                          lineHeight: '1.4'
+                        }}>
+                          {song.title}
+                        </h4>
+                        <p style={{
+                          color: '#9ca3af',
+                          fontSize: '12px',
+                          margin: '0 0 8px 0'
+                        }}>
+                          {song.artist}
+                        </p>
                         
-                        {song.duration_minutes && (
-                          <span className="text-xs text-gray-500">
-                            ⏱️ {song.duration_minutes} min
-                          </span>
-                        )}
-                        
-                        {song.performance_notes?.difficulty && (
-                          <span className="text-xs text-gray-500">
-                            ⭐ {song.performance_notes.difficulty}/5
-                          </span>
-                        )}
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          flexWrap: 'wrap', 
+                          gap: '8px'
+                        }}>
+                          {song.genre && (
+                            <span style={{
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              padding: '4px 10px',
+                              borderRadius: '999px',
+                              ...Object.fromEntries(getGenreColor(song.genre).split('; ').map(s => s.split(': ')))
+                            }}>
+                              {song.genre}
+                            </span>
+                          )}
+                          
+                          {song.duration_minutes && (
+                            <span style={{
+                              fontSize: '12px',
+                              color: '#6b7280'
+                            }}>
+                              ⏱️ {song.duration_minutes} min
+                            </span>
+                          )}
+                          
+                          {song.performance_notes?.difficulty && (
+                            <span style={{
+                              fontSize: '12px',
+                              color: '#6b7280'
+                            }}>
+                              ⭐ {song.performance_notes.difficulty}/5
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                  
-                  {/* Performance Notes */}
-                  {song.performance_notes?.notes && (
-                    <div className="mt-2 pt-2 border-t border-white/10">
-                      <p className="text-xs text-gray-400 italic">
-                        💡 {song.performance_notes.notes}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {/* Lyrics Preview */}
-                  {song.lyrics && (
-                    <div className="mt-2 pt-2 border-t border-white/10">
-                      <p className="text-xs text-gray-500 line-clamp-2">
-                        {song.lyrics.substring(0, 100)}...
-                      </p>
-                    </div>
-                  )}
+                ))
+              ) : (
+                <div style={{
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  borderRadius: '12px',
+                  padding: '48px',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '48px', marginBottom: '12px' }}>🎵</div>
+                  <p style={{ color: '#9ca3af', fontSize: '14px', margin: 0 }}>
+                    No songs in this setlist
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="glass rounded-lg p-8 border border-white/10 text-center">
-                <div className="text-4xl mb-3">🎵</div>
-                <p className="text-gray-400 text-sm">
-                  No songs in this setlist
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 border-t border-white/10">
-          {canEdit && (
+          {/* Action Buttons */}
+          <div style={{ 
+            display: 'flex', 
+            gap: '12px',
+            paddingTop: '16px',
+            borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+          }}>
+            {canEdit && (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => {
+                  onEdit(setlist)
+                  onClose()
+                }}
+                style={{ flex: 1 }}
+              >
+                ✏️ Edit Setlist
+              </Button>
+            )}
+            
+            <Button
+              variant="primary"
+              size="md"
+              onClick={() => onGeneratePDF(setlist.id)}
+              loading={isGeneratingPDF}
+              disabled={isGeneratingPDF}
+              style={{ flex: 1 }}
+            >
+              {isGeneratingPDF ? 'Generating...' : '📄 Download PDF'}
+            </Button>
+            
             <Button
               variant="secondary"
               size="md"
-              className="flex-1"
-              onClick={() => {
-                onEdit(setlist)
-                onClose()
-              }}
+              onClick={onClose}
             >
-              ✏️ Edit Setlist
+              Close
             </Button>
-          )}
-          
-          <Button
-            variant="primary"
-            size="md"
-            className={canEdit ? 'flex-1' : 'flex-1'}
-            onClick={() => onGeneratePDF(setlist.id)}
-            loading={isGeneratingPDF}
-            disabled={isGeneratingPDF}
-          >
-            {isGeneratingPDF ? 'Generating...' : '📄 Download PDF'}
-          </Button>
-          
-          <Button
-            variant="secondary"
-            size="md"
-            className="flex-shrink-0"
-            onClick={onClose}
-          >
-            Close
-          </Button>
-        </div>
-
-        {/* PDF Info */}
-        <div className="glass rounded-lg p-3 border border-blue-500/20 bg-blue-500/5">
-          <p className="text-xs text-blue-300 text-center">
-            💡 PDF includes all song lyrics for printing
-          </p>
+          </div>
         </div>
       </div>
-    </Modal>
+
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { transform: scale(0.95); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+      `}</style>
+    </div>
   )
+
+  return typeof window !== 'undefined' ? createPortal(modalContent, document.body) : null
 }
