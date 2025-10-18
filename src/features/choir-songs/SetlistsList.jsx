@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { formatDistanceToNow, isAfter, subDays } from 'date-fns'
+import { isAfter, subDays } from 'date-fns'
 import { getSetlistById } from '../../lib/api'
 import { exportSetlistToPDF } from '../../lib/pdf-export'
 import SetlistDetailView from './SetlistDetailView'
@@ -11,6 +11,8 @@ export default function SetlistsList({ setlists, onEdit }) {
   const [isDetailViewOpen, setIsDetailViewOpen] = useState(false)
   const [isLoadingDetail, setIsLoadingDetail] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(null)
+
+  console.log('SetlistsList rendering with', setlists.length, 'setlists')
 
   if (setlists.length === 0) {
     return (
@@ -22,19 +24,6 @@ export default function SetlistsList({ setlists, onEdit }) {
         <p className="text-gray-400 mb-6">
           Create your first setlist to organize songs for performances and gigs.
         </p>
-        
-        <div className="glass rounded-xl p-4 border border-white/5">
-          <h4 className="text-yellow-400 font-semibold mb-2">
-            Setlist Features
-          </h4>
-          <div className="text-sm text-gray-400 space-y-1">
-            <p>• Organize songs by performance order</p>
-            <p>• Track total duration for time limits</p>
-            <p>• Filter songs by genre for themed events</p>
-            <p>• Generate PDF setlists for printing</p>
-            <p>• Auto-archive old setlists after 30 days</p>
-          </div>
-        </div>
       </div>
     )
   }
@@ -53,11 +42,14 @@ export default function SetlistsList({ setlists, onEdit }) {
 
   // Handle viewing setlist details
   const handleViewSetlist = async (setlistId) => {
+    console.log('Opening detail view for:', setlistId)
     try {
       setIsLoadingDetail(true)
       const fullSetlist = await getSetlistById(setlistId)
+      console.log('Full setlist loaded:', fullSetlist)
       setSelectedSetlist(fullSetlist)
       setIsDetailViewOpen(true)
+      console.log('Modal should now be open, isDetailViewOpen =', true)
     } catch (err) {
       console.error('Error loading setlist details:', err)
       alert('Failed to load setlist details')
@@ -68,7 +60,7 @@ export default function SetlistsList({ setlists, onEdit }) {
 
   // Handle PDF generation
   const handleGeneratePDF = async (setlistId, e) => {
-    if (e) e.stopPropagation() // Prevent card click
+    if (e) e.stopPropagation()
     try {
       setIsGeneratingPDF(setlistId)
       const fullSetlist = await getSetlistById(setlistId)
@@ -88,13 +80,24 @@ export default function SetlistsList({ setlists, onEdit }) {
     }
   }
 
+  const handleCloseModal = () => {
+    console.log('Closing modal')
+    setIsDetailViewOpen(false)
+    setSelectedSetlist(null)
+  }
+
   return (
     <>
-      <div className="space-y-6">
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
         {/* Active Setlists */}
         {activeSetlists.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-lg font-bold text-white">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <h3 style={{ 
+              fontSize: '18px', 
+              fontWeight: 'bold', 
+              color: 'white',
+              margin: '0 0 4px 0'
+            }}>
               Active Setlists
             </h3>
             {activeSetlists.map((setlist) => (
@@ -112,10 +115,18 @@ export default function SetlistsList({ setlists, onEdit }) {
 
         {/* Archived Setlists */}
         {archivedSetlists.length > 0 && (
-          <div className="space-y-3">
-            <h3 className="text-lg font-bold text-gray-400 flex items-center gap-2">
-              📦 Archived Setlists
-              <span className="text-xs font-normal text-gray-500">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '24px' }}>
+            <h3 style={{ 
+              fontSize: '18px', 
+              fontWeight: 'bold', 
+              color: '#9CA3AF',
+              margin: '0 0 4px 0',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span>📦 Archived Setlists</span>
+              <span style={{ fontSize: '12px', fontWeight: 'normal', color: '#6B7280' }}>
                 (Auto-archived 30+ days post-event)
               </span>
             </h3>
@@ -135,44 +146,46 @@ export default function SetlistsList({ setlists, onEdit }) {
       </div>
 
       {/* Detail View Modal */}
-      <SetlistDetailView
-        isOpen={isDetailViewOpen}
-        onClose={() => {
-          setIsDetailViewOpen(false)
-          setSelectedSetlist(null)
-        }}
-        setlist={selectedSetlist}
-        onEdit={handleEdit}
-        onGeneratePDF={(id) => handleGeneratePDF(id, null)}
-        isGeneratingPDF={isGeneratingPDF === selectedSetlist?.id}
-      />
+      {selectedSetlist && (
+        <SetlistDetailView
+          isOpen={isDetailViewOpen}
+          onClose={handleCloseModal}
+          setlist={selectedSetlist}
+          onEdit={handleEdit}
+          onGeneratePDF={(id) => handleGeneratePDF(id, null)}
+          isGeneratingPDF={isGeneratingPDF === selectedSetlist?.id}
+        />
+      )}
     </>
   )
 }
 
 function SetlistCard({ setlist, archived = false, onView, onGeneratePDF, isGeneratingPDF, isLoadingDetail }) {
+  const [isHovered, setIsHovered] = useState(false)
+
+  const handleCardClick = () => {
+    if (!isLoadingDetail) {
+      console.log('Card clicked:', setlist.id)
+      onView(setlist.id)
+    }
+  }
+
+  const handlePDFClick = (e) => {
+    e.stopPropagation()
+    onGeneratePDF(setlist.id, e)
+  }
+
   const handleOpenMaps = (e) => {
-    e.stopPropagation() // Prevent card click
+    e.stopPropagation()
     if (setlist.eircode) {
       const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(setlist.eircode)}`
       window.open(mapsUrl, '_blank')
     }
   }
 
-  const handlePDFClick = (e) => {
-    onGeneratePDF(setlist.id, e)
-  }
-
-  const handleCardClick = () => {
-    if (!isLoadingDetail) {
-      onView(setlist.id)
-    }
-  }
-
   const eventDate = new Date(setlist.event_date)
   const isUpcoming = isAfter(eventDate, new Date())
   
-  // Format time if available
   const formatTime = (timeString) => {
     if (!timeString) return null
     try {
@@ -192,79 +205,167 @@ function SetlistCard({ setlist, archived = false, onView, onGeneratePDF, isGener
   return (
     <div 
       onClick={handleCardClick}
-      className={`
-        glass rounded-xl p-4 border border-white/10 transition-all duration-200 cursor-pointer
-        ${archived 
-          ? 'opacity-60' 
-          : 'hover:border-yellow-400/30 hover:bg-white/5 hover:shadow-lg hover:scale-[1.01]'}
-        ${isLoadingDetail ? 'opacity-50 pointer-events-none' : ''}
-      `}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{
+        background: 'rgba(255, 255, 255, 0.05)',
+        backdropFilter: 'blur(20px)',
+        border: isHovered && !archived ? '2px solid rgba(255, 215, 0, 0.3)' : '2px solid rgba(255, 255, 255, 0.1)',
+        borderRadius: '16px',
+        padding: '20px',
+        cursor: isLoadingDetail ? 'wait' : 'pointer',
+        transition: 'all 0.2s ease',
+        opacity: archived ? 0.6 : (isLoadingDetail ? 0.5 : 1),
+        transform: isHovered && !archived ? 'scale(1.01) translateY(-2px)' : 'scale(1)',
+        boxShadow: isHovered && !archived ? '0 8px 32px rgba(255, 215, 0, 0.15)' : '0 4px 16px rgba(0, 0, 0, 0.1)',
+        pointerEvents: isLoadingDetail ? 'none' : 'auto'
+      }}
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-2">
-            <h4 className="text-white font-semibold text-base leading-tight">
-              {setlist.name}
-            </h4>
-            {isUpcoming && !archived && (
-              <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full font-medium">
-                Upcoming
-              </span>
-            )}
-            {archived && (
-              <span className="text-xs bg-gray-500/20 text-gray-400 px-2 py-1 rounded-full font-medium">
-                Archived
-              </span>
-            )}
-          </div>
-          
-          <div className="flex items-center flex-wrap gap-4 text-xs text-gray-400 mb-3">
-            <span className="flex items-center gap-1">
-              📅 {eventDate.toLocaleDateString()}
+      {/* Header */}
+      <div style={{ marginBottom: '16px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
+          <h4 style={{ 
+            color: 'white', 
+            fontWeight: '600', 
+            fontSize: '18px',
+            margin: 0,
+            lineHeight: '1.3'
+          }}>
+            {setlist.name}
+          </h4>
+          {isUpcoming && !archived && (
+            <span style={{
+              fontSize: '11px',
+              background: 'rgba(34, 197, 94, 0.2)',
+              color: '#4ade80',
+              padding: '4px 10px',
+              borderRadius: '999px',
+              fontWeight: '600'
+            }}>
+              Upcoming
             </span>
-            
-            {setlist.event_time && (
-              <span className="flex items-center gap-1">
-                🕐 {formatTime(setlist.event_time)}
-              </span>
-            )}
-            
-            {setlist.total_duration_minutes && (
-              <span className="flex items-center gap-1">
-                ⏱️ {setlist.total_duration_minutes} min
-              </span>
-            )}
-            
-            {setlist.song_count && (
-              <span className="flex items-center gap-1">
-                🎵 {setlist.song_count} songs
-              </span>
-            )}
-          </div>
-
-          {setlist.eircode && (
-            <button
-              onClick={handleOpenMaps}
-              className="text-xs text-blue-400 hover:text-blue-300 mb-2 flex items-center gap-1 transition-colors font-medium"
-            >
-              📍 {setlist.eircode} - View in Maps
-            </button>
           )}
-
-          {setlist.venue_notes && (
-            <p className="text-xs text-gray-400 mb-2 line-clamp-2">
-              {setlist.venue_notes}
-            </p>
+          {archived && (
+            <span style={{
+              fontSize: '11px',
+              background: 'rgba(107, 114, 128, 0.2)',
+              color: '#9ca3af',
+              padding: '4px 10px',
+              borderRadius: '999px',
+              fontWeight: '600'
+            }}>
+              Archived
+            </span>
           )}
         </div>
+        
+        {/* Metadata */}
+        <div style={{ 
+          display: 'flex', 
+          alignItems: 'center', 
+          flexWrap: 'wrap', 
+          gap: '16px',
+          fontSize: '13px',
+          color: '#9ca3af',
+          marginBottom: '12px'
+        }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            📅 {eventDate.toLocaleDateString()}
+          </span>
+          
+          {setlist.event_time && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              🕐 {formatTime(setlist.event_time)}
+            </span>
+          )}
+          
+          {setlist.total_duration_minutes && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              ⏱️ {setlist.total_duration_minutes} min
+            </span>
+          )}
+          
+          {setlist.song_count && (
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              🎵 {setlist.song_count} songs
+            </span>
+          )}
+        </div>
+
+        {setlist.eircode && (
+          <button
+            onClick={handleOpenMaps}
+            style={{
+              fontSize: '12px',
+              color: '#60a5fa',
+              background: 'none',
+              border: 'none',
+              padding: '0',
+              marginBottom: '8px',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              fontWeight: '500',
+              transition: 'color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.color = '#93c5fd'}
+            onMouseOut={(e) => e.currentTarget.style.color = '#60a5fa'}
+          >
+            📍 {setlist.eircode} - View in Maps
+          </button>
+        )}
+
+        {setlist.venue_notes && (
+          <p style={{
+            fontSize: '13px',
+            color: '#9ca3af',
+            margin: '0',
+            lineHeight: '1.5',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical',
+            overflow: 'hidden'
+          }}>
+            {setlist.venue_notes}
+          </p>
+        )}
       </div>
 
       {/* Actions */}
-      <div className="flex gap-2 pt-3 border-t border-white/10">
+      <div style={{ 
+        display: 'flex', 
+        gap: '8px',
+        paddingTop: '16px',
+        borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+      }}>
         <button
           onClick={handleCardClick}
           disabled={isLoadingDetail}
-          className="flex-1 text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            flex: 1,
+            fontSize: '13px',
+            padding: '10px 16px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '10px',
+            color: '#d1d5db',
+            fontWeight: '600',
+            cursor: isLoadingDetail ? 'wait' : 'pointer',
+            transition: 'all 0.2s',
+            opacity: isLoadingDetail ? 0.5 : 1
+          }}
+          onMouseOver={(e) => {
+            if (!isLoadingDetail) {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+              e.currentTarget.style.color = 'white'
+            }
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+            e.currentTarget.style.color = '#d1d5db'
+          }}
         >
           {isLoadingDetail ? '⏳ Loading...' : '👁️ View Details'}
         </button>
@@ -272,9 +373,32 @@ function SetlistCard({ setlist, archived = false, onView, onGeneratePDF, isGener
         <button
           onClick={handlePDFClick}
           disabled={isGeneratingPDF || isLoadingDetail}
-          className="text-xs px-3 py-2 glass rounded-lg text-gray-300 hover:bg-white/10 hover:text-white transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            fontSize: '13px',
+            padding: '10px 16px',
+            background: 'rgba(255, 255, 255, 0.05)',
+            backdropFilter: 'blur(10px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            borderRadius: '10px',
+            color: '#d1d5db',
+            fontWeight: '600',
+            cursor: (isGeneratingPDF || isLoadingDetail) ? 'wait' : 'pointer',
+            transition: 'all 0.2s',
+            opacity: (isGeneratingPDF || isLoadingDetail) ? 0.5 : 1,
+            whiteSpace: 'nowrap'
+          }}
+          onMouseOver={(e) => {
+            if (!isGeneratingPDF && !isLoadingDetail) {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+              e.currentTarget.style.color = 'white'
+            }
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+            e.currentTarget.style.color = '#d1d5db'
+          }}
         >
-          {isGeneratingPDF ? '⏳ PDF...' : '📄 PDF'}
+          {isGeneratingPDF ? '⏳' : '📄 PDF'}
         </button>
       </div>
     </div>
