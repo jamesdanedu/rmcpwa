@@ -209,9 +209,10 @@ export const getRankings = async () => {
 }
 
 // ============================================================================
-// CHOIR SONGS
+// CHOIR SONGS CRUD OPERATIONS
 // ============================================================================
 
+// READ: Get all choir songs
 export const getChoirSongs = async () => {
   try {
     console.log('Fetching choir songs from database...')
@@ -231,6 +232,156 @@ export const getChoirSongs = async () => {
     
   } catch (err) {
     console.error('Error in getChoirSongs:', err)
+    throw err
+  }
+}
+
+// READ: Get a single choir song by ID
+export const getChoirSongById = async (songId) => {
+  try {
+    console.log('Fetching choir song by ID:', songId)
+    
+    const { data, error } = await supabase
+      .from('choir_songs')
+      .select('*')
+      .eq('id', songId)
+      .single()
+
+    if (error) {
+      console.error('Error fetching choir song:', error)
+      throw error
+    }
+
+    console.log('Successfully fetched song:', data.title)
+    return data
+    
+  } catch (err) {
+    console.error('Error in getChoirSongById:', err)
+    throw err
+  }
+}
+
+// CREATE: Add a new choir song
+export const createChoirSong = async (songData) => {
+  try {
+    console.log('Creating choir song:', songData.title)
+    
+    // Validate required fields
+    if (!songData.title?.trim()) {
+      throw new Error('Song title is required')
+    }
+    if (!songData.artist?.trim()) {
+      throw new Error('Artist name is required')
+    }
+    
+    const { data, error } = await supabase
+      .from('choir_songs')
+      .insert({
+        title: songData.title.trim(),
+        artist: songData.artist.trim(),
+        genre: songData.genre || 'Other',
+        lyrics: songData.lyrics?.trim() || null,
+        duration_minutes: songData.durationMinutes || null,
+        date_introduced: songData.dateIntroduced || new Date().toISOString().split('T')[0],
+        youtube_video_id: songData.youtubeVideoId?.trim() || null,
+        youtube_view_count: songData.youtubeViewCount || null
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating choir song:', error)
+      throw error
+    }
+    
+    console.log('Choir song created successfully with ID:', data.id)
+    return data
+    
+  } catch (err) {
+    console.error('Error in createChoirSong:', err)
+    throw err
+  }
+}
+
+// UPDATE: Update an existing choir song
+export const updateChoirSong = async (songId, songData) => {
+  try {
+    console.log('Updating choir song:', songId)
+    
+    // Validate required fields
+    if (!songData.title?.trim()) {
+      throw new Error('Song title is required')
+    }
+    if (!songData.artist?.trim()) {
+      throw new Error('Artist name is required')
+    }
+    
+    const { data, error } = await supabase
+      .from('choir_songs')
+      .update({
+        title: songData.title.trim(),
+        artist: songData.artist.trim(),
+        genre: songData.genre || 'Other',
+        lyrics: songData.lyrics?.trim() || null,
+        duration_minutes: songData.durationMinutes || null,
+        date_introduced: songData.dateIntroduced,
+        youtube_video_id: songData.youtubeVideoId?.trim() || null,
+        youtube_view_count: songData.youtubeViewCount || null
+      })
+      .eq('id', songId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating choir song:', error)
+      throw error
+    }
+    
+    console.log('Choir song updated successfully:', data.title)
+    return data
+    
+  } catch (err) {
+    console.error('Error in updateChoirSong:', err)
+    throw err
+  }
+}
+
+// DELETE: Delete a choir song (with safety check for setlist usage)
+export const deleteChoirSong = async (songId) => {
+  try {
+    console.log('Deleting choir song:', songId)
+    
+    // First, check if this song is used in any setlists
+    const { data: setlistSongs, error: checkError } = await supabase
+      .from('setlist_songs')
+      .select('setlist_id')
+      .eq('song_id', songId)
+      .limit(1)
+    
+    if (checkError) {
+      console.error('Error checking setlist usage:', checkError)
+      throw checkError
+    }
+    
+    if (setlistSongs && setlistSongs.length > 0) {
+      throw new Error('Cannot delete song: it is currently used in one or more setlists. Please remove it from all setlists first.')
+    }
+    
+    // If not in any setlists, proceed with deletion
+    const { error } = await supabase
+      .from('choir_songs')
+      .delete()
+      .eq('id', songId)
+
+    if (error) {
+      console.error('Error deleting choir song:', error)
+      throw error
+    }
+    
+    console.log('Choir song deleted successfully')
+    
+  } catch (err) {
+    console.error('Error in deleteChoirSong:', err)
     throw err
   }
 }
