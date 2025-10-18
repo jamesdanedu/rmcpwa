@@ -3,8 +3,9 @@
 import { useAuth } from '../../hooks/useAuth'
 import { isAfter } from 'date-fns'
 import { createPortal } from 'react-dom'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import Button from '../../components/ui/Button'
+import LyricsModal from './LyricsModal'
 
 export default function SetlistDetailView({ 
   isOpen, 
@@ -15,6 +16,8 @@ export default function SetlistDetailView({
   isGeneratingPDF 
 }) {
   const { user, isAuthenticated } = useAuth()
+  const [selectedSong, setSelectedSong] = useState(null)
+  const [isLyricsModalOpen, setIsLyricsModalOpen] = useState(false)
 
   console.log('SetlistDetailView rendered, isOpen:', isOpen, 'setlist:', setlist)
 
@@ -78,62 +81,77 @@ export default function SetlistDetailView({
     }
   }
 
+  const handleSongClick = (song) => {
+    console.log('Song clicked:', song.title)
+    setSelectedSong(song)
+    setIsLyricsModalOpen(true)
+  }
+
+  const handleCloseLyricsModal = () => {
+    setIsLyricsModalOpen(false)
+    setSelectedSong(null)
+  }
+
   const getGenreColor = (genre) => {
     const colors = {
-      'Christmas': 'background: rgba(239, 68, 68, 0.2); color: #f87171',
-      'Irish Folk': 'background: rgba(34, 197, 94, 0.2); color: #4ade80',
-      'Gospel': 'background: rgba(168, 85, 247, 0.2); color: #c084fc',
-      'Hymn': 'background: rgba(59, 130, 246, 0.2); color: #60a5fa',
-      'Contemporary': 'background: rgba(234, 179, 8, 0.2); color: #facc15',
-      'Jazz Standard': 'background: rgba(249, 115, 22, 0.2); color: #fb923c',
-      'Classical': 'background: rgba(99, 102, 241, 0.2); color: #a5b4fc',
-      'Traditional': 'background: rgba(16, 185, 129, 0.2); color: #34d399'
+      'Christmas': 'background: #dc2626; color: white',
+      'Irish Folk': 'background: #16a34a; color: white',
+      'Gospel': 'background: #7c3aed; color: white',
+      'Hymn': 'background: #0891b2; color: white',
+      'Contemporary': 'background: #db2777; color: white',
+      'Jazz Standard': 'background: #ea580c; color: white',
+      'Classical': 'background: #4f46e5; color: white',
+      'Traditional': 'background: #65a30d; color: white'
     }
-    return colors[genre] || 'background: rgba(107, 114, 128, 0.2); color: #9ca3af'
+    return colors[genre] || 'background: #6b7280; color: white'
   }
 
   const modalContent = (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 9999,
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '16px',
-      background: 'rgba(0, 0, 0, 0.8)',
-      backdropFilter: 'blur(8px)',
-      animation: 'fadeIn 0.2s ease-out'
-    }}>
+    <div>
       {/* Backdrop */}
       <div 
         onClick={onClose}
         style={{
-          position: 'absolute',
+          position: 'fixed',
           inset: 0,
-          cursor: 'pointer'
+          background: 'rgba(0, 0, 0, 0.75)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 9999,
+          animation: 'fadeIn 0.2s ease-out'
         }}
       />
       
-      {/* Modal */}
+      {/* Modal Container */}
       <div style={{
-        position: 'relative',
-        width: '100%',
-        maxWidth: '896px',
-        maxHeight: '90vh',
-        background: 'rgba(26, 26, 58, 0.95)',
-        backdropFilter: 'blur(20px)',
-        borderRadius: '24px',
-        border: '2px solid rgba(255, 255, 255, 0.1)',
-        boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-        overflow: 'hidden',
-        animation: 'scaleIn 0.2s ease-out'
+        position: 'fixed',
+        inset: 0,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 10000,
+        padding: '20px',
+        pointerEvents: 'none'
       }}>
+        <div 
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            background: 'linear-gradient(135deg, #111127 0%, #1a1a3a 100%)',
+            borderRadius: '24px',
+            maxWidth: '900px',
+            width: '100%',
+            maxHeight: '90vh',
+            overflow: 'hidden',
+            border: '2px solid rgba(255, 215, 0, 0.3)',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+            pointerEvents: 'auto',
+            animation: 'scaleIn 0.2s ease-out'
+          }}
+        >
         {/* Header */}
         <div style={{
           background: 'linear-gradient(135deg, #FFD700 0%, #4169E1 100%)',
           padding: '24px',
-          textAlign: 'center',
+          color: 'white',
           position: 'relative'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '8px' }}>
@@ -285,7 +303,7 @@ export default function SetlistDetailView({
               alignItems: 'center',
               gap: '8px'
             }}>
-              🎼 Setlist Order
+              🎼 Setlist Order (Click a song to view lyrics)
             </h3>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -293,13 +311,25 @@ export default function SetlistDetailView({
                 setlist.songs.map((song, index) => (
                   <div 
                     key={song.id || index}
+                    onClick={() => handleSongClick(song)}
                     style={{
                       background: 'rgba(255, 255, 255, 0.05)',
                       backdropFilter: 'blur(10px)',
                       borderRadius: '12px',
                       padding: '16px',
                       border: '1px solid rgba(255, 255, 255, 0.1)',
-                      transition: 'border-color 0.2s'
+                      transition: 'all 0.2s',
+                      cursor: 'pointer'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                      e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.3)'
+                      e.currentTarget.style.transform = 'translateX(4px)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                      e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
+                      e.currentTarget.style.transform = 'translateX(0)'
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
@@ -364,14 +394,12 @@ export default function SetlistDetailView({
                             </span>
                           )}
                           
-                          {song.performance_notes?.difficulty && (
-                            <span style={{
-                              fontSize: '12px',
-                              color: '#6b7280'
-                            }}>
-                              ⭐ {song.performance_notes.difficulty}/5
-                            </span>
-                          )}
+                          <span style={{
+                            fontSize: '11px',
+                            color: song.lyrics ? '#10B981' : '#6B7280'
+                          }}>
+                            📝 {song.lyrics ? 'Lyrics available' : 'No lyrics yet'}
+                          </span>
                         </div>
                       </div>
                     </div>
@@ -447,6 +475,16 @@ export default function SetlistDetailView({
           to { transform: scale(1); opacity: 1; }
         }
       `}</style>
+    </div>
+    
+    {/* Lyrics Modal */}
+    {isLyricsModalOpen && selectedSong && (
+      <LyricsModal
+        isOpen={isLyricsModalOpen}
+        onClose={handleCloseLyricsModal}
+        song={selectedSong}
+      />
+    )}
     </div>
   )
 
