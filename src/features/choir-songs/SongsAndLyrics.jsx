@@ -16,6 +16,8 @@ import Button from '../../components/ui/Button'
 export default function SongsAndLyrics() {
   const { canEdit } = useCanEdit()
   
+  console.log('🔍 SongsAndLyrics render, canEdit:', canEdit)
+  
   // Existing state
   const [songs, setSongs] = useState([])
   const [isLoading, setIsLoading] = useState(true)
@@ -48,10 +50,11 @@ export default function SongsAndLyrics() {
       setError(null)
       
       const data = await getChoirSongs()
+      console.log('📊 Loaded songs:', data?.length)
       setSongs(data || [])
       
     } catch (err) {
-      console.error('Error loading choir songs:', err)
+      console.error('❌ Error loading choir songs:', err)
       setError('Failed to load choir songs')
     } finally {
       setIsLoading(false)
@@ -59,17 +62,20 @@ export default function SongsAndLyrics() {
   }
 
   const handleAddNew = () => {
+    console.log('➕ Add New button clicked')
     setEditingSong(null)
     setShowForm(true)
   }
 
   const handleEdit = (song) => {
+    console.log('✏️ Edit button clicked for:', song.title)
     setEditingSong(song)
     setShowForm(true)
     setSelectedSong(null) // Close lyrics modal if open
   }
 
   const handleFormSubmit = async (formData) => {
+    console.log('💾 Form submit:', formData)
     setIsSubmitting(true)
     try {
       if (editingSong) {
@@ -88,7 +94,7 @@ export default function SongsAndLyrics() {
       setEditingSong(null)
       
     } catch (err) {
-      console.error('Error saving song:', err)
+      console.error('❌ Error saving song:', err)
       alert('Error: ' + err.message)
     } finally {
       setIsSubmitting(false)
@@ -96,17 +102,20 @@ export default function SongsAndLyrics() {
   }
 
   const handleFormCancel = () => {
+    console.log('❌ Form cancelled')
     setShowForm(false)
     setEditingSong(null)
   }
 
   const handleDeleteClick = (song) => {
+    console.log('🗑️ Delete clicked for:', song.title)
     setDeleteConfirm(song)
   }
 
   const handleDeleteConfirm = async () => {
     if (!deleteConfirm) return
     
+    console.log('⚠️ Confirming delete for:', deleteConfirm.title)
     try {
       await deleteChoirSong(deleteConfirm.id)
       setSuccessMessage('✅ Song deleted successfully!')
@@ -114,14 +123,26 @@ export default function SongsAndLyrics() {
       setDeleteConfirm(null)
       
     } catch (err) {
-      console.error('Error deleting song:', err)
+      console.error('❌ Error deleting song:', err)
       alert('Error: ' + err.message)
       setDeleteConfirm(null)
     }
   }
 
   const handleDeleteCancel = () => {
+    console.log('❌ Delete cancelled')
     setDeleteConfirm(null)
+  }
+
+  const handleSongClick = (song) => {
+    console.log('🎵 Song clicked for lyrics:', song.title)
+    console.log('Song has lyrics:', !!song.lyrics)
+    setSelectedSong(song)
+  }
+
+  const handleCloseLyrics = () => {
+    console.log('❌ Closing lyrics modal')
+    setSelectedSong(null)
   }
 
   const filteredSongs = songs.filter(song => 
@@ -130,6 +151,13 @@ export default function SongsAndLyrics() {
     song.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
     song.genre.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  console.log('🔍 State check:', {
+    showForm,
+    selectedSong: selectedSong?.title,
+    deleteConfirm: deleteConfirm?.title,
+    songsCount: songs.length
+  })
 
   if (isLoading) {
     return (
@@ -180,6 +208,27 @@ export default function SongsAndLyrics() {
 
   return (
     <div>
+      {/* Debug Info - Remove after fixing */}
+      <div style={{
+        position: 'fixed',
+        bottom: '10px',
+        left: '10px',
+        background: 'rgba(0, 0, 0, 0.8)',
+        color: '#0f0',
+        padding: '10px',
+        borderRadius: '8px',
+        fontSize: '12px',
+        fontFamily: 'monospace',
+        zIndex: 9999
+      }}>
+        <div>canEdit: {canEdit ? 'YES' : 'NO'}</div>
+        <div>showForm: {showForm ? 'YES' : 'NO'}</div>
+        <div>selectedSong: {selectedSong ? selectedSong.title : 'NONE'}</div>
+        <div>Modal imported: {Modal ? 'YES' : 'NO'}</div>
+        <div>Button imported: {Button ? 'YES' : 'NO'}</div>
+        <div>SongForm imported: {SongForm ? 'YES' : 'NO'}</div>
+      </div>
+
       {/* Success Message */}
       {successMessage && (
         <div style={{
@@ -275,8 +324,8 @@ export default function SongsAndLyrics() {
               e.currentTarget.style.transform = 'translateY(0)'
             }}
           >
-            {/* Song Content */}
-            <div onClick={() => setSelectedSong(song)}>
+            {/* Song Content - Click to view lyrics */}
+            <div onClick={() => handleSongClick(song)}>
               <h3 style={{ 
                 color: '#FFFFFF', 
                 fontSize: '18px', 
@@ -423,87 +472,122 @@ export default function SongsAndLyrics() {
         </div>
       )}
 
-      {/* Lyrics Modal (Existing) */}
+      {/* Lyrics Modal */}
       {selectedSong && (
-        <Modal isOpen={true} onClose={() => setSelectedSong(null)} size="lg">
+        <>
           <div style={{
-            background: 'linear-gradient(135deg, #FFD700 0%, #4169E1 100%)',
-            padding: '24px',
-            textAlign: 'center',
-            color: 'white'
+            position: 'fixed',
+            top: '10px',
+            right: '10px',
+            background: 'red',
+            color: 'white',
+            padding: '10px',
+            zIndex: 10000,
+            borderRadius: '8px'
           }}>
-            <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>
-              {selectedSong.title}
-            </h2>
-            <p style={{ fontSize: '14px', opacity: 0.9 }}>
-              {selectedSong.artist}
-            </p>
+            LYRICS MODAL SHOULD BE OPEN
           </div>
+          <Modal 
+            isOpen={true} 
+            onClose={handleCloseLyrics} 
+            size="lg"
+          >
+            <div style={{
+              background: 'linear-gradient(135deg, #FFD700 0%, #4169E1 100%)',
+              padding: '24px',
+              textAlign: 'center',
+              color: 'white'
+            }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 'bold', marginBottom: '8px' }}>
+                {selectedSong.title}
+              </h2>
+              <p style={{ fontSize: '14px', opacity: 0.9 }}>
+                {selectedSong.artist}
+              </p>
+            </div>
 
-          <div style={{
-            padding: '24px',
-            maxHeight: '60vh',
-            overflowY: 'auto'
-          }}>
-            {selectedSong.lyrics ? (
+            <div style={{
+              padding: '24px',
+              maxHeight: '60vh',
+              overflowY: 'auto',
+              background: '#1a1a3a',
+              color: 'white'
+            }}>
+              {selectedSong.lyrics ? (
+                <div style={{
+                  color: '#ffffff',
+                  fontSize: '16px',
+                  lineHeight: '1.8',
+                  whiteSpace: 'pre-wrap'
+                }}>
+                  {selectedSong.lyrics}
+                </div>
+              ) : (
+                <div style={{
+                  textAlign: 'center',
+                  padding: '48px 24px',
+                  color: '#9CA3AF'
+                }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
+                  <p style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#D1D5DB' }}>
+                    No Lyrics Available
+                  </p>
+                  <p style={{ fontSize: '14px' }}>
+                    Lyrics haven't been added for this song yet.
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {selectedSong.genre && (
               <div style={{
-                color: '#ffffff',
-                fontSize: '16px',
-                lineHeight: '1.8',
-                whiteSpace: 'pre-wrap'
-              }}>
-                {selectedSong.lyrics}
-              </div>
-            ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: '48px 24px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)',
+                padding: '16px 24px',
+                display: 'flex',
+                gap: '16px',
+                fontSize: '12px',
                 color: '#9CA3AF'
               }}>
-                <div style={{ fontSize: '48px', marginBottom: '16px' }}>📝</div>
-                <p style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#D1D5DB' }}>
-                  No Lyrics Available
-                </p>
-                <p style={{ fontSize: '14px' }}>
-                  Lyrics haven't been added for this song yet.
-                </p>
+                <span>🎵 {selectedSong.genre}</span>
+                {selectedSong.duration_minutes && <span>⏱️ {selectedSong.duration_minutes} min</span>}
               </div>
             )}
-          </div>
-
-          {selectedSong.genre && (
-            <div style={{
-              background: 'rgba(255, 255, 255, 0.05)',
-              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-              padding: '16px 24px',
-              display: 'flex',
-              gap: '16px',
-              fontSize: '12px',
-              color: '#9CA3AF'
-            }}>
-              <span>🎵 {selectedSong.genre}</span>
-              {selectedSong.duration_minutes && <span>⏱️ {selectedSong.duration_minutes} min</span>}
-            </div>
-          )}
-        </Modal>
+          </Modal>
+        </>
       )}
 
       {/* Song Form Modal (Create/Edit) */}
       {showForm && (
-        <Modal 
-          isOpen={true} 
-          onClose={handleFormCancel}
-          size="lg"
-        >
-          <div style={{ padding: '24px' }}>
-            <SongForm
-              initialData={editingSong}
-              onSubmit={handleFormSubmit}
-              onCancel={handleFormCancel}
-              isLoading={isSubmitting}
-            />
+        <>
+          <div style={{
+            position: 'fixed',
+            top: '10px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            background: 'blue',
+            color: 'white',
+            padding: '10px',
+            zIndex: 10000,
+            borderRadius: '8px'
+          }}>
+            FORM MODAL SHOULD BE OPEN
           </div>
-        </Modal>
+          <Modal 
+            isOpen={true} 
+            onClose={handleFormCancel}
+            size="lg"
+          >
+            <div style={{ padding: '24px', background: '#1a1a3a' }}>
+              <SongForm
+                initialData={editingSong}
+                onSubmit={handleFormSubmit}
+                onCancel={handleFormCancel}
+                isLoading={isSubmitting}
+              />
+            </div>
+          </Modal>
+        </>
       )}
 
       {/* Delete Confirmation Modal */}
@@ -513,7 +597,7 @@ export default function SongsAndLyrics() {
           onClose={handleDeleteCancel}
           size="sm"
         >
-          <div style={{ padding: '32px', textAlign: 'center' }}>
+          <div style={{ padding: '32px', textAlign: 'center', background: '#1a1a3a' }}>
             <div style={{ fontSize: '64px', marginBottom: '16px' }}>⚠️</div>
             
             <h3 style={{ 
