@@ -161,7 +161,7 @@ export default function SongsAndLyrics() {
               }}
             >
               <h4 style={{
-                color: '#ffffff',
+                color: '#1a1a1a',
                 fontWeight: '600',
                 fontSize: '14px',
                 marginBottom: '4px',
