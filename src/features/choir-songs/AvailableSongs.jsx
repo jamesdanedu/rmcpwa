@@ -65,15 +65,21 @@ export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre })
         <div
           key={song.id}
           onClick={() => onAddToSetlist(song)}
-          className="glass rounded-lg p-3 border border-white/10 cursor-pointer
+          className="glass rounded-lg p-4 border border-white/10 cursor-pointer
                      transition-all duration-200 hover:border-yellow-400/30 
                      hover:bg-white/5 hover:transform hover:translateX-1"
         >
           <div className="flex items-center gap-3">
             <div className="flex-1 min-w-0">
-              {/* TITLE - Made more prominent and visible */}
-              <h5 className="text-white font-semibold text-base leading-tight mb-2">
-                {song.title || song.song_title || '[NO TITLE]'}
+              {/* TITLE - Extra prominent */}
+              <h5 style={{
+                color: '#FFFFFF',
+                fontSize: '16px',
+                fontWeight: '700',
+                marginBottom: '8px',
+                lineHeight: '1.4'
+              }}>
+                {song.title || song.song_title || '[NO TITLE - Check console]'}
               </h5>
               
               {/* ARTIST AND GENRE */}
@@ -87,7 +93,7 @@ export default function AvailableSongs({ songs, onAddToSetlist, selectedGenre })
                 </span>
               </div>
               
-              {/* DURATION AND OTHER INFO */}
+              {/* DURATION */}
               <div className="flex items-center gap-3 text-xs text-gray-500">
                 {song.duration_minutes && (
                   <span>⏱️ {song.duration_minutes} min</span>
