@@ -218,10 +218,10 @@ export default function SongsAndLyrics() {
         flexWrap: 'wrap'
       }}>
         <div>
-          <h2 style={{ color: '#FFFFFF', fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
+          <h2 style={{ color: '#000000', fontSize: '24px', fontWeight: 'bold', marginBottom: '4px' }}>
             Songs & Lyrics
           </h2>
-          <p style={{ color: '#9CA3AF', fontSize: '14px' }}>
+          <p style={{ color: '#6B7280', fontSize: '14px' }}>
             {songs.length} songs in the choir collection
           </p>
         </div>
@@ -248,10 +248,10 @@ export default function SongsAndLyrics() {
           style={{
             width: '100%',
             padding: '12px 16px',
-            background: 'rgba(255, 255, 255, 0.05)',
-            border: '1px solid rgba(255, 255, 255, 0.1)',
+            background: '#FFFFFF',
+            border: '2px solid #E5E7EB',
             borderRadius: '12px',
-            color: '#FFFFFF',
+            color: '#000000',
             fontSize: '16px',
             outline: 'none'
           }}
@@ -268,26 +268,29 @@ export default function SongsAndLyrics() {
           <div
             key={song.id}
             style={{
-              background: 'rgba(255, 255, 255, 0.05)',
+              background: '#FFFFFF',
               borderRadius: '16px',
               padding: '20px',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '2px solid #E5E7EB',
               transition: 'all 0.2s ease',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(255, 215, 0, 0.3)'
+              e.currentTarget.style.borderColor = '#FFD700'
               e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'
+              e.currentTarget.style.borderColor = '#E5E7EB'
               e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)'
             }}
           >
             {/* Song Content - Click to view lyrics */}
             <div onClick={() => handleSongClick(song)}>
               <h3 style={{ 
-                color: '#FFFFFF', 
+                color: '#000000', 
                 fontSize: '18px', 
                 fontWeight: '700',
                 marginBottom: '8px'
@@ -296,7 +299,7 @@ export default function SongsAndLyrics() {
               </h3>
               
               <p style={{ 
-                color: '#9CA3AF', 
+                color: '#4B5563', 
                 fontSize: '14px',
                 marginBottom: '12px'
               }}>
@@ -313,8 +316,8 @@ export default function SongsAndLyrics() {
                   fontSize: '11px',
                   padding: '4px 8px',
                   borderRadius: '6px',
-                  background: 'rgba(255, 215, 0, 0.1)',
-                  color: '#FFD700',
+                  background: '#FEF3C7',
+                  color: '#92400E',
                   fontWeight: '600'
                 }}>
                   🎵 {song.genre}
@@ -325,8 +328,8 @@ export default function SongsAndLyrics() {
                     fontSize: '11px',
                     padding: '4px 8px',
                     borderRadius: '6px',
-                    background: 'rgba(100, 116, 139, 0.2)',
-                    color: '#94A3B8'
+                    background: '#E0E7FF',
+                    color: '#3730A3'
                   }}>
                     ⏱️ {song.duration_minutes} min
                   </span>
@@ -351,7 +354,7 @@ export default function SongsAndLyrics() {
                 gap: '8px',
                 marginTop: '16px',
                 paddingTop: '16px',
-                borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+                borderTop: '1px solid #E5E7EB'
               }}>
                 <button
                   onClick={(e) => {
@@ -361,20 +364,20 @@ export default function SongsAndLyrics() {
                   style={{
                     flex: 1,
                     padding: '8px 12px',
-                    background: 'rgba(59, 130, 246, 0.2)',
-                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    background: '#DBEAFE',
+                    border: '1px solid #3B82F6',
                     borderRadius: '8px',
-                    color: '#60A5FA',
+                    color: '#1E40AF',
                     fontSize: '13px',
                     fontWeight: '600',
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.3)'
+                    e.currentTarget.style.background = '#BFDBFE'
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(59, 130, 246, 0.2)'
+                    e.currentTarget.style.background = '#DBEAFE'
                   }}
                 >
                   ✏️ Edit
@@ -388,20 +391,20 @@ export default function SongsAndLyrics() {
                   style={{
                     flex: 1,
                     padding: '8px 12px',
-                    background: 'rgba(239, 68, 68, 0.2)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    background: '#FEE2E2',
+                    border: '1px solid #EF4444',
                     borderRadius: '8px',
-                    color: '#F87171',
+                    color: '#991B1B',
                     fontSize: '13px',
                     fontWeight: '600',
                     cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)'
+                    e.currentTarget.style.background = '#FECACA'
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'
+                    e.currentTarget.style.background = '#FEE2E2'
                   }}
                 >
                   🗑️ Delete
@@ -417,10 +420,10 @@ export default function SongsAndLyrics() {
         <div style={{
           textAlign: 'center',
           padding: '48px 24px',
-          color: '#9CA3AF'
+          color: '#6B7280'
         }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-          <p style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#D1D5DB' }}>
+          <p style={{ fontSize: '18px', fontWeight: '600', marginBottom: '8px', color: '#1F2937' }}>
             No songs found
           </p>
           <p style={{ fontSize: '14px' }}>
