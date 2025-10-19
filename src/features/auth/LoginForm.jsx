@@ -1,17 +1,39 @@
-// src/features/auth/LoginForm.jsx
 'use client'
 
 import { useState } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
+import Image from 'next/image'
+
+// Common countries with their calling codes and flag emojis
+const COUNTRIES = [
+  { code: 'IE', name: 'Ireland', dial: '+353', flag: '🇮🇪' },
+  { code: 'GB', name: 'United Kingdom', dial: '+44', flag: '🇬🇧' },
+  { code: 'US', name: 'United States', dial: '+1', flag: '🇺🇸' },
+  { code: 'CA', name: 'Canada', dial: '+1', flag: '🇨🇦' },
+  { code: 'AU', name: 'Australia', dial: '+61', flag: '🇦🇺' },
+  { code: 'NZ', name: 'New Zealand', dial: '+64', flag: '🇳🇿' },
+  { code: 'FR', name: 'France', dial: '+33', flag: '🇫🇷' },
+  { code: 'DE', name: 'Germany', dial: '+49', flag: '🇩🇪' },
+  { code: 'ES', name: 'Spain', dial: '+34', flag: '🇪🇸' },
+  { code: 'IT', name: 'Italy', dial: '+39', flag: '🇮🇹' },
+  { code: 'NL', name: 'Netherlands', dial: '+31', flag: '🇳🇱' },
+  { code: 'BE', name: 'Belgium', dial: '+32', flag: '🇧🇪' },
+  { code: 'PL', name: 'Poland', dial: '+48', flag: '🇵🇱' },
+  { code: 'PT', name: 'Portugal', dial: '+351', flag: '🇵🇹' },
+]
 
 export default function LoginForm() {
   const { login, isLoading, error, clearError } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
-    phoneNumber: ''
+    phoneNumber: '',
+    countryCode: 'IE' // Default to Ireland
   })
   const [formErrors, setFormErrors] = useState({})
+
+  const selectedCountry = COUNTRIES.find(c => c.code === formData.countryCode) || COUNTRIES[0]
 
   const validateForm = () => {
     const errors = {}
@@ -24,7 +46,7 @@ export default function LoginForm() {
     
     if (!formData.phoneNumber.trim()) {
       errors.phoneNumber = 'Phone number is required'
-    } else if (!/^[\d\s\-\+\(\)]{8,}$/.test(formData.phoneNumber.trim())) {
+    } else if (!/^[\d\s\-]{7,}$/.test(formData.phoneNumber.trim())) {
       errors.phoneNumber = 'Please enter a valid phone number'
     }
     
@@ -53,329 +75,178 @@ export default function LoginForm() {
       return
     }
     
-    const success = await login(formData.name.trim(), formData.phoneNumber.trim())
+    // Combine country code with phone number
+    const fullPhoneNumber = `${selectedCountry.dial}${formData.phoneNumber.trim()}`
+    
+    const success = await login(formData.name.trim(), fullPhoneNumber)
     
     if (!success) {
-      setFormData({ name: '', phoneNumber: '' })
+      // Error is handled by the auth store
+      setFormData(prev => ({ ...prev, name: '', phoneNumber: '' }))
     }
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      width: '100%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '440px'
-      }}>
-        {/* Logo and Title */}
-        <div style={{
-          textAlign: 'center',
-          marginBottom: '40px'
-        }}>
-          {/* Project Icon - PNG from public/icons */}
-          <img 
-            src="/icons/icon-192x192.png" 
-            alt="RMCBuddy Logo"
-            style={{
-              width: '120px',
-              height: '120px',
-              margin: '0 auto 24px',
-              borderRadius: '24px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)'
-            }}
-          />
-          
-          <h1 style={{
-            fontSize: '36px',
-            fontWeight: '800',
-            color: '#FFFFFF',
-            marginBottom: '8px',
-            letterSpacing: '-0.5px'
-          }}>
+    <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-background to-surface">
+      <div className="w-full max-w-xs sm:max-w-sm lg:max-w-md mx-auto">
+        {/* Centered Title */}
+        <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 gradient-roscommon bg-clip-text text-transparent">
             RMCBuddy
           </h1>
           
-          <p style={{
-            fontSize: '16px',
-            color: 'rgba(255, 255, 255, 0.9)',
-            fontWeight: '500'
-          }}>
+          <p className="text-sm sm:text-base text-gray-300 font-medium mb-6 sm:mb-8">
             Roscommon Mens Choir
           </p>
+          
+          {/* App Icon - Much Larger */}
+          <div className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 mx-auto mb-6 sm:mb-8 filter drop-shadow-2xl">
+            <Image
+              src="/icons/icon-512x512.png"
+              alt="RMCBuddy Logo"
+              width={512}
+              height={512}
+              className="w-full h-full rounded-3xl"
+              priority
+            />
+          </div>
         </div>
 
-        {/* Login Card */}
-        <div style={{
-          background: '#FFFFFF',
-          borderRadius: '20px',
-          padding: '40px 32px',
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.3)'
-        }}>
-          {/* Welcome Text */}
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '32px'
-          }}>
-            <h2 style={{
-              fontSize: '24px',
-              fontWeight: '700',
-              color: '#1F2937',
-              marginBottom: '8px'
-            }}>
-              Welcome Back
-            </h2>
-            <p style={{
-              fontSize: '14px',
-              color: '#6B7280'
-            }}>
-              Enter your details to access the choir management system
-            </p>
-          </div>
-
+        {/* Rounded Rectangle Login Container - More Compact */}
+        <div className="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl backdrop-blur-xl">
           {/* Error Alert */}
           {error && (
-            <div style={{
-              background: '#FEE2E2',
-              border: '1px solid #FCA5A5',
-              borderRadius: '12px',
-              padding: '12px 16px',
-              marginBottom: '24px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px'
-            }}>
-              <span style={{ fontSize: '20px' }}>⚠️</span>
-              <span style={{
-                color: '#991B1B',
-                fontSize: '14px',
-                fontWeight: '500'
-              }}>
-                {error}
-              </span>
+            <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+              <div className="flex items-center gap-3">
+                <span className="text-red-400 text-lg sm:text-xl">⚠️</span>
+                <span className="text-red-300 font-medium text-sm sm:text-base">
+                  {error}
+                </span>
+              </div>
             </div>
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} style={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px'
-          }}>
-            {/* Full Name Input */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px'
-              }}>
-                Full Name
-              </label>
-              <input
-                type="text"
-                placeholder="Enter your full name"
-                value={formData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
-                disabled={isLoading}
-                autoComplete="name"
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  fontSize: '16px',
-                  border: formErrors.name ? '2px solid #EF4444' : '2px solid #E5E7EB',
-                  borderRadius: '12px',
-                  outline: 'none',
-                  transition: 'all 0.2s',
-                  backgroundColor: isLoading ? '#F9FAFB' : '#FFFFFF',
-                  color: '#1F2937',
-                  fontFamily: 'inherit'
-                }}
-                onFocus={(e) => {
-                  if (!formErrors.name) {
-                    e.target.style.borderColor = '#667eea'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'
-                  }
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = formErrors.name ? '#EF4444' : '#E5E7EB'
-                  e.target.style.boxShadow = 'none'
-                }}
-              />
-              {formErrors.name && (
-                <p style={{
-                  color: '#EF4444',
-                  fontSize: '13px',
-                  marginTop: '6px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
-                  <span>⚠️</span>
-                  {formErrors.name}
-                </p>
-              )}
-            </div>
+          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+            <Input
+              label="Full Name"
+              type="text"
+              placeholder="Enter your full name"
+              value={formData.name}
+              onChange={(e) => handleInputChange('name', e.target.value)}
+              error={formErrors.name}
+              disabled={isLoading}
+              autoComplete="name"
+              className="text-base sm:text-lg py-4 sm:py-5 px-4 sm:px-5"
+            />
 
-            {/* Phone Number Input */}
-            <div>
-              <label style={{
-                display: 'block',
-                fontSize: '14px',
-                fontWeight: '600',
-                color: '#374151',
-                marginBottom: '8px'
-              }}>
+            {/* Phone Number with Country Code */}
+            <div className="space-y-2">
+              <label className="block text-sm sm:text-base font-semibold text-gray-200">
                 Phone Number
+                <span className="text-yellow-400 ml-1">*</span>
               </label>
-              <input
-                type="tel"
-                placeholder="Enter your phone number"
-                value={formData.phoneNumber}
-                onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
-                disabled={isLoading}
-                autoComplete="tel"
-                style={{
-                  width: '100%',
-                  padding: '14px 16px',
-                  fontSize: '16px',
-                  border: formErrors.phoneNumber ? '2px solid #EF4444' : '2px solid #E5E7EB',
-                  borderRadius: '12px',
-                  outline: 'none',
-                  transition: 'all 0.2s',
-                  backgroundColor: isLoading ? '#F9FAFB' : '#FFFFFF',
-                  color: '#1F2937',
-                  fontFamily: 'inherit'
-                }}
-                onFocus={(e) => {
-                  if (!formErrors.phoneNumber) {
-                    e.target.style.borderColor = '#667eea'
-                    e.target.style.boxShadow = '0 0 0 3px rgba(102, 126, 234, 0.1)'
-                  }
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = formErrors.phoneNumber ? '#EF4444' : '#E5E7EB'
-                  e.target.style.boxShadow = 'none'
-                }}
-              />
+              
+              <div className="flex gap-2">
+                {/* Country Code Selector */}
+                <div className="relative">
+                  <select
+                    value={formData.countryCode}
+                    onChange={(e) => handleInputChange('countryCode', e.target.value)}
+                    disabled={isLoading}
+                    className="
+                      h-full rounded-xl 
+                      bg-black/40 backdrop-blur-sm
+                      text-white
+                      border-2 border-white/20
+                      focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/20
+                      hover:border-white/30
+                      focus:outline-none
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                      px-3 py-4 sm:py-5
+                      text-base sm:text-lg
+                      appearance-none
+                      cursor-pointer
+                      pr-8
+                    "
+                  >
+                    {COUNTRIES.map(country => (
+                      <option key={country.code} value={country.code}>
+                        {country.flag} {country.dial}
+                      </option>
+                    ))}
+                  </select>
+                  {/* Dropdown arrow */}
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">
+                    ▼
+                  </div>
+                </div>
+
+                {/* Phone Number Input */}
+                <div className="flex-1">
+                  <input
+                    type="tel"
+                    placeholder="87 123 4567"
+                    value={formData.phoneNumber}
+                    onChange={(e) => handleInputChange('phoneNumber', e.target.value)}
+                    disabled={isLoading}
+                    autoComplete="tel"
+                    className={`
+                      w-full rounded-xl 
+                      bg-black/40 backdrop-blur-sm
+                      text-white placeholder-gray-500
+                      border-2 transition-all duration-200
+                      px-4 py-4 sm:py-5
+                      text-base sm:text-lg
+                      ${formErrors.phoneNumber
+                        ? 'border-red-400 focus:border-red-400 focus:ring-4 focus:ring-red-400/20' 
+                        : 'border-white/20 focus:border-yellow-400 focus:ring-4 focus:ring-yellow-400/20'
+                      }
+                      hover:border-white/30
+                      focus:outline-none
+                      disabled:opacity-50 disabled:cursor-not-allowed
+                    `}
+                  />
+                </div>
+              </div>
+              
               {formErrors.phoneNumber && (
-                <p style={{
-                  color: '#EF4444',
-                  fontSize: '13px',
-                  marginTop: '6px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}>
+                <p className="text-red-400 text-xs sm:text-sm font-medium flex items-center gap-1">
                   <span>⚠️</span>
                   {formErrors.phoneNumber}
                 </p>
               )}
+              
+              {/* Helper text */}
+              <p className="text-xs text-gray-400 flex items-center gap-1">
+                <span>💡</span>
+                <span>Enter your number without the country code (e.g., 87 123 4567)</span>
+              </p>
             </div>
 
-            {/* Sign In Button */}
-            <button
-              type="submit"
-              disabled={isLoading}
-              style={{
-                width: '100%',
-                padding: '16px',
-                fontSize: '16px',
-                fontWeight: '700',
-                color: '#FFFFFF',
-                background: isLoading 
-                  ? '#9CA3AF' 
-                  : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                border: 'none',
-                borderRadius: '12px',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                transition: 'all 0.2s',
-                marginTop: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px'
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.target.style.transform = 'translateY(-2px)'
-                  e.target.style.boxShadow = '0 8px 24px rgba(102, 126, 234, 0.4)'
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)'
-                e.target.style.boxShadow = 'none'
-              }}
-            >
-              {isLoading ? (
-                <>
-                  <div style={{
-                    width: '20px',
-                    height: '20px',
-                    border: '3px solid rgba(255, 255, 255, 0.3)',
-                    borderTop: '3px solid #FFFFFF',
-                    borderRadius: '50%',
-                    animation: 'spin 0.8s linear infinite'
-                  }} />
-                  Signing In...
-                </>
-              ) : (
-                <>
-                  🔐 Sign In
-                </>
-              )}
-            </button>
+            <div className="pt-2 sm:pt-4">
+              <Button
+                type="submit"
+                variant="primary"
+                size="lg"
+                loading={isLoading}
+                disabled={isLoading}
+                className="w-full py-4 sm:py-5 text-base sm:text-lg font-bold"
+              >
+                {isLoading ? 'Signing In...' : '🔐 Sign In'}
+              </Button>
+            </div>
           </form>
 
-          {/* Info Section */}
-          <div style={{
-            marginTop: '32px',
-            paddingTop: '24px',
-            borderTop: '1px solid #E5E7EB'
-          }}>
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}>
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                fontSize: '13px',
-                color: '#6B7280'
-              }}>
-                <span style={{ fontSize: '18px' }}>🔒</span>
-                <span>Simple & secure authentication</span>
-              </div>
-              
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
-                fontSize: '13px',
-                color: '#6B7280'
-              }}>
-                <span style={{ fontSize: '18px' }}>⏰</span>
-                <span>You'll stay logged in for 30 days</span>
-              </div>
+          {/* Security & Info Section */}
+          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/10">
+            <div className="flex items-center gap-3 text-xs sm:text-sm">
+              <span className="text-blue-400 text-lg sm:text-xl">⏰</span>
+              <span className="text-gray-300">You'll stay logged in for 30 days</span>
             </div>
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   )
 }
