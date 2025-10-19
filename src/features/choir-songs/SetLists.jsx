@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { getSetlists } from '../../lib/api'
+import { canUserEdit } from '../../lib/permissions'
 import Button from '../../components/ui/Button'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 import SetlistCreatorWizard from './SetlistCreatorWizard'
@@ -14,6 +15,9 @@ export default function SetLists() {
   const [isLoading, setIsLoading] = useState(true)
   const [showCreator, setShowCreator] = useState(false)
   const [editingSetlist, setEditingSetlist] = useState(null)
+
+  // Check if user can edit/create setlists
+  const isEditor = user?.id && canUserEdit(user.id)
 
   // FIX: Use user?.id instead of user to prevent infinite loop
   useEffect(() => {
@@ -39,6 +43,10 @@ export default function SetLists() {
       alert('Please log in to create setlists')
       return
     }
+    if (!isEditor) {
+      alert('Only editors can create setlists')
+      return
+    }
     setEditingSetlist(null)
     setShowCreator(true)
   }
@@ -46,6 +54,10 @@ export default function SetLists() {
   const handleEditSetlist = (setlist) => {
     if (!isAuthenticated) {
       alert('Please log in to edit setlists')
+      return
+    }
+    if (!isEditor) {
+      alert('Only editors can edit setlists')
       return
     }
     setEditingSetlist(setlist)
@@ -91,14 +103,17 @@ export default function SetLists() {
   // Main view
   return (
     <div className="space-y-6">
-      <Button
-        variant="primary"
-        size="lg"
-        className="w-full"
-        onClick={handleCreateClick}
-      >
-        ➕ Create New Setlist
-      </Button>
+      {/* Only show Create button for editors */}
+      {isEditor && (
+        <Button
+          variant="primary"
+          size="lg"
+          className="w-full"
+          onClick={handleCreateClick}
+        >
+          ➕ Create New Setlist
+        </Button>
+      )}
 
       <SetlistsList 
         setlists={setlists} 
