@@ -5,6 +5,8 @@ import { isAfter } from 'date-fns'
 import { createPortal } from 'react-dom'
 import { useEffect, useState } from 'react'
 import Button from '../../components/ui/Button'
+import { canUserEdit } from '../../lib/permissions'
+
 
 export default function SetlistDetailView({ 
   isOpen, 
@@ -54,9 +56,9 @@ export default function SetlistDetailView({
   const isUpcoming = isAfter(eventDate, new Date())
   
   const canEdit = isAuthenticated && 
-                  !setlist.is_archived && 
-                  setlist.created_by === user?.id
-
+                !setlist.is_archived && 
+                canUserEdit(user?.id)  // Changed from: setlist.created_by === user?.id
+  
   const formatTime = (timeString) => {
     if (!timeString) return null
     try {
