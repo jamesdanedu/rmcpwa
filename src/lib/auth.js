@@ -1,25 +1,43 @@
 import { supabase } from './supabase'
 import { APP_CONFIG } from './constants'
 
+// Normalize phone number to consistent format (remove spaces, ensure + prefix)
+const normalizePhoneNumber = (phoneNumber) => {
+  if (!phoneNumber) return phoneNumber
+  
+  // Remove all spaces, dashes, parentheses
+  let normalized = phoneNumber.replace(/[\s\-\(\)]/g, '')
+  
+  // Ensure it starts with +
+  if (!normalized.startsWith('+')) {
+    normalized = '+' + normalized
+  }
+  
+  return normalized
+}
+
 export const login = async (name, phoneNumber) => {
   try {
+    // Normalize the phone number for consistent database lookup
+    const normalizedPhone = normalizePhoneNumber(phoneNumber)
+    
     // Check if user exists
     const { data: existingUser } = await supabase
       .from('users')
       .select('*')
-      .eq('phone_number', phoneNumber)
+      .eq('phone_number', normalizedPhone)
       .single()
 
     let user = existingUser
 
     if (!existingUser) {
-      // Create new user
+      // Create new user with normalized phone number
       const { data: newUser, error } = await supabase
         .from('users')
         .insert({
           name,
           full_name: name,
-          phone_number: phoneNumber,
+          phone_number: normalizedPhone,
           role: 'member',
           is_active: true
         })
