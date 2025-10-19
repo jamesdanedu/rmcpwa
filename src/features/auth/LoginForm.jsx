@@ -75,8 +75,11 @@ export default function LoginForm() {
       return
     }
     
-    // Combine country code with phone number
-    const fullPhoneNumber = `${selectedCountry.dial}${formData.phoneNumber.trim()}`
+    // Remove all spaces and dashes from the phone number
+    const cleanNumber = formData.phoneNumber.trim().replace(/[\s\-]/g, '')
+    
+    // Combine country code with cleaned phone number
+    const fullPhoneNumber = `${selectedCountry.dial}${cleanNumber}`
     
     const success = await login(formData.name.trim(), fullPhoneNumber)
     
