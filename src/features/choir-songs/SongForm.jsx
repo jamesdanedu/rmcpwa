@@ -27,9 +27,7 @@ export default function SongForm({
     genre: initialData?.genre || 'Pop',
     lyrics: initialData?.lyrics || '',
     durationMinutes: initialData?.duration_minutes?.toString() || '',
-    dateIntroduced: initialData?.date_introduced || new Date().toISOString().split('T')[0],
-    youtubeVideoId: initialData?.youtube_video_id || '',
-    youtubeViewCount: initialData?.youtube_view_count?.toString() || ''
+    dateIntroduced: initialData?.date_introduced || new Date().toISOString().split('T')[0]
   })
 
   const [errors, setErrors] = useState({})
@@ -69,10 +67,6 @@ export default function SongForm({
       newErrors.durationMinutes = 'Duration cannot be negative'
     }
     
-    if (formData.youtubeViewCount && isNaN(parseInt(formData.youtubeViewCount))) {
-      newErrors.youtubeViewCount = 'Must be a valid number'
-    }
-    
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -89,9 +83,7 @@ export default function SongForm({
       genre: formData.genre,
       lyrics: formData.lyrics.trim() || null,
       durationMinutes: formData.durationMinutes ? parseFloat(formData.durationMinutes) : null,
-      dateIntroduced: formData.dateIntroduced,
-      youtubeVideoId: formData.youtubeVideoId.trim() || null,
-      youtubeViewCount: formData.youtubeViewCount ? parseInt(formData.youtubeViewCount) : null
+      dateIntroduced: formData.dateIntroduced
     }
     
     onSubmit(submitData)
@@ -227,38 +219,6 @@ export default function SongForm({
             💡 Tip: Use line breaks to separate verses and sections
           </p>
         </div>
-      </div>
-
-      {/* YouTube Information Section */}
-      <div className="glass rounded-2xl p-6 border border-white/10 space-y-5">
-        <div className="flex items-center gap-3 pb-4 border-b border-white/10">
-          <span className="text-2xl">🎥</span>
-          <h4 className="text-lg font-bold text-white">YouTube Information</h4>
-          <span className="text-xs text-gray-500">(optional)</span>
-        </div>
-        
-        <Input
-          label="YouTube Video ID"
-          type="text"
-          value={formData.youtubeVideoId}
-          onChange={(e) => handleChange('youtubeVideoId', e.target.value)}
-          disabled={isLoading}
-          placeholder="e.g., dQw4w9WgXcQ"
-        />
-        <p className="text-xs text-gray-500 -mt-3">
-          💡 The video ID is the part after "v=" in the YouTube URL
-        </p>
-
-        <Input
-          label="YouTube View Count"
-          type="number"
-          value={formData.youtubeViewCount}
-          onChange={(e) => handleChange('youtubeViewCount', e.target.value)}
-          error={errors.youtubeViewCount}
-          disabled={isLoading}
-          placeholder="e.g., 1000000"
-          min="0"
-        />
       </div>
 
       {/* Action Buttons */}
