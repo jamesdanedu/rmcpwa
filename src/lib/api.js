@@ -282,9 +282,7 @@ export const createChoirSong = async (songData) => {
         genre: songData.genre || 'Other',
         lyrics: songData.lyrics?.trim() || null,
         duration_minutes: songData.durationMinutes || null,
-        date_introduced: songData.dateIntroduced || new Date().toISOString().split('T')[0],
-        youtube_video_id: songData.youtubeVideoId?.trim() || null,
-        youtube_view_count: songData.youtubeViewCount || null
+        date_introduced: songData.dateIntroduced || new Date().toISOString().split('T')[0]
       })
       .select()
       .single()
@@ -324,9 +322,7 @@ export const updateChoirSong = async (songId, songData) => {
         genre: songData.genre || 'Other',
         lyrics: songData.lyrics?.trim() || null,
         duration_minutes: songData.durationMinutes || null,
-        date_introduced: songData.dateIntroduced,
-        youtube_video_id: songData.youtubeVideoId?.trim() || null,
-        youtube_view_count: songData.youtubeViewCount || null
+        date_introduced: songData.dateIntroduced
       })
       .eq('id', songId)
       .select()
