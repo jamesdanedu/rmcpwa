@@ -391,10 +391,11 @@ export const getSetlists = async (userId) => {
   try {
     console.log('Fetching setlists for user:', userId)
     
+    // Get ALL setlists - everyone can view them
+    // Only filtering would be for archived vs active status
     const { data, error } = await supabase
       .from('setlists')
       .select('*')
-      .eq('created_by', userId)
       .order('event_date', { ascending: false })
 
     if (error) {
