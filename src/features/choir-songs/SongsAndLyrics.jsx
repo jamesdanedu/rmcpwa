@@ -29,6 +29,10 @@ export default function SongsAndLyrics() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [deleteConfirm, setDeleteConfirm] = useState(null)
   const [successMessage, setSuccessMessage] = useState(null)
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1)
+  const songsPerPage = 12 // Show 12 songs per page
 
   useEffect(() => {
     loadSongs()
@@ -80,6 +84,7 @@ export default function SongsAndLyrics() {
         // Create new song
         await createChoirSong(formData)
         setSuccessMessage('✅ Song created successfully!')
+        setCurrentPage(1) // Reset to first page to see new song
       }
       
       // Reload songs and close form
@@ -138,6 +143,23 @@ export default function SongsAndLyrics() {
     song.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
     song.genre.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredSongs.length / songsPerPage)
+  const startIndex = (currentPage - 1) * songsPerPage
+  const endIndex = startIndex + songsPerPage
+  const currentSongs = filteredSongs.slice(startIndex, endIndex)
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm])
+
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage)
+    // Scroll to top of songs list
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   if (isLoading) {
     return (
@@ -222,7 +244,12 @@ export default function SongsAndLyrics() {
             Songs & Lyrics
           </h2>
           <p style={{ color: '#6B7280', fontSize: '14px' }}>
-            {songs.length} songs in the choir collection
+            {filteredSongs.length === 0 
+              ? 'No songs found' 
+              : totalPages > 1
+                ? `Showing ${startIndex + 1}-${Math.min(endIndex, filteredSongs.length)} of ${filteredSongs.length} songs`
+                : `${filteredSongs.length} songs in the collection`
+            }
           </p>
         </div>
 
@@ -264,7 +291,7 @@ export default function SongsAndLyrics() {
         gap: '16px',
         gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))'
       }}>
-        {filteredSongs.map((song) => (
+        {currentSongs.map((song) => (
           <div
             key={song.id}
             style={{
@@ -414,6 +441,143 @@ export default function SongsAndLyrics() {
           </div>
         ))}
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && filteredSongs.length > 0 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          gap: '8px',
+          marginTop: '32px',
+          flexWrap: 'wrap'
+        }}>
+          {/* Previous Button */}
+          <button
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            style={{
+              padding: '10px 16px',
+              background: currentPage === 1 ? '#E5E7EB' : '#FFFFFF',
+              border: '2px solid #E5E7EB',
+              borderRadius: '8px',
+              color: currentPage === 1 ? '#9CA3AF' : '#000000',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (currentPage !== 1) {
+                e.currentTarget.style.borderColor = '#FFD700'
+                e.currentTarget.style.background = '#FFFBEB'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (currentPage !== 1) {
+                e.currentTarget.style.borderColor = '#E5E7EB'
+                e.currentTarget.style.background = '#FFFFFF'
+              }
+            }}
+          >
+            ← Previous
+          </button>
+
+          {/* Page Numbers */}
+          <div style={{ display: 'flex', gap: '4px' }}>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
+              // Show first page, last page, current page, and pages around current
+              const showPage = 
+                pageNum === 1 || 
+                pageNum === totalPages || 
+                (pageNum >= currentPage - 1 && pageNum <= currentPage + 1)
+              
+              // Show ellipsis
+              const showEllipsis = 
+                (pageNum === 2 && currentPage > 3) ||
+                (pageNum === totalPages - 1 && currentPage < totalPages - 2)
+
+              if (!showPage && !showEllipsis) return null
+
+              if (showEllipsis) {
+                return (
+                  <span key={`ellipsis-${pageNum}`} style={{
+                    padding: '10px 12px',
+                    color: '#9CA3AF',
+                    fontSize: '14px'
+                  }}>
+                    ...
+                  </span>
+                )
+              }
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => handlePageChange(pageNum)}
+                  style={{
+                    padding: '10px 14px',
+                    background: pageNum === currentPage ? '#FFD700' : '#FFFFFF',
+                    border: `2px solid ${pageNum === currentPage ? '#FFD700' : '#E5E7EB'}`,
+                    borderRadius: '8px',
+                    color: pageNum === currentPage ? '#000000' : '#4B5563',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: pageNum === currentPage ? 'default' : 'pointer',
+                    minWidth: '44px',
+                    transition: 'all 0.2s'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (pageNum !== currentPage) {
+                      e.currentTarget.style.borderColor = '#FFD700'
+                      e.currentTarget.style.background = '#FFFBEB'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (pageNum !== currentPage) {
+                      e.currentTarget.style.borderColor = '#E5E7EB'
+                      e.currentTarget.style.background = '#FFFFFF'
+                    }
+                  }}
+                >
+                  {pageNum}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Next Button */}
+          <button
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            style={{
+              padding: '10px 16px',
+              background: currentPage === totalPages ? '#E5E7EB' : '#FFFFFF',
+              border: '2px solid #E5E7EB',
+              borderRadius: '8px',
+              color: currentPage === totalPages ? '#9CA3AF' : '#000000',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+              transition: 'all 0.2s'
+            }}
+            onMouseEnter={(e) => {
+              if (currentPage !== totalPages) {
+                e.currentTarget.style.borderColor = '#FFD700'
+                e.currentTarget.style.background = '#FFFBEB'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (currentPage !== totalPages) {
+                e.currentTarget.style.borderColor = '#E5E7EB'
+                e.currentTarget.style.background = '#FFFFFF'
+              }
+            }}
+          >
+            Next →
+          </button>
+        </div>
+      )}
 
       {/* No Results Message */}
       {filteredSongs.length === 0 && (
