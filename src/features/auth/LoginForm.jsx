@@ -93,17 +93,17 @@ export default function LoginForm() {
     <div className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-gradient-to-br from-background to-surface">
       <div className="w-full max-w-xs sm:max-w-sm lg:max-w-md mx-auto">
         {/* Centered Title */}
-        <div className="text-center mb-6 sm:mb-8 lg:mb-10">
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 sm:mb-6 gradient-roscommon bg-clip-text text-transparent">
+        <div className="text-center mb-4 sm:mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-2 sm:mb-3 gradient-roscommon bg-clip-text text-transparent">
             RMCBuddy
           </h1>
           
-          <p className="text-sm sm:text-base text-gray-300 font-medium mb-6 sm:mb-8">
+          <p className="text-sm sm:text-base text-gray-300 font-medium mb-4 sm:mb-5">
             Roscommon Mens Choir
           </p>
           
-          {/* App Icon - Much Larger */}
-          <div className="w-48 h-48 sm:w-56 sm:h-56 lg:w-64 lg:h-64 mx-auto mb-6 sm:mb-8 filter drop-shadow-2xl">
+          {/* App Icon - Reduced Size */}
+          <div className="w-32 h-32 sm:w-40 sm:h-40 lg:w-48 lg:h-48 mx-auto mb-4 sm:mb-5 filter drop-shadow-2xl">
             <Image
               src="/icons/icon-512x512.png"
               alt="RMCBuddy Logo"
@@ -119,7 +119,7 @@ export default function LoginForm() {
         <div className="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 border border-white/10 shadow-2xl backdrop-blur-xl">
           {/* Error Alert */}
           {error && (
-            <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 sm:p-4 mb-4 sm:mb-6">
+            <div className="bg-red-500/20 border border-red-500/30 rounded-xl p-3 sm:p-4 mb-4">
               <div className="flex items-center gap-3">
                 <span className="text-red-400 text-lg sm:text-xl">⚠️</span>
                 <span className="text-red-300 font-medium text-sm sm:text-base">
@@ -130,7 +130,7 @@ export default function LoginForm() {
           )}
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-5 sm:space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
             <Input
               label="Full Name"
               type="text"
@@ -140,7 +140,7 @@ export default function LoginForm() {
               error={formErrors.name}
               disabled={isLoading}
               autoComplete="name"
-              className="text-base sm:text-lg py-4 sm:py-5 px-4 sm:px-5"
+              className="text-base sm:text-lg py-5 sm:py-6 px-4 sm:px-5"
             />
 
             {/* Phone Number with Country Code */}
@@ -166,7 +166,7 @@ export default function LoginForm() {
                       hover:border-white/30
                       focus:outline-none
                       disabled:opacity-50 disabled:cursor-not-allowed
-                      px-3 py-4 sm:py-5
+                      px-3 py-5 sm:py-6
                       text-base sm:text-lg
                       appearance-none
                       cursor-pointer
@@ -199,7 +199,7 @@ export default function LoginForm() {
                       bg-black/40 backdrop-blur-sm
                       text-white placeholder-gray-500
                       border-2 transition-all duration-200
-                      px-4 py-4 sm:py-5
+                      px-4 py-5 sm:py-6
                       text-base sm:text-lg
                       ${formErrors.phoneNumber
                         ? 'border-red-400 focus:border-red-400 focus:ring-4 focus:ring-red-400/20' 
@@ -227,14 +227,14 @@ export default function LoginForm() {
               </p>
             </div>
 
-            <div className="pt-2 sm:pt-4">
+            <div className="pt-2 sm:pt-3">
               <Button
                 type="submit"
                 variant="primary"
                 size="lg"
                 loading={isLoading}
                 disabled={isLoading}
-                className="w-full py-4 sm:py-5 text-base sm:text-lg font-bold"
+                className="w-full"
               >
                 {isLoading ? 'Signing In...' : '🔐 Sign In'}
               </Button>
@@ -242,7 +242,7 @@ export default function LoginForm() {
           </form>
 
           {/* Security & Info Section */}
-          <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-white/10">
+          <div className="mt-5 sm:mt-6 pt-4 sm:pt-5 border-t border-white/10">
             <div className="flex items-center gap-3 text-xs sm:text-sm">
               <span className="text-blue-400 text-lg sm:text-xl">⏰</span>
               <span className="text-gray-300">You'll stay logged in for 30 days</span>
