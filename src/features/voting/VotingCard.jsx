@@ -212,7 +212,7 @@ export default function VotingCard({ vote, onVote, isVoting, error, onClearError
             </h2>
             <p style={{
               fontSize: '18px',
-              color: '#374151',
+              color: '#374151 !important',
               marginBottom: '12px',
               fontWeight: '500'
             }}>
