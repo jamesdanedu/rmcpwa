@@ -204,7 +204,7 @@ export default function VotingCard({ vote, onVote, isVoting, error, onClearError
             <h2 style={{
               fontSize: '24px',
               fontWeight: 'bold',
-              color: '#ffffff',
+              color: '#374151 !important',
               marginBottom: '8px',
               lineHeight: '1.3'
             }}>
