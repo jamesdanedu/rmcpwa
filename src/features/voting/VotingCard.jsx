@@ -212,7 +212,7 @@ export default function VotingCard({ vote, onVote, isVoting, error, onClearError
             </h2>
             <p style={{
               fontSize: '18px',
-              color: '#D1D5DB',
+              color: '#6B7280',
               marginBottom: '12px'
             }}>
               {song.artist}
