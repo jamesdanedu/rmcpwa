@@ -130,21 +130,38 @@ export const getSongsForVoting = async (userId) => {
 }
 
 export const submitVote = async (voteId, voteType) => {
-  const { data, error } = await supabase
-    .from('votes')
-    .update({
-      vote_type: voteType,
-      vote_status: 'completed',
-      voted_at: new Date().toISOString()
-    })
-    .eq('id', voteId)
-  
-  if (error) {
-    console.error('Error submitting vote:', error)
-    throw error
+  try {
+    console.log('Submitting vote:', { voteId, voteType })
+    
+    const { data, error } = await supabase
+      .from('votes')
+      .update({
+        vote_type: voteType,
+        vote_status: 'completed',
+        voted_at: new Date().toISOString()
+      })
+      .eq('id', voteId)
+      .select() // CRITICAL FIX: Returns the updated row(s)
+    
+    // Check for Supabase errors
+    if (error) {
+      console.error('Supabase error submitting vote:', error)
+      throw new Error(`Failed to submit vote: ${error.message}`)
+    }
+    
+    // CRITICAL FIX: Verify that a row was actually updated
+    if (!data || data.length === 0) {
+      console.error('No vote record was updated. Vote ID:', voteId)
+      throw new Error('Vote record not found or already completed')
+    }
+    
+    console.log('Vote submitted successfully:', data[0])
+    return { data: data[0], error: null }
+    
+  } catch (err) {
+    console.error('Error in submitVote:', err)
+    throw err
   }
-  
-  return { data, error }
 }
 
 export const getVotingStats = async (userId) => {
@@ -299,7 +316,7 @@ export const createChoirSong = async (songData) => {
       throw error
     }
     
-    console.log('Choir song created successfully with ID:', data.id)
+    console.log('Choir song created successfully:', data.title)
     return data
     
   } catch (err) {
