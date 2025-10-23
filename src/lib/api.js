@@ -130,7 +130,7 @@ export const getSongsForVoting = async (userId) => {
 }
 
 export const submitVote = async (voteId, voteType) => {
-  return await supabase
+  const { data, error } = await supabase
     .from('votes')
     .update({
       vote_type: voteType,
@@ -138,6 +138,13 @@ export const submitVote = async (voteId, voteType) => {
       voted_at: new Date().toISOString()
     })
     .eq('id', voteId)
+  
+  if (error) {
+    console.error('Error submitting vote:', error)
+    throw error
+  }
+  
+  return { data, error }
 }
 
 export const getVotingStats = async (userId) => {
