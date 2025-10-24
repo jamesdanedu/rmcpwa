@@ -8,8 +8,8 @@ import {
   uploadPracticeAudio,
   deletePracticeAudio 
 } from '../../lib/api'
-import Button from '../ui/Button'
-import LoadingSpinner from '../ui/LoadingSpinner'
+import Button from '../../components/ui/Button'
+import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function PracticeMaterialEditor({ material, onClose, userId }) {
   const isEditMode = Boolean(material)
