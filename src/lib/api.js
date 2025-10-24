@@ -738,7 +738,7 @@ export const uploadPracticeAudio = async (file, materialId) => {
 
     // IMPORTANT: Use the exact bucket name from your Supabase (PRACTICE-AUDIO)
     const { error: uploadError } = await supabase.storage
-      .from('practice-audio')
+      .from('PRACTICE-AUDIO')
       .upload(filePath, file, {
         cacheControl: '3600',
         upsert: false
@@ -751,7 +751,7 @@ export const uploadPracticeAudio = async (file, materialId) => {
 
     // Get public URL
     const { data } = supabase.storage
-      .from('practice-audio')
+      .from('PRACTICE-AUDIO')
       .getPublicUrl(filePath)
 
     console.log('Audio uploaded successfully:', data.publicUrl)
@@ -770,7 +770,7 @@ export const uploadPracticeAudio = async (file, materialId) => {
 export const deletePracticeAudio = async (audioUrl) => {
   try {
     // Extract file path from URL
-    const urlParts = audioUrl.split('practice-audio/')
+    const urlParts = audioUrl.split('PRACTICE-AUDIO/')
     if (urlParts.length < 2) {
       console.error('Invalid audio URL format')
       return
@@ -780,7 +780,7 @@ export const deletePracticeAudio = async (audioUrl) => {
     console.log('Deleting audio file:', filePath)
     
     const { error } = await supabase.storage
-      .from('practice-audio')
+      .from('PRACTICE-AUDIO')
       .remove([filePath])
 
     if (error) {
