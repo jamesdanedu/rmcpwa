@@ -6,8 +6,7 @@ import Button from '../../components/ui/Button'
 
 export default function PracticeMaterialCard({ material, isEditor, onEdit, onClick }) {
   const [showDetail, setShowDetail] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [audioError, setAudioError] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
 
   const hasText = Boolean(material.text_content)
   const hasAudio = Boolean(material.audio_url)
@@ -22,65 +21,111 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
     onEdit()
   }
 
-  const handlePlayAudio = () => {
-    if (!hasAudio) return
-    
-    const audio = new Audio(material.audio_url)
-    setIsPlaying(true)
-    setAudioError(false)
-
-    audio.onended = () => setIsPlaying(false)
-    audio.onerror = () => {
-      setIsPlaying(false)
-      setAudioError(true)
-    }
-
-    audio.play().catch(err => {
-      console.error('Error playing audio:', err)
-      setIsPlaying(false)
-      setAudioError(true)
-    })
-  }
-
   return (
     <>
       <div 
-        className="glass rounded-xl p-4 border border-white/5 cursor-pointer hover:border-yellow-400/30 transition-all"
         onClick={handleCardClick}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+        style={{
+          background: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)',
+          border: isHovered ? '2px solid rgba(255, 215, 0, 0.3)' : '2px solid rgba(255, 255, 255, 0.1)',
+          borderRadius: '16px',
+          padding: '20px',
+          cursor: 'pointer',
+          transition: 'all 0.2s ease',
+          transform: isHovered ? 'scale(1.01) translateY(-2px)' : 'scale(1)',
+          boxShadow: isHovered ? '0 8px 32px rgba(255, 215, 0, 0.15)' : '0 4px 16px rgba(0, 0, 0, 0.1)'
+        }}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <h3 className="text-white font-semibold mb-1">
+        <div style={{ display: 'flex', alignItems: 'start', justifyContent: 'space-between', gap: '16px' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {/* Title */}
+            <h4 style={{ 
+              color: 'white', 
+              fontWeight: '600', 
+              fontSize: '18px',
+              margin: '0 0 8px 0',
+              lineHeight: '1.3'
+            }}>
               {material.title}
-            </h3>
+            </h4>
             
+            {/* Description */}
             {material.description && (
-              <p className="text-gray-400 text-sm mb-3">
+              <p style={{
+                color: '#9ca3af',
+                fontSize: '14px',
+                margin: '0 0 12px 0',
+                lineHeight: '1.5'
+              }}>
                 {material.description}
               </p>
             )}
 
-            <div className="flex items-center gap-3 text-xs">
+            {/* Content indicators */}
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '12px',
+              fontSize: '13px'
+            }}>
               {hasText && (
-                <span className="flex items-center gap-1 text-blue-400">
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  color: '#60a5fa',
+                  fontWeight: '500'
+                }}>
                   📄 Text
                 </span>
               )}
               {hasAudio && (
-                <span className="flex items-center gap-1 text-green-400">
+                <span style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  color: '#4ade80',
+                  fontWeight: '500'
+                }}>
                   🎵 Audio
                 </span>
               )}
               {!hasText && !hasAudio && (
-                <span className="text-gray-500">No content</span>
+                <span style={{ color: '#6b7280', fontSize: '12px' }}>
+                  No content
+                </span>
               )}
             </div>
           </div>
 
+          {/* Edit button for editors */}
           {isEditor && (
             <button
               onClick={handleEditClick}
-              className="flex-shrink-0 px-3 py-2 rounded-lg glass border border-blue-400/20 text-blue-400 text-sm hover:bg-blue-400/10 transition-all"
+              style={{
+                flexShrink: 0,
+                padding: '8px 16px',
+                borderRadius: '10px',
+                background: 'rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(10px)',
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                color: '#60a5fa',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = 'rgba(59, 130, 246, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.5)'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)'
+              }}
             >
               ✏️ Edit
             </button>
@@ -98,18 +143,44 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
         <div className="p-6 space-y-6">
           {/* Description */}
           {material.description && (
-            <div className="text-gray-300 text-sm">
+            <div style={{
+              color: '#d1d5db',
+              fontSize: '15px',
+              lineHeight: '1.6'
+            }}>
               {material.description}
             </div>
           )}
 
           {/* Text Content */}
           {hasText && (
-            <div className="glass rounded-xl p-4 border border-white/5">
-              <h4 className="text-yellow-400 font-semibold mb-3 flex items-center gap-2">
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              padding: '20px',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <h4 style={{
+                color: '#fbbf24',
+                fontWeight: '600',
+                fontSize: '14px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
                 📄 Lyrics / Notes
               </h4>
-              <div className="text-white whitespace-pre-wrap text-sm leading-relaxed max-h-96 overflow-y-auto">
+              <div style={{
+                color: 'white',
+                whiteSpace: 'pre-wrap',
+                fontSize: '14px',
+                lineHeight: '1.7',
+                maxHeight: '400px',
+                overflowY: 'auto',
+                fontFamily: 'ui-monospace, monospace'
+              }}>
                 {material.text_content}
               </div>
             </div>
@@ -117,17 +188,31 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
 
           {/* Audio Player */}
           {hasAudio && (
-            <div className="glass rounded-xl p-4 border border-white/5">
-              <h4 className="text-green-400 font-semibold mb-3 flex items-center gap-2">
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.05)',
+              backdropFilter: 'blur(10px)',
+              borderRadius: '16px',
+              padding: '20px',
+              border: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+              <h4 style={{
+                color: '#4ade80',
+                fontWeight: '600',
+                fontSize: '14px',
+                marginBottom: '16px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
                 🎵 Audio Track
               </h4>
               
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 {/* Native HTML5 Audio Player */}
                 <audio 
                   controls 
-                  className="w-full"
                   style={{
+                    width: '100%',
                     height: '40px',
                     borderRadius: '8px'
                   }}
@@ -140,14 +225,13 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
 
                 {/* Audio filename */}
                 {material.audio_filename && (
-                  <p className="text-xs text-gray-400 text-center">
+                  <p style={{
+                    fontSize: '12px',
+                    color: '#9ca3af',
+                    textAlign: 'center',
+                    margin: 0
+                  }}>
                     {material.audio_filename}
-                  </p>
-                )}
-
-                {audioError && (
-                  <p className="text-xs text-red-400 text-center">
-                    ⚠️ Error loading audio file
                   </p>
                 )}
               </div>
@@ -156,9 +240,12 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
 
           {/* Empty State */}
           {!hasText && !hasAudio && (
-            <div className="text-center py-8">
-              <div className="text-4xl mb-3">📭</div>
-              <p className="text-gray-400">
+            <div style={{
+              textAlign: 'center',
+              padding: '40px 20px'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '12px' }}>📭</div>
+              <p style={{ color: '#9ca3af' }}>
                 No content available for this practice material
               </p>
             </div>
