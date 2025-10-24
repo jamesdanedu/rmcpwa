@@ -605,3 +605,192 @@ export const getSetlistById = async (setlistId) => {
     throw err
   }
 }
+
+
+// ============================================================================
+// PRACTICE MATERIALS API FUNCTIONS
+// ============================================================================
+
+// Get all active practice materials
+export const getPracticeMaterials = async () => {
+  try {
+    console.log('Fetching practice materials from database...')
+    
+    const { data, error } = await supabase
+      .from('practice_materials')
+      .select('*')
+      .eq('is_active', true)
+      .order('display_order', { ascending: true })
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching practice materials:', error)
+      throw error
+    }
+
+    console.log('Successfully fetched', data?.length || 0, 'practice materials')
+    return data || []
+    
+  } catch (err) {
+    console.error('Error in getPracticeMaterials:', err)
+    throw err
+  }
+}
+
+// Create a new practice material
+export const createPracticeMaterial = async (materialData, userId) => {
+  try {
+    console.log('Creating practice material:', materialData.title)
+    
+    const { data, error } = await supabase
+      .from('practice_materials')
+      .insert({
+        title: materialData.title,
+        description: materialData.description || null,
+        text_content: materialData.textContent || null,
+        audio_url: materialData.audioUrl || null,
+        audio_filename: materialData.audioFilename || null,
+        display_order: materialData.displayOrder || 0,
+        created_by: userId,
+        is_active: true
+      })
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating practice material:', error)
+      throw error
+    }
+    
+    console.log('Practice material created with ID:', data.id)
+    return data
+    
+  } catch (err) {
+    console.error('Error in createPracticeMaterial:', err)
+    throw err
+  }
+}
+
+// Update an existing practice material
+export const updatePracticeMaterial = async (materialId, materialData) => {
+  try {
+    console.log('Updating practice material:', materialId)
+    
+    const { data, error } = await supabase
+      .from('practice_materials')
+      .update({
+        title: materialData.title,
+        description: materialData.description || null,
+        text_content: materialData.textContent || null,
+        audio_url: materialData.audioUrl || null,
+        audio_filename: materialData.audioFilename || null,
+        display_order: materialData.displayOrder || 0
+      })
+      .eq('id', materialId)
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error updating practice material:', error)
+      throw error
+    }
+    
+    console.log('Practice material updated successfully')
+    return data
+    
+  } catch (err) {
+    console.error('Error in updatePracticeMaterial:', err)
+    throw err
+  }
+}
+
+// Soft delete a practice material (set is_active to false)
+export const deletePracticeMaterial = async (materialId) => {
+  try {
+    console.log('Deleting practice material:', materialId)
+    
+    const { error } = await supabase
+      .from('practice_materials')
+      .update({ is_active: false })
+      .eq('id', materialId)
+
+    if (error) {
+      console.error('Error deleting practice material:', error)
+      throw error
+    }
+    
+    console.log('Practice material deleted successfully')
+    
+  } catch (err) {
+    console.error('Error in deletePracticeMaterial:', err)
+    throw err
+  }
+}
+
+// Upload audio file to Supabase Storage
+export const uploadPracticeAudio = async (file, materialId) => {
+  try {
+    console.log('Uploading audio file:', file.name)
+    
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${materialId}_${Date.now()}.${fileExt}`
+    const filePath = `${fileName}`
+
+    const { error: uploadError } = await supabase.storage
+      .from('practice-audio')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: false
+      })
+
+    if (uploadError) {
+      console.error('Error uploading audio:', uploadError)
+      throw uploadError
+    }
+
+    // Get public URL
+    const { data } = supabase.storage
+      .from('practice-audio')
+      .getPublicUrl(filePath)
+
+    console.log('Audio uploaded successfully:', data.publicUrl)
+    return {
+      url: data.publicUrl,
+      filename: file.name
+    }
+    
+  } catch (err) {
+    console.error('Error in uploadPracticeAudio:', err)
+    throw err
+  }
+}
+
+// Delete audio file from Supabase Storage
+export const deletePracticeAudio = async (audioUrl) => {
+  try {
+    // Extract file path from URL
+    const urlParts = audioUrl.split('/practice-audio/')
+    if (urlParts.length < 2) {
+      console.error('Invalid audio URL format')
+      return
+    }
+    
+    const filePath = urlParts[1]
+    console.log('Deleting audio file:', filePath)
+    
+    const { error } = await supabase.storage
+      .from('practice-audio')
+      .remove([filePath])
+
+    if (error) {
+      console.error('Error deleting audio:', error)
+      throw error
+    }
+    
+    console.log('Audio file deleted successfully')
+    
+  } catch (err) {
+    console.error('Error in deletePracticeAudio:', err)
+    throw err
+  }
+}
