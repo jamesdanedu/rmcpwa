@@ -1,8 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Modal from '../ui/Modal'
-import Button from '../ui/Button'
+import Modal from '../../components/ui/Modal'
+import Button from '../../components/ui/Button'
 
 export default function PracticeMaterialCard({ material, isEditor, onEdit, onClick }) {
   const [showDetail, setShowDetail] = useState(false)
