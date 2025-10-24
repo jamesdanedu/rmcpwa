@@ -5,14 +5,14 @@ import SuggestScreen from './SuggestScreen'
 import VoteScreen from './VoteScreen'
 import RankingScreen from './RankingScreen'
 
-const IDEAS_TABS = [
-  { id: 'suggest', label: 'Suggest' },
-  { id: 'vote', label: 'Vote' },
-  { id: 'rankings', label: 'Rankings' }
-]
-
 export default function IdeasScreen() {
   const [activeTab, setActiveTab] = useState('suggest')
+
+  const tabs = [
+    { id: 'suggest', label: 'Suggest' },
+    { id: 'vote', label: 'Vote' },
+    { id: 'rankings', label: 'Rankings' }
+  ]
 
   const renderTabContent = () => {
     switch (activeTab) {
@@ -28,45 +28,48 @@ export default function IdeasScreen() {
   }
 
   return (
-    <div className="h-full flex flex-col">
-      {/* Top Tabs Navigation */}
-      <div className="flex-shrink-0 border-b border-white/10 bg-[#0f172a]/95 backdrop-blur-xl">
-        <div className="flex items-center">
-          {IDEAS_TABS.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                flex-1 px-4 py-4 text-sm font-semibold uppercase tracking-wide
-                transition-all relative
-                ${activeTab === tab.id
-                  ? 'text-yellow-400'
-                  : 'text-gray-400 hover:text-gray-300'
-                }
-              `}
-            >
-              {tab.label}
-              
-              {/* Active indicator */}
-              {activeTab === tab.id && (
-                <div 
-                  className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-yellow-400 to-blue-500"
-                  style={{ 
-                    borderRadius: '4px 4px 0 0' 
-                  }}
-                />
-              )}
-            </button>
-          ))}
-        </div>
+    <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* Navigation - matches ChoirSongsScreen style */}
+      <div style={{ display: 'flex', gap: '12px' }}>
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            style={{
+              flex: 1,
+              padding: '16px 24px',
+              borderRadius: '12px',
+              fontWeight: '600',
+              fontSize: '14px',
+              transition: 'all 0.2s',
+              cursor: 'pointer',
+              border: '2px solid rgba(255, 255, 255, 0.2)',
+              background: activeTab === tab.id 
+                ? 'linear-gradient(135deg, #FFD700 0%, #4169E1 100%)'
+                : 'rgba(255, 255, 255, 0.05)',
+              color: activeTab === tab.id ? 'white' : '#D1D5DB',
+              backdropFilter: 'blur(20px)'
+            }}
+            onMouseEnter={(e) => {
+              if (activeTab !== tab.id) {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.1)'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.3)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (activeTab !== tab.id) {
+                e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)'
+                e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'
+              }
+            }}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      {/* Tab Content */}
-      <div className="flex-1 overflow-hidden">
-        <div className="h-full overflow-y-auto">
-          {renderTabContent()}
-        </div>
-      </div>
+      {/* Active Tab Content */}
+      {renderTabContent()}
     </div>
   )
 }
