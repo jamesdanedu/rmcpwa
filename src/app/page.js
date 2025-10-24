@@ -8,9 +8,8 @@ import AppHeader from '../components/layout/AppHeader'
 import TabNavigation from '../components/layout/TabNavigation'
 import PWAInstallPrompt from '../components/layout/PWAInstallPrompt'
 
-import SuggestScreen from '../components/screens/SuggestScreen'
-import VoteScreen from '../components/screens/VoteScreen'
-import RankingScreen from '../components/screens/RankingScreen'
+import IdeasScreen from '../components/screens/IdeasScreen'
+import PracticeScreen from '../components/screens/PracticeScreen'
 import ChoirSongsScreen from '../components/screens/ChoirSongsScreen'
 
 import LoginForm from '../features/auth/LoginForm'
@@ -42,6 +41,14 @@ export default function Home() {
     }
   }, [])
 
+  // Set default tab to 'ideas' if user lands on old tab IDs
+  useEffect(() => {
+    const validTabs = ['ideas', 'practice', 'choir-songs']
+    if (!validTabs.includes(currentTab)) {
+      setCurrentTab('ideas')
+    }
+  }, [currentTab, setCurrentTab])
+
   // Debug current tab
   useEffect(() => {
     console.log('Current tab changed to:', currentTab)
@@ -69,16 +76,14 @@ export default function Home() {
 
   const renderScreen = () => {
     switch (currentTab) {
-      case 'suggest': 
-        return <SuggestScreen key="suggest" />
-      case 'vote': 
-        return <VoteScreen key="vote" />
-      case 'ranking': 
-        return <RankingScreen key="ranking" />
+      case 'ideas': 
+        return <IdeasScreen key="ideas" />
+      case 'practice': 
+        return <PracticeScreen key="practice" />
       case 'choir-songs': 
         return <ChoirSongsScreen key="choir-songs" />
       default: 
-        return <SuggestScreen key="default" />
+        return <IdeasScreen key="default" />
     }
   }
 
