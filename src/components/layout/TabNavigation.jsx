@@ -2,11 +2,10 @@
 
 import { useAppStore } from '../../stores/appStore'
 
-// Define tabs directly to avoid import issues
+// NEW: 3 bottom tabs instead of 4
 const TABS = [
-  { id: 'suggest', label: 'Suggest', icon: '💡' },
-  { id: 'vote', label: 'Vote', icon: '🗳️' },
-  { id: 'ranking', label: 'Ranking', icon: '🏆' },
+  { id: 'ideas', label: 'Ideas', icon: '💡' },
+  { id: 'practice', label: 'Practice', icon: '🏋️' },
   { id: 'choir-songs', label: 'Choir Songs', icon: '🎼' }
 ]
 
@@ -47,7 +46,7 @@ export default function TabNavigation() {
               key={tab.id}
               onClick={() => handleTabClick(tab.id)}
               style={{ 
-                flex: '1 1 25%',
+                flex: '1 1 33.333%', // Changed from 25% to 33.333% for 3 tabs
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
