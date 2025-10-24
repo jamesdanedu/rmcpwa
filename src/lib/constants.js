@@ -22,6 +22,10 @@ export const GENRES = [
   'Irish Folk', 
   'Gospel',
   'Hymn',
+  'Pop',
+  'Rock',
+  'Folk',
+  'Indie',
   'Contemporary',
   'Jazz Standard',
   'Classical',
@@ -35,8 +39,7 @@ export const VOTE_TYPES = {
 }
 
 export const TABS = [
-  { id: 'suggest', label: 'Suggest', icon: '💡' },
-  { id: 'vote', label: 'Vote', icon: '🗳️' },
-  { id: 'ranking', label: 'Ranking', icon: '🏆' },
+  { id: 'ideas', label: 'Ideas', icon: '💡' },
+  { id: 'practice', label: 'Practice', icon: '🏋️' },
   { id: 'choir-songs', label: 'Choir Songs', icon: '🎼' }
 ]
