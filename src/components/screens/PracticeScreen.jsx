@@ -87,7 +87,7 @@ export default function PracticeScreen() {
       {/* Header */}
       <div className="text-center">
         <h2 className="text-2xl font-bold text-white mb-2">
-          🏋️ Practice Materials
+          🏋️ Practice Materials (work in progress!!)
         </h2>
         <p className="text-gray-400 text-sm">
           {materials.length === 0 
