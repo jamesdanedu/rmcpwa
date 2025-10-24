@@ -43,7 +43,7 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
           <div style={{ flex: 1, minWidth: 0 }}>
             {/* Title */}
             <h4 style={{ 
-              color: 'white', 
+              color: 'black', 
               fontWeight: '600', 
               fontSize: '18px',
               margin: '0 0 8px 0',
