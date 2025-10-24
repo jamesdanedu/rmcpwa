@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { 
   createPracticeMaterial, 
   updatePracticeMaterial, 
@@ -9,6 +9,7 @@ import {
   deletePracticeAudio 
 } from '../../lib/api'
 import Button from '../../components/ui/Button'
+import Input from '../../components/ui/Input'
 import LoadingSpinner from '../../components/ui/LoadingSpinner'
 
 export default function PracticeMaterialEditor({ material, onClose, userId }) {
@@ -150,6 +151,9 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
         <h2 className="text-2xl font-bold text-white mb-2">
           {isEditMode ? '✏️ Edit Practice Material' : '➕ Add Practice Material'}
         </h2>
+        <p className="text-gray-400 text-sm">
+          {isEditMode ? 'Update the practice material details' : 'Create a new practice material for the choir'}
+        </p>
       </div>
 
       {/* Error Display */}
@@ -162,55 +166,45 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
         </div>
       )}
 
-      {/* Form */}
-      <div className="space-y-4">
+      {/* Form Container */}
+      <div className="glass rounded-2xl p-6 border border-white/10 space-y-6">
         {/* Title */}
-        <div>
-          <label className="block text-white font-semibold mb-2">
-            Title <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="text"
-            value={formData.title}
-            onChange={(e) => handleInputChange('title', e.target.value)}
-            placeholder="e.g., Hallelujah Chorus - Part Practice"
-            className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50"
-            maxLength={255}
-          />
-        </div>
+        <Input
+          label="Title"
+          type="text"
+          value={formData.title}
+          onChange={(e) => handleInputChange('title', e.target.value)}
+          placeholder="e.g., Hallelujah Chorus - Tenor Practice"
+          required
+          maxLength={255}
+        />
 
         {/* Description */}
-        <div>
-          <label className="block text-white font-semibold mb-2">
-            Description (Optional)
-          </label>
-          <textarea
-            value={formData.description}
-            onChange={(e) => handleInputChange('description', e.target.value)}
-            placeholder="Brief description of this practice material..."
-            rows={2}
-            className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 resize-none"
-            maxLength={500}
-          />
-        </div>
+        <Input
+          label="Description (Optional)"
+          as="textarea"
+          value={formData.description}
+          onChange={(e) => handleInputChange('description', e.target.value)}
+          placeholder="Brief description of this practice material..."
+          rows={2}
+          maxLength={500}
+          className="resize-none"
+        />
 
         {/* Text Content */}
-        <div>
-          <label className="block text-white font-semibold mb-2">
-            Lyrics / Notes (Optional)
-          </label>
-          <textarea
-            value={formData.textContent}
-            onChange={(e) => handleInputChange('textContent', e.target.value)}
-            placeholder="Enter lyrics, practice notes, or instructions..."
-            rows={8}
-            className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50 resize-none font-mono text-sm"
-          />
-        </div>
+        <Input
+          label="Lyrics / Notes (Optional)"
+          as="textarea"
+          value={formData.textContent}
+          onChange={(e) => handleInputChange('textContent', e.target.value)}
+          placeholder="Enter lyrics, practice notes, or instructions..."
+          rows={8}
+          className="resize-none font-mono text-sm"
+        />
 
-        {/* Audio Upload */}
+        {/* Audio Upload Section */}
         <div>
-          <label className="block text-white font-semibold mb-2">
+          <label className="block text-sm font-semibold text-gray-200 mb-2">
             Audio File (Optional)
           </label>
           
@@ -219,7 +213,7 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
             <div className="glass rounded-xl p-4 border border-green-400/20 bg-green-400/5 mb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-green-400 text-xl">🎵</span>
+                  <span className="text-2xl">🎵</span>
                   <div>
                     <p className="text-white font-medium text-sm">
                       {existingAudioFilename || 'Audio file attached'}
@@ -228,8 +222,9 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={handleRemoveAudio}
-                  className="px-3 py-1 text-red-400 text-sm hover:bg-red-400/10 rounded-lg transition-all"
+                  className="px-3 py-2 text-red-400 text-sm hover:bg-red-400/10 rounded-lg transition-all font-semibold"
                 >
                   Remove
                 </button>
@@ -242,7 +237,7 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
             <div className="glass rounded-xl p-4 border border-blue-400/20 bg-blue-400/5 mb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-blue-400 text-xl">🎵</span>
+                  <span className="text-2xl">🎵</span>
                   <div>
                     <p className="text-white font-medium text-sm">
                       {audioFile.name}
@@ -253,8 +248,9 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
                   </div>
                 </div>
                 <button
+                  type="button"
                   onClick={() => setAudioFile(null)}
-                  className="px-3 py-1 text-red-400 text-sm hover:bg-red-400/10 rounded-lg transition-all"
+                  className="px-3 py-2 text-red-400 text-sm hover:bg-red-400/10 rounded-lg transition-all font-semibold"
                 >
                   Remove
                 </button>
@@ -263,43 +259,45 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
           )}
 
           {/* Upload Button */}
-          {!audioFile && !existingAudioUrl || removeAudio && (
-            <label className="block">
+          {(!audioFile && (!existingAudioUrl || removeAudio)) && (
+            <label className="block cursor-pointer">
               <input
                 type="file"
                 accept="audio/mpeg,audio/mp3,audio/mp4,audio/m4a,audio/ogg,audio/wav"
                 onChange={handleAudioFileChange}
                 className="hidden"
               />
-              <div className="glass rounded-xl p-4 border border-white/10 cursor-pointer hover:border-yellow-400/30 transition-all text-center">
-                <span className="text-2xl block mb-2">📁</span>
-                <span className="text-white font-medium">Choose Audio File</span>
-                <p className="text-gray-400 text-xs mt-1">
+              <div className="glass rounded-xl p-6 border-2 border-dashed border-white/20 hover:border-yellow-400/50 transition-all text-center">
+                <div className="text-4xl mb-3">📁</div>
+                <p className="text-white font-semibold mb-1">Choose Audio File</p>
+                <p className="text-gray-400 text-sm">
                   MP3, M4A, OGG, or WAV (Max 50MB)
                 </p>
               </div>
             </label>
           )}
         </div>
+      </div>
 
-        {/* Display Order */}
-        <div>
-          <label className="block text-white font-semibold mb-2">
-            Display Order
-          </label>
-          <input
+      {/* Advanced Options - Collapsible */}
+      <details className="glass rounded-xl border border-white/10">
+        <summary className="px-6 py-4 cursor-pointer text-gray-300 font-semibold hover:text-white transition-colors">
+          ⚙️ Advanced Options
+        </summary>
+        <div className="px-6 pb-6">
+          <Input
+            label="Display Order"
             type="number"
             value={formData.displayOrder}
             onChange={(e) => handleInputChange('displayOrder', e.target.value)}
             placeholder="0"
-            className="w-full px-4 py-3 rounded-xl glass border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-yellow-400/50"
             min="0"
           />
-          <p className="text-gray-400 text-xs mt-1">
-            Lower numbers appear first (0 = default)
+          <p className="text-gray-400 text-xs mt-2">
+            💡 Lower numbers appear first (0 = default order)
           </p>
         </div>
-      </div>
+      </details>
 
       {/* Action Buttons */}
       <div className="space-y-3 pt-4">
@@ -343,16 +341,19 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
         )}
       </div>
 
-      {/* Delete Confirmation */}
+      {/* Delete Confirmation Modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="glass rounded-xl p-6 border border-white/10 max-w-sm w-full">
-            <h3 className="text-xl font-bold text-white mb-3">
-              Delete Practice Material?
-            </h3>
-            <p className="text-gray-300 mb-6">
-              This will permanently delete "{material.title}" and cannot be undone.
-            </p>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+          <div className="glass rounded-2xl p-6 border border-white/10 max-w-sm w-full">
+            <div className="text-center mb-6">
+              <div className="text-5xl mb-4">⚠️</div>
+              <h3 className="text-xl font-bold text-white mb-2">
+                Delete Practice Material?
+              </h3>
+              <p className="text-gray-300">
+                This will permanently delete "<strong>{material.title}</strong>" and cannot be undone.
+              </p>
+            </div>
             <div className="flex gap-3">
               <Button
                 variant="danger"
