@@ -216,10 +216,13 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
                     height: '40px',
                     borderRadius: '8px'
                   }}
+                  preload="metadata"
                 >
-                  <source src={material.audio_url} type="audio/mpeg" />
                   <source src={material.audio_url} type="audio/mp4" />
+                  <source src={material.audio_url} type="audio/x-m4a" />
+                  <source src={material.audio_url} type="audio/mpeg" />
                   <source src={material.audio_url} type="audio/ogg" />
+                  <source src={material.audio_url} type="audio/wav" />
                   Your browser does not support the audio element.
                 </audio>
 
