@@ -62,7 +62,15 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
   })
 
   // Validate file type
-  const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/ogg', 'audio/wav']
+  const validTypes = [
+  'audio/mpeg', 
+  'audio/mp3', 
+  'audio/mp4', 
+  'audio/m4a',
+  'audio/x-m4a',  // ← ADD THIS!
+  'audio/ogg', 
+  'audio/wav'
+]
   console.log('Validating file type...')
   console.log('File type:', file.type)
   console.log('Valid types:', validTypes)
