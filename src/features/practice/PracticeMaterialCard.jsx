@@ -12,6 +12,10 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
   const hasAudio = Boolean(material.audio_url)
 
   const handleCardClick = () => {
+    console.log('Card clicked, opening modal')
+    console.log('Material:', material)
+    console.log('Has audio:', hasAudio)
+    console.log('Audio URL:', material.audio_url)
     setShowDetail(true)
     if (onClick) onClick(material)
   }
@@ -208,21 +212,47 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
               </h4>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {/* Native HTML5 Audio Player */}
+                {/* Debug info - remove after testing */}
+                <div style={{
+                  fontSize: '10px',
+                  color: '#666',
+                  padding: '8px',
+                  background: 'rgba(0,0,0,0.2)',
+                  borderRadius: '4px',
+                  wordBreak: 'break-all'
+                }}>
+                  <strong>Audio URL:</strong><br/>
+                  {material.audio_url}
+                </div>
+
+                {/* Native HTML5 Audio Player - M4A Optimized */}
                 <audio 
                   controls 
+                  preload="metadata"
+                  controlsList="nodownload"
                   style={{
                     width: '100%',
                     height: '40px',
                     borderRadius: '8px'
                   }}
-                  preload="metadata"
+                  src={material.audio_url}
+                  onError={(e) => {
+                    console.error('Audio playback error:', e)
+                    console.error('Audio element:', e.target)
+                    console.error('Error code:', e.target.error?.code)
+                    console.error('Error message:', e.target.error?.message)
+                  }}
+                  onLoadedMetadata={() => {
+                    console.log('✅ Audio metadata loaded successfully')
+                  }}
+                  onCanPlay={() => {
+                    console.log('✅ Audio can play')
+                  }}
                 >
+                  {/* Fallback with multiple source types for M4A */}
                   <source src={material.audio_url} type="audio/mp4" />
                   <source src={material.audio_url} type="audio/x-m4a" />
                   <source src={material.audio_url} type="audio/mpeg" />
-                  <source src={material.audio_url} type="audio/ogg" />
-                  <source src={material.audio_url} type="audio/wav" />
                   Your browser does not support the audio element.
                 </audio>
 
@@ -234,9 +264,28 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
                     textAlign: 'center',
                     margin: 0
                   }}>
-                    {material.audio_filename}
+                    📎 {material.audio_filename}
                   </p>
                 )}
+
+                {/* Test button - remove after testing */}
+                <button
+                  onClick={() => {
+                    console.log('Testing audio URL in new tab')
+                    window.open(material.audio_url, '_blank')
+                  }}
+                  style={{
+                    padding: '8px',
+                    background: 'rgba(59, 130, 246, 0.2)',
+                    border: '1px solid rgba(59, 130, 246, 0.3)',
+                    borderRadius: '8px',
+                    color: '#60a5fa',
+                    fontSize: '12px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🔗 Test Audio URL in New Tab
+                </button>
               </div>
             </div>
           )}
