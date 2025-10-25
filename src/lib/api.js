@@ -728,14 +728,6 @@ export const deletePracticeMaterial = async (materialId) => {
 }
 
 
-// ============================================================================
-// FIXED PRACTICE MATERIALS - AUDIO UPLOAD FUNCTIONS
-// Copy these functions into your src/lib/api.js file
-// Replace the existing uploadPracticeAudio and deletePracticeAudio functions
-// ============================================================================
-
-// Since you have BOTH buckets (practice-audio and PRACTICE-AUDIO), 
-// we'll use PRACTICE-AUDIO as that's what's in your code
 const PRACTICE_AUDIO_BUCKET = 'PRACTICE-AUDIO'
 
 // Upload audio file to Supabase Storage
@@ -1032,5 +1024,7 @@ export const testSupabaseAudioConnection = async () => {
 if (typeof window !== 'undefined') {
   window.testSupabaseAudioConnection = testSupabaseAudioConnection
 }
+
+
 
 
