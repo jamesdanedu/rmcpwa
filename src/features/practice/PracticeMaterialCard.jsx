@@ -24,10 +24,6 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
   }, [showDetail])
 
   const handleCardClick = () => {
-    console.log('Card clicked, opening modal')
-    console.log('Material:', material)
-    console.log('Has audio:', hasAudio)
-    console.log('Audio URL:', material.audio_url)
     setShowDetail(true)
     if (onClick) onClick(material)
   }
@@ -38,11 +34,10 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
   }
 
   const handleCloseModal = () => {
-    console.log('Closing modal')
     setShowDetail(false)
   }
 
-  // Custom Modal Component (not using the Modal UI component)
+  // Custom Modal Component
   const customModal = showDetail ? createPortal(
     <div
       style={{
@@ -125,8 +120,11 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              lineHeight: 1
+              lineHeight: 1,
+              transition: 'background 0.2s'
             }}
+            onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.3)'}
+            onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'}
           >
             ×
           </button>
@@ -151,11 +149,11 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
             </div>
           )}
 
-          {/* Audio Player - PROMINENTLY DISPLAYED */}
+          {/* Audio Player */}
           {hasAudio && (
             <div style={{
               background: 'linear-gradient(135deg, rgba(74, 222, 128, 0.15) 0%, rgba(34, 197, 94, 0.1) 100%)',
-              border: '3px solid #4ade80',
+              border: '2px solid #4ade80',
               borderRadius: '16px',
               padding: '24px',
               marginBottom: '24px',
@@ -177,17 +175,8 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
                   Audio Track
                 </h4>
               </div>
-              
-              <p style={{
-                color: '#9ca3af',
-                fontSize: '14px',
-                marginBottom: '16px',
-                margin: 0
-              }}>
-                👇 Click the <strong>PLAY button ▶️</strong> below to listen:
-              </p>
 
-              {/* Audio Player - Pure HTML */}
+              {/* Audio Player */}
               <audio 
                 controls 
                 preload="auto"
@@ -202,22 +191,6 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
                   outline: 'none'
                 }}
                 src={material.audio_url}
-                onError={(e) => {
-                  console.error('❌ Audio playback error:', e)
-                  console.error('Error code:', e.target.error?.code)
-                  console.error('Error message:', e.target.error?.message)
-                  alert('Audio failed to load. Check console for details.')
-                }}
-                onLoadedMetadata={() => {
-                  console.log('✅ Audio metadata loaded')
-                }}
-                onCanPlay={() => {
-                  console.log('✅ Audio can play')
-                }}
-                onPlay={() => {
-                  console.log('🎵 Audio started playing!')
-                  alert('Audio is playing!')
-                }}
               >
                 <source src={material.audio_url} type="audio/mp4" />
                 <source src={material.audio_url} type="audio/x-m4a" />
@@ -237,25 +210,6 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
                   📎 {material.audio_filename}
                 </p>
               )}
-
-              {/* Test Link */}
-              <button
-                onClick={() => window.open(material.audio_url, '_blank')}
-                style={{
-                  marginTop: '12px',
-                  width: '100%',
-                  padding: '10px',
-                  background: 'rgba(59, 130, 246, 0.2)',
-                  border: '2px solid rgba(59, 130, 246, 0.4)',
-                  borderRadius: '8px',
-                  color: '#60a5fa',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                🔗 Test Audio URL in New Tab
-              </button>
             </div>
           )}
 
@@ -433,7 +387,7 @@ export default function PracticeMaterialCard({ material, isEditor, onEdit, onCli
         </div>
       </div>
 
-      {/* Custom Modal - bypasses the Modal component */}
+      {/* Custom Modal */}
       {customModal}
     </>
   )
