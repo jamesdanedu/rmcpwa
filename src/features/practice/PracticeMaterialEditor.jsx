@@ -37,28 +37,65 @@ export default function PracticeMaterialEditor({ material, onClose, userId }) {
     setError(null)
   }
 
+
   const handleAudioFileChange = (e) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-
-    // Validate file type
-    const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/ogg', 'audio/wav']
-    if (!validTypes.includes(file.type)) {
-      setError('Please upload a valid audio file (MP3, M4A, OGG, or WAV)')
-      return
-    }
-
-    // Validate file size (max 50MB)
-    const maxSize = 50 * 1024 * 1024
-    if (file.size > maxSize) {
-      setError('Audio file must be less than 50MB')
-      return
-    }
-
-    setAudioFile(file)
-    setRemoveAudio(false)
-    setError(null)
+  console.log('=== HANDLE AUDIO FILE CHANGE ===')
+  console.log('Event:', e)
+  console.log('Event target:', e.target)
+  console.log('Files:', e.target.files)
+  console.log('Files length:', e.target.files?.length)
+  
+  const file = e.target.files?.[0]  // ← THIS WAS CUT OFF IN YOUR CODE!
+  
+  console.log('Selected file:', file)
+  
+  if (!file) {
+    console.log('❌ No file selected')
+    return
   }
+
+  console.log('File details:', {
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    lastModified: file.lastModified
+  })
+
+  // Validate file type
+  const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/ogg', 'audio/wav']
+  console.log('Validating file type...')
+  console.log('File type:', file.type)
+  console.log('Valid types:', validTypes)
+  console.log('Is valid?', validTypes.includes(file.type))
+  
+  if (!validTypes.includes(file.type)) {
+    console.log('❌ Invalid file type!')
+    setError('Please upload a valid audio file (MP3, M4A, OGG, or WAV)')
+    return
+  }
+
+  // Validate file size (max 50MB)
+  const maxSize = 50 * 1024 * 1024
+  console.log('Validating file size...')
+  console.log('File size:', file.size, 'bytes')
+  console.log('Max size:', maxSize, 'bytes')
+  console.log('Is valid?', file.size <= maxSize)
+  
+  if (file.size > maxSize) {
+    console.log('❌ File too large!')
+    setError('Audio file must be less than 50MB')
+    return
+  }
+
+  console.log('✅ File validation passed!')
+  console.log('Setting audioFile state...')
+  setAudioFile(file)
+  setRemoveAudio(false)
+  setError(null)
+  console.log('Audio file state updated')
+  console.log('=== HANDLE AUDIO FILE CHANGE COMPLETE ===')
+}
+
 
   const handleRemoveAudio = () => {
     setRemoveAudio(true)
