@@ -137,7 +137,7 @@ export const submitVote = async (voteId, voteType) => {
       .from('votes')
       .update({
         vote_type: voteType,
-        vote_status: 'completed',
+        vote_status: 'voted',
         voted_at: new Date().toISOString()
       })
       .eq('id', voteId)
@@ -178,7 +178,7 @@ export const getVotingStats = async (userId) => {
     .from('votes')
     .select('id', { count: 'exact' })
     .eq('user_id', userId)
-    .eq('vote_status', 'completed')
+    .eq('vote_status', 'voted')
     .gte('voted_at', today)
 
   return {
