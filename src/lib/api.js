@@ -1032,3 +1032,110 @@ export const testSupabaseAudioConnection = async () => {
 if (typeof window !== 'undefined') {
   window.testSupabaseAudioConnection = testSupabaseAudioConnection
 }
+
+
+
+const handleSave = async () => {
+  console.log('=== HANDLE SAVE CALLED ===')
+  console.log('Form data:', formData)
+  console.log('Audio file:', audioFile)
+  console.log('Audio file exists?', !!audioFile)
+  console.log('Audio file details:', audioFile ? {
+    name: audioFile.name,
+    size: audioFile.size,
+    type: audioFile.type
+  } : 'No file')
+  console.log('Existing audio URL:', existingAudioUrl)
+  console.log('Remove audio?', removeAudio)
+  console.log('Is edit mode?', isEditMode)
+  
+  // Validation
+  if (!formData.title.trim()) {
+    setError('Please enter a title')
+    return
+  }
+
+  try {
+    setIsSaving(true)
+    setError(null)
+
+    let audioUrl = existingAudioUrl
+    let audioFilename = existingAudioFilename
+
+    console.log('Initial audioUrl:', audioUrl)
+    console.log('Initial audioFilename:', audioFilename)
+
+    // Handle audio deletion
+    if (removeAudio && existingAudioUrl) {
+      console.log('Deleting existing audio...')
+      await deletePracticeAudio(existingAudioUrl)
+      audioUrl = null
+      audioFilename = null
+      console.log('Audio deleted')
+    }
+
+    // Handle audio upload
+    console.log('Checking if we should upload audio...')
+    console.log('audioFile truthy?', !!audioFile)
+    
+    if (audioFile) {
+      console.log('✅ YES! Audio file exists, will upload')
+      console.log('Audio file name:', audioFile.name)
+      console.log('Audio file size:', audioFile.size)
+      console.log('Audio file type:', audioFile.type)
+      
+      // If replacing existing audio, delete it first
+      if (existingAudioUrl && !removeAudio) {
+        console.log('Replacing existing audio, deleting old one first...')
+        await deletePracticeAudio(existingAudioUrl)
+      }
+
+      // Generate temporary ID for new materials
+      const tempId = material?.id || `temp_${Date.now()}`
+      console.log('Uploading with material ID:', tempId)
+      console.log('Calling uploadPracticeAudio...')
+      
+      const uploadResult = await uploadPracticeAudio(audioFile, tempId)
+      
+      console.log('Upload result:', uploadResult)
+      audioUrl = uploadResult.url
+      audioFilename = uploadResult.filename
+      console.log('Audio URL set to:', audioUrl)
+      console.log('Audio filename set to:', audioFilename)
+    } else {
+      console.log('❌ NO audio file to upload')
+      console.log('audioFile is:', audioFile)
+    }
+
+    console.log('Preparing material data...')
+    const materialData = {
+      title: formData.title.trim(),
+      description: formData.description.trim() || null,
+      textContent: formData.textContent.trim() || null,
+      audioUrl,
+      audioFilename,
+      displayOrder: parseInt(formData.displayOrder) || 0
+    }
+    
+    console.log('Material data:', materialData)
+
+    if (isEditMode) {
+      console.log('Updating existing material:', material.id)
+      await updatePracticeMaterial(material.id, materialData)
+    } else {
+      console.log('Creating new material for user:', userId)
+      await createPracticeMaterial(materialData, userId)
+    }
+
+    console.log('Save completed successfully!')
+    onClose()
+  } catch (err) {
+    console.error('=== ERROR IN HANDLE SAVE ===')
+    console.error('Error:', err)
+    console.error('Error message:', err.message)
+    console.error('Error stack:', err.stack)
+    setError(err.message || 'Failed to save practice material')
+  } finally {
+    setIsSaving(false)
+  }
+}
