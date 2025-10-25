@@ -133,20 +133,6 @@ export default function PracticeScreen() {
           ))}
         </div>
       )}
-
-      {/* Info Box */}
-      {materials.length > 0 && (
-        <div className="glass rounded-xl p-4 border border-white/5">
-          <h4 className="text-yellow-400 font-semibold mb-2">
-            💡 How to Use Practice Materials
-          </h4>
-          <div className="text-sm text-gray-400 space-y-1">
-            <p>• Tap any card to view text and play audio</p>
-            <p>• Audio files play directly in your browser</p>
-            <p>• Practice materials are updated regularly</p>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
