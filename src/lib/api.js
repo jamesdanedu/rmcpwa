@@ -748,7 +748,7 @@ export const uploadPracticeAudio = async (file, materialId) => {
     }
     
     // Validate file type (add validation at API level too)
-    const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/ogg', 'audio/wav']
+    const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/x-m4a', 'audio/ogg', 'audio/wav']
     if (!validTypes.includes(file.type)) {
       const error = new Error(`Invalid file type: ${file.type}. Accepted: ${validTypes.join(', ')}`)
       console.error('ERROR:', error.message)
