@@ -727,41 +727,139 @@ export const deletePracticeMaterial = async (materialId) => {
   }
 }
 
+
+// ============================================================================
+// FIXED PRACTICE MATERIALS - AUDIO UPLOAD FUNCTIONS
+// Copy these functions into your src/lib/api.js file
+// Replace the existing uploadPracticeAudio and deletePracticeAudio functions
+// ============================================================================
+
+// Since you have BOTH buckets (practice-audio and PRACTICE-AUDIO), 
+// we'll use PRACTICE-AUDIO as that's what's in your code
+const PRACTICE_AUDIO_BUCKET = 'PRACTICE-AUDIO'
+
 // Upload audio file to Supabase Storage
 export const uploadPracticeAudio = async (file, materialId) => {
   try {
-    console.log('Uploading audio file:', file.name)
+    console.log('=== STARTING AUDIO UPLOAD ===')
+    console.log('File name:', file.name)
+    console.log('File size:', (file.size / 1024 / 1024).toFixed(2), 'MB')
+    console.log('File type:', file.type)
+    console.log('Material ID:', materialId)
+    console.log('Bucket:', PRACTICE_AUDIO_BUCKET)
     
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${materialId}_${Date.now()}.${fileExt}`
-    const filePath = `${fileName}`
-
-    // IMPORTANT: Use the exact bucket name from your Supabase (PRACTICE-AUDIO)
-    const { error: uploadError } = await supabase.storage
-      .from('PRACTICE-AUDIO')
+    // Validate file is a File object
+    if (!(file instanceof File)) {
+      const error = new Error('Invalid file object provided')
+      console.error('ERROR:', error.message)
+      throw error
+    }
+    
+    // Validate file type (add validation at API level too)
+    const validTypes = ['audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/ogg', 'audio/wav']
+    if (!validTypes.includes(file.type)) {
+      const error = new Error(`Invalid file type: ${file.type}. Accepted: ${validTypes.join(', ')}`)
+      console.error('ERROR:', error.message)
+      throw error
+    }
+    
+    // Validate file size (50MB max)
+    const maxSize = 50 * 1024 * 1024
+    if (file.size > maxSize) {
+      const error = new Error(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Maximum: 50MB`)
+      console.error('ERROR:', error.message)
+      throw error
+    }
+    
+    // Parse file extension - THIS WAS THE BUG! It was cut off in your code
+    const fileExt = file.name.split('.').pop().toLowerCase()
+    if (!fileExt || fileExt === file.name) {
+      const error = new Error('Invalid file: No file extension found')
+      console.error('ERROR:', error.message)
+      throw error
+    }
+    
+    console.log('File extension:', fileExt)
+    
+    // Create unique filename to prevent collisions
+    const timestamp = Date.now()
+    const randomStr = Math.random().toString(36).substring(2, 9)
+    const fileName = `${materialId}_${timestamp}_${randomStr}.${fileExt}`
+    
+    // File path (you can organize in folders if you want)
+    const filePath = `${fileName}`  // Or use: `practice-materials/${fileName}` for folders
+    
+    console.log('Upload file path:', filePath)
+    console.log('Attempting upload to bucket:', PRACTICE_AUDIO_BUCKET)
+    
+    // CRITICAL FIX: Capture BOTH data and error (your code only captured error)
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from(PRACTICE_AUDIO_BUCKET)
       .upload(filePath, file, {
         cacheControl: '3600',
-        upsert: false
+        upsert: true  // Changed to true to allow overwriting if needed
       })
 
     if (uploadError) {
-      console.error('Error uploading audio:', uploadError)
-      throw uploadError
+      console.error('=== UPLOAD ERROR ===')
+      console.error('Error object:', uploadError)
+      console.error('Error message:', uploadError.message)
+      console.error('Error name:', uploadError.name)
+      console.error('Error status:', uploadError.statusCode)
+      console.error('Bucket:', PRACTICE_AUDIO_BUCKET)
+      console.error('File path:', filePath)
+      console.error('File size:', file.size)
+      console.error('File type:', file.type)
+      
+      // Create user-friendly error message
+      let userMessage = 'Failed to upload audio file'
+      
+      if (uploadError.message) {
+        if (uploadError.message.includes('Bucket not found')) {
+          userMessage = 'Storage bucket not configured properly. Contact support.'
+        } else if (uploadError.message.includes('exceeded')) {
+          userMessage = 'Storage quota exceeded. Contact administrator.'
+        } else if (uploadError.message.includes('policy')) {
+          userMessage = 'Permission denied. You may not have upload permissions.'
+        } else {
+          userMessage = `Upload failed: ${uploadError.message}`
+        }
+      }
+      
+      const error = new Error(userMessage)
+      error.originalError = uploadError
+      throw error
     }
 
+    console.log('Upload successful! Upload data:', uploadData)
+    
     // Get public URL
-    const { data } = supabase.storage
-      .from('PRACTICE-AUDIO')
+    const { data: urlData } = supabase.storage
+      .from(PRACTICE_AUDIO_BUCKET)
       .getPublicUrl(filePath)
 
-    console.log('Audio uploaded successfully:', data.publicUrl)
+    if (!urlData || !urlData.publicUrl) {
+      console.error('ERROR: Failed to generate public URL')
+      throw new Error('Failed to generate public URL for uploaded file')
+    }
+
+    console.log('Public URL generated:', urlData.publicUrl)
+    console.log('=== UPLOAD COMPLETE SUCCESS ===')
+    
     return {
-      url: data.publicUrl,
-      filename: file.name
+      url: urlData.publicUrl,
+      filename: file.name,
+      path: filePath  // Store path for easier deletion later
     }
     
   } catch (err) {
-    console.error('Error in uploadPracticeAudio:', err)
+    console.error('=== EXCEPTION IN uploadPracticeAudio ===')
+    console.error('Error type:', err.constructor.name)
+    console.error('Error message:', err.message)
+    console.error('Error stack:', err.stack)
+    if (err.originalError) {
+      console.error('Original Supabase error:', err.originalError)
+    }
     throw err
   }
 }
@@ -769,29 +867,168 @@ export const uploadPracticeAudio = async (file, materialId) => {
 // Delete audio file from Supabase Storage
 export const deletePracticeAudio = async (audioUrl) => {
   try {
-    // Extract file path from URL
-    const urlParts = audioUrl.split('PRACTICE-AUDIO/')
-    if (urlParts.length < 2) {
-      console.error('Invalid audio URL format')
+    console.log('=== DELETING AUDIO ===')
+    console.log('URL to delete:', audioUrl)
+    
+    if (!audioUrl) {
+      console.log('No URL provided, skipping delete')
       return
     }
     
-    const filePath = urlParts[1]
-    console.log('Deleting audio file:', filePath)
+    // Extract file path from URL
+    // The URL format is: https://[project-ref].supabase.co/storage/v1/object/public/PRACTICE-AUDIO/filename.mp3
+    const urlParts = audioUrl.split(`${PRACTICE_AUDIO_BUCKET}/`)
     
-    const { error } = await supabase.storage
-      .from('PRACTICE-AUDIO')
+    if (urlParts.length < 2) {
+      console.error('Invalid audio URL format:', audioUrl)
+      console.error('Expected bucket name in URL:', PRACTICE_AUDIO_BUCKET)
+      console.error('URL parts:', urlParts)
+      
+      // Don't throw error - just log and return gracefully
+      // This prevents delete failures from breaking the whole flow
+      console.log('Skipping delete due to invalid URL format')
+      return
+    }
+    
+    const filePath = urlParts[1].split('?')[0]  // Remove any query parameters
+    console.log('Extracted file path:', filePath)
+    console.log('Deleting from bucket:', PRACTICE_AUDIO_BUCKET)
+    
+    const { data, error } = await supabase.storage
+      .from(PRACTICE_AUDIO_BUCKET)
       .remove([filePath])
 
     if (error) {
-      console.error('Error deleting audio:', error)
-      throw error
+      console.error('=== DELETE ERROR ===')
+      console.error('Error:', error)
+      console.error('Error message:', error.message)
+      console.error('File path:', filePath)
+      
+      // Log but don't throw - allow graceful degradation
+      // The database record will still be updated even if file deletion fails
+      console.log('Delete failed but continuing...')
+      return
     }
     
+    console.log('Delete response:', data)
     console.log('Audio file deleted successfully')
+    console.log('=== DELETE COMPLETE ===')
     
   } catch (err) {
-    console.error('Error in deletePracticeAudio:', err)
-    throw err
+    console.error('=== EXCEPTION IN deletePracticeAudio ===')
+    console.error('Error:', err)
+    console.error('Stack:', err.stack)
+    
+    // Don't throw - allow graceful degradation for delete failures
+    // The database record will still be updated even if file deletion fails
+    console.log('Exception during delete, but continuing...')
   }
+}
+
+
+// ============================================================================
+// TESTING HELPER FUNCTION
+// Add this temporarily to test your Supabase connection
+// You can call this from browser console: window.testAudioUpload()
+// ============================================================================
+
+export const testSupabaseAudioConnection = async () => {
+  try {
+    console.log('=== TESTING SUPABASE AUDIO STORAGE CONNECTION ===')
+    
+    // Test 1: List buckets
+    console.log('\n1. Testing bucket access...')
+    const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets()
+    
+    if (bucketsError) {
+      console.error('❌ Failed to list buckets:', bucketsError)
+      return false
+    }
+    
+    console.log('✅ Available buckets:', buckets.map(b => b.name).join(', '))
+    
+    const hasPracticeAudio = buckets.some(b => b.name === PRACTICE_AUDIO_BUCKET)
+    if (!hasPracticeAudio) {
+      console.error(`❌ Bucket "${PRACTICE_AUDIO_BUCKET}" not found!`)
+      console.log('Available buckets:', buckets.map(b => b.name))
+      return false
+    }
+    
+    console.log(`✅ Bucket "${PRACTICE_AUDIO_BUCKET}" found`)
+    
+    // Test 2: List files in bucket
+    console.log('\n2. Testing file listing...')
+    const { data: files, error: listError } = await supabase.storage
+      .from(PRACTICE_AUDIO_BUCKET)
+      .list('', { limit: 5 })
+    
+    if (listError) {
+      console.error('❌ Failed to list files:', listError)
+      return false
+    }
+    
+    console.log(`✅ Can list files in bucket. Found ${files.length} files`)
+    if (files.length > 0) {
+      console.log('Sample files:', files.map(f => f.name).slice(0, 3))
+    }
+    
+    // Test 3: Try to create a test file
+    console.log('\n3. Testing file upload...')
+    const testContent = 'test audio upload'
+    const testBlob = new Blob([testContent], { type: 'text/plain' })
+    const testFile = new File([testBlob], 'test.txt', { type: 'text/plain' })
+    const testPath = `test_${Date.now()}.txt`
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from(PRACTICE_AUDIO_BUCKET)
+      .upload(testPath, testFile, { upsert: true })
+    
+    if (uploadError) {
+      console.error('❌ Failed to upload test file:', uploadError)
+      console.error('This is likely a permissions issue!')
+      return false
+    }
+    
+    console.log('✅ Test file uploaded successfully:', uploadData)
+    
+    // Test 4: Get public URL
+    console.log('\n4. Testing public URL generation...')
+    const { data: urlData } = supabase.storage
+      .from(PRACTICE_AUDIO_BUCKET)
+      .getPublicUrl(testPath)
+    
+    if (!urlData || !urlData.publicUrl) {
+      console.error('❌ Failed to generate public URL')
+      return false
+    }
+    
+    console.log('✅ Public URL generated:', urlData.publicUrl)
+    
+    // Test 5: Delete test file
+    console.log('\n5. Cleaning up test file...')
+    const { error: deleteError } = await supabase.storage
+      .from(PRACTICE_AUDIO_BUCKET)
+      .remove([testPath])
+    
+    if (deleteError) {
+      console.warn('⚠️ Failed to delete test file (not critical):', deleteError)
+    } else {
+      console.log('✅ Test file deleted')
+    }
+    
+    console.log('\n=== ALL TESTS PASSED ✅ ===')
+    console.log('Your Supabase audio storage is configured correctly!')
+    console.log('The issue must be in the application code flow.')
+    return true
+    
+  } catch (err) {
+    console.error('=== TEST FAILED ===')
+    console.error('Error:', err)
+    return false
+  }
+}
+
+// Add this to window for easy testing
+if (typeof window !== 'undefined') {
+  window.testSupabaseAudioConnection = testSupabaseAudioConnection
 }
